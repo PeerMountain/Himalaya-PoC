@@ -1,0 +1,1 @@
+from .version import Query as version_query

@@ -1,0 +1,7 @@
+{
+  "python.pythonPath": "${workspaceRoot}/.env/bin/python",
+  "python.autoComplete.extraPaths": [
+    "${workspaceRoot}/.env/local/lib/python2.7/site-packages",
+    "${workspaceRoot}"
+  ]
+}

@@ -1,0 +1,2 @@
+from .GenesisRegistration import GenesisiInvitationTestCase
+from .Version import VersionTestCase
