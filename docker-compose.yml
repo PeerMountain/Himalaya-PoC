@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  teleferic:
+    build: 'Teleferic'
+    volumes:
+      - static_backend:/code/static
+    ports:
+      - 80:8000
+
+volumes:
+  static_backend:
