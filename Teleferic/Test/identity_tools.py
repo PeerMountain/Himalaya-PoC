@@ -36,14 +36,14 @@ class Identity():
     return self.key.exportKey(passphrase=passphrase, pkcs=8)
 
   def sign(self, content):
-    hash = RIPEMD.new(content).digest()
+    hash_message = RIPEMD.new(content).digest()
     rng = Random.new().read
-    signature = self.key.sign(hash, rng)
+    signature = self.key.sign(hash_message, rng)
     return base58.b58encode_int(signature[0])
 
   def verify(self, content, signature):
-    hash = RIPEMD.new(content).digest()
-    result = self.key.verify(hash, (base58.b58encode_int(signature),))
+    hash_message = RIPEMD.new(content).digest()
+    result = self.key.verify(hash_message, (base58.b58encode_int(signature),))
     return result == 1
 
   def generate_invitation(self,passphrase):

@@ -4,7 +4,7 @@ import json
 
 from .common_types import MessageEnvelope 
 
-from API.Mock import execute_register, execute_authorize
+from API.Mock import execute_register, execute_verify
 
 class RegistrationMessage(graphene.InputObjectType):
   token = graphene.String(description="Invitation Token")
@@ -26,9 +26,9 @@ class Register(graphene.Mutation):
       sender_pubkey = envelope.get('pubkey')
       message_dump = json.dumps(args.get('message'), ensure_ascii=False)
 
-      result_authorize = execute_authorize(sender_pubkey,message_dump,sender_sign)
+      result_verify = execute_verify(sender_pubkey,message_dump,sender_sign)
 
-      if(result_authorize == False):
+      if(result_verify.get('success') == False):
         return Register(ok = False)
 
       result = execute_register(token,sender,sender_pubkey)

@@ -9,31 +9,37 @@ import json
 
 from Test.identity_tools import Identity
 
-class GenesisiInvitationTestCase(TestCase):
+class InviteTestCase(TestCase):
   passphrase = "PeerMountain"
-  identity = Identity()
+
   def setUp(self):
-    invitation_context = self.identity.generate_invitation(self.passphrase)
+    '''
+    Genesis Invite
+    '''
+    self.client = Client(schema)
+    self.main_identity = Identity()
+    identity = Identity()
+    invitation_context = identity.generate_invitation(self.passphrase)
     invitation = Invitation(
       content=invitation_context['content'],
       key=invitation_context['key']
     )
     invitation.save()
-    self.token =  base58.b58encode(bytes(invitation.__str__().encode('utf8'))+b'.'+bytes(base58.b58encode(bytes(self.passphrase.encode('utf8'))).encode('utf8')))
+    token =  base58.b58encode(bytes(invitation.__str__().encode('utf8'))+b'.'+bytes(base58.b58encode(bytes(self.passphrase.encode('utf8'))).encode('utf8')))
+    self.register(token)
 
-  def test_invalid_reuse_invitation(self):
-    client = Client(schema)
+  def register(self,token):
     message_content = {
-      'token': self.token
+      'token': token
     }
 
     message_envelope = {
-      'sender': self.identity.address,
-      'sender_pubkey': self.identity.pubkey,
-      'sign': self.identity.sign(json.dumps(message_content, ensure_ascii=False))
+      'sender': self.main_identity.address,
+      'sender_pubkey': self.main_identity.pubkey,
+      'sign': self.main_identity.sign(json.dumps(message_content))
     }
-
-    client.execute('''
+    
+    executed = self.client.execute('''
         mutation register(
           $token: String!
           $sender: String!
@@ -56,22 +62,35 @@ class GenesisiInvitationTestCase(TestCase):
       ''',
       variable_values={**message_content, **message_envelope}
     )
-    
-    executed = client.execute('''
-        mutation register(
-          $token: String!
+
+  def test_create_invite(self):
+    invite = self.main_identity.generate_invitation(self.passphrase)
+
+    message_content = {
+      'content': invite.get('content'),
+      'key': invite.get('key')
+    }
+
+    message_envelope = {
+      'sender': self.main_identity.address,
+      'sign': self.main_identity.sign(json.dumps(message_content))
+    }
+
+    executed = self.client.execute('''
+        mutation invite(
+          $content: String!
+          $key: String!
           $sender: String!
-          $sender_pubkey: String!
           $sign: String! 
         ){
-          register(
+          invite(
             envelope: {
               sender: $sender
-              pubkey: $sender_pubkey
               sign: $sign
             }
             message: {
-              token: $token
+              content: $content
+              key: $key
             }
           ) {
             ok
@@ -83,25 +102,155 @@ class GenesisiInvitationTestCase(TestCase):
 
     assert executed == {
         'data': {
-            'register': {
+            'invite': {
+              'ok': True
+            }
+        }
+    }
+
+  def test_create_invite_invalid_sender(self):
+    invite = self.main_identity.generate_invitation(self.passphrase)
+
+    message_content = {
+      'content': invite.get('content'),
+      'key': invite.get('key')
+    }
+
+    message_envelope = {
+      'sender': self.main_identity.address+'1',
+      'sign': self.main_identity.sign(json.dumps(message_content))
+    }
+
+    executed = self.client.execute('''
+        mutation invite(
+          $content: String!
+          $key: String!
+          $sender: String!
+          $sign: String! 
+        ){
+          invite(
+            envelope: {
+              sender: $sender
+              sign: $sign
+            }
+            message: {
+              content: $content
+              key: $key
+            }
+          ) {
+            ok
+          }
+        }
+      ''',
+      variable_values={**message_content, **message_envelope}
+    )
+
+    assert executed == {
+        'data': {
+            'invite': {
+              'ok': False
+            }
+        }
+    }
+
+  def test_create_invite_invalid_sign(self):
+    invite = self.main_identity.generate_invitation(self.passphrase)
+
+    message_content = {
+      'content': invite.get('content'),
+      'key': invite.get('key')
+    }
+
+    message_envelope = {
+      'sender': self.main_identity.address,
+      'sign': self.main_identity.sign(json.dumps(message_content))[3:]
+    }
+
+    executed = self.client.execute('''
+        mutation invite(
+          $content: String!
+          $key: String!
+          $sender: String!
+          $sign: String! 
+        ){
+          invite(
+            envelope: {
+              sender: $sender
+              sign: $sign
+            }
+            message: {
+              content: $content
+              key: $key
+            }
+          ) {
+            ok
+          }
+        }
+      ''',
+      variable_values={**message_content, **message_envelope}
+    )
+
+    assert executed == {
+        'data': {
+            'invite': {
               'ok': False
             }
         }
     }
 
   def test_valid_registration(self):
-    client = Client(schema)
+    invite = self.main_identity.generate_invitation(self.passphrase)
+
     message_content = {
-      'token': self.token
+      'content': invite.get('content'),
+      'key': invite.get('key')
     }
 
     message_envelope = {
-      'sender': self.identity.address,
-      'sender_pubkey': self.identity.pubkey,
-      'sign': self.identity.sign(json.dumps(message_content, ensure_ascii=False))
+      'sender': self.main_identity.address,
+      'sign': self.main_identity.sign(json.dumps(message_content))
     }
 
-    executed = client.execute('''
+    invite_executed = self.client.execute('''
+        mutation invite(
+          $content: String!
+          $key: String!
+          $sender: String!
+          $sign: String! 
+        ){
+          invite(
+            envelope: {
+              sender: $sender
+              sign: $sign
+            }
+            message: {
+              content: $content
+              key: $key
+            }
+          ) {
+            ok
+            id
+          }
+        }
+      ''',
+      variable_values={**message_content, **message_envelope}
+    )
+
+    token =  base58.b58encode(bytes(invite_executed.get('data').get('invite').get('id').encode('utf8'))+b'.'+bytes(base58.b58encode(bytes(self.passphrase.encode('utf8'))).encode('utf8')))
+    
+    message_content = {
+      'token': token
+    }
+
+    identity = Identity()
+
+    message_envelope = {
+      'sender': identity.address,
+      'sender_pubkey': identity.pubkey,
+      'sign': identity.sign(json.dumps(message_content, ensure_ascii=False))
+    }
+
+    executed = self.client.execute('''
         mutation register(
           $token: String!
           $sender: String!
@@ -129,138 +278,6 @@ class GenesisiInvitationTestCase(TestCase):
         'data': {
             'register': {
               'ok': True
-            }
-        }
-    }
-
-  def test_invalid_sign(self):
-    client = Client(schema)
-    message_content = {
-      'token': self.token
-    }
-
-    message_envelope = {
-      'sender': self.identity.address,
-      'sender_pubkey': self.identity.pubkey,
-      'sign': self.identity.sign(json.dumps(message_content, ensure_ascii=False))+'.'
-    }
-
-    executed = client.execute('''
-        mutation register(
-          $token: String!
-          $sender: String!
-          $sender_pubkey: String!
-          $sign: String! 
-        ){
-          register(
-            envelope: {
-              sender: $sender
-              pubkey: $sender_pubkey
-              sign: $sign
-            }
-            message: {
-              token: $token
-            }
-          ) {
-            ok
-          }
-        }
-      ''',
-      variable_values={**message_content, **message_envelope}
-    )
-    
-    assert executed == {
-        'data': {
-            'register': {
-              'ok': False
-            }
-        }
-    }
-
-  def test_invalid_token(self):
-    client = Client(schema)
-    message_content = {
-      'token': self.token+'1'
-    }
-
-    message_envelope = {
-      'sender': self.identity.address,
-      'sender_pubkey': self.identity.pubkey,
-      'sign': self.identity.sign(json.dumps(message_content, ensure_ascii=False))
-    }
-
-    executed = client.execute('''
-        mutation register(
-          $token: String!
-          $sender: String!
-          $sender_pubkey: String!
-          $sign: String! 
-        ){
-          register(
-            envelope: {
-              sender: $sender
-              pubkey: $sender_pubkey
-              sign: $sign
-            }
-            message: {
-              token: $token
-            }
-          ) {
-            ok
-          }
-        }
-      ''',
-      variable_values={**message_content, **message_envelope}
-    )
-    
-    assert executed == {
-        'data': {
-            'register': {
-              'ok': False
-            }
-        }
-    }
-
-  def test_invalid_pubkey(self):
-    client = Client(schema)
-    message_content = {
-      'token': self.token
-    }
-
-    message_envelope = {
-      'sender': self.identity.address,
-      'sender_pubkey': self.identity.pubkey+'.',
-      'sign': self.identity.sign(json.dumps(message_content, ensure_ascii=False))
-    }
-
-    executed = client.execute('''
-        mutation register(
-          $token: String!
-          $sender: String!
-          $sender_pubkey: String!
-          $sign: String! 
-        ){
-          register(
-            envelope: {
-              sender: $sender
-              pubkey: $sender_pubkey
-              sign: $sign
-            }
-            message: {
-              token: $token
-            }
-          ) {
-            ok
-          }
-        }
-      ''',
-      variable_values={**message_content, **message_envelope}
-    )
-    
-    assert executed == {
-        'data': {
-            'register': {
-              'ok': False
             }
         }
     }
