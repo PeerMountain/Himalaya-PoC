@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'API'
 ]
 
+if DEBUG == True:
+    pass
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

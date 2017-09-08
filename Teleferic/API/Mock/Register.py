@@ -27,3 +27,11 @@ def execute_register(token, address, pubkey):
   except:
     pass
     return False
+
+def execute_get_pubkey(address):
+  registration = Registration.objects.filter(address=address).first()
+
+  if registration == None:
+    return False
+
+  return registration.pubkey
