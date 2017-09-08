@@ -34,6 +34,10 @@ class RegisterTestCase(TestCase):
       'sign': self.identity.sign(json.dumps(message_content, ensure_ascii=False))
     }
 
+    message = {} 
+    message.update(message_content)
+    message.update(message_envelope)
+
     executed = self.client.execute('''
         mutation register(
           $token: String!
@@ -55,7 +59,7 @@ class RegisterTestCase(TestCase):
           }
         }
       ''',
-      variable_values={**message_content, **message_envelope}
+      variable_values=message
     )
 
     assert executed == {
@@ -77,6 +81,10 @@ class RegisterTestCase(TestCase):
       'sign': self.identity.sign(json.dumps(message_content, ensure_ascii=False))+'.'
     }
 
+    message = {} 
+    message.update(message_content)
+    message.update(message_envelope)
+
     executed = self.client.execute('''
         mutation register(
           $token: String!
@@ -98,7 +106,7 @@ class RegisterTestCase(TestCase):
           }
         }
       ''',
-      variable_values={**message_content, **message_envelope}
+      variable_values=message
     )
     
     assert executed == {
@@ -120,6 +128,10 @@ class RegisterTestCase(TestCase):
       'sign': self.identity.sign(json.dumps(message_content, ensure_ascii=False))
     }
 
+    message = {} 
+    message.update(message_content)
+    message.update(message_envelope)
+
     executed = self.client.execute('''
         mutation register(
           $token: String!
@@ -141,7 +153,7 @@ class RegisterTestCase(TestCase):
           }
         }
       ''',
-      variable_values={**message_content, **message_envelope}
+      variable_values=message
     )
     
     assert executed == {
@@ -163,6 +175,10 @@ class RegisterTestCase(TestCase):
       'sign': self.identity.sign(json.dumps(message_content, ensure_ascii=False))
     }
 
+    message = {} 
+    message.update(message_content)
+    message.update(message_envelope)
+
     executed = self.client.execute('''
         mutation register(
           $token: String!
@@ -184,7 +200,7 @@ class RegisterTestCase(TestCase):
           }
         }
       ''',
-      variable_values={**message_content, **message_envelope}
+      variable_values=message
     )
     
     assert executed == {
@@ -205,6 +221,10 @@ class RegisterTestCase(TestCase):
       'sender_pubkey': self.identity.pubkey,
       'sign': self.identity.sign(json.dumps(message_content, ensure_ascii=False))
     }
+
+    message = {} 
+    message.update(message_content)
+    message.update(message_envelope)
 
     self.client.execute('''
         mutation register(
@@ -227,7 +247,7 @@ class RegisterTestCase(TestCase):
           }
         }
       ''',
-      variable_values={**message_content, **message_envelope}
+      variable_values=message
     )
     
     executed = self.client.execute('''
@@ -251,7 +271,7 @@ class RegisterTestCase(TestCase):
           }
         }
       ''',
-      variable_values={**message_content, **message_envelope}
+      variable_values=message
     )
 
     assert executed == {
