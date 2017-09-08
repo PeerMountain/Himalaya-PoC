@@ -39,6 +39,10 @@ class InviteTestCase(TestCase):
       'sign': self.main_identity.sign(json.dumps(message_content))
     }
     
+    message = {} 
+    message.update(message_content)
+    message.update(message_envelope)
+
     executed = self.client.execute('''
         mutation register(
           $token: String!
@@ -60,7 +64,7 @@ class InviteTestCase(TestCase):
           }
         }
       ''',
-      variable_values={**message_content, **message_envelope}
+      variable_values=message
     )
 
   def test_create_invite(self):
@@ -75,6 +79,10 @@ class InviteTestCase(TestCase):
       'sender': self.main_identity.address,
       'sign': self.main_identity.sign(json.dumps(message_content))
     }
+
+    message = {} 
+    message.update(message_content)
+    message.update(message_envelope)
 
     executed = self.client.execute('''
         mutation invite(
@@ -97,7 +105,7 @@ class InviteTestCase(TestCase):
           }
         }
       ''',
-      variable_values={**message_content, **message_envelope}
+      variable_values=message
     )
 
     assert executed == {
@@ -121,6 +129,10 @@ class InviteTestCase(TestCase):
       'sign': self.main_identity.sign(json.dumps(message_content))
     }
 
+    message = {}
+    message.update(message_content)
+    message.update(message_envelope)
+
     executed = self.client.execute('''
         mutation invite(
           $content: String!
@@ -142,7 +154,7 @@ class InviteTestCase(TestCase):
           }
         }
       ''',
-      variable_values={**message_content, **message_envelope}
+      variable_values=message
     )
 
     assert executed == {
@@ -166,6 +178,10 @@ class InviteTestCase(TestCase):
       'sign': self.main_identity.sign(json.dumps(message_content))[3:]
     }
 
+    message = {} 
+    message.update(message_content)
+    message.update(message_envelope)
+
     executed = self.client.execute('''
         mutation invite(
           $content: String!
@@ -187,7 +203,7 @@ class InviteTestCase(TestCase):
           }
         }
       ''',
-      variable_values={**message_content, **message_envelope}
+      variable_values=message
     )
 
     assert executed == {
@@ -211,6 +227,10 @@ class InviteTestCase(TestCase):
       'sign': self.main_identity.sign(json.dumps(message_content))
     }
 
+    message = {} 
+    message.update(message_content)
+    message.update(message_envelope)
+
     invite_executed = self.client.execute('''
         mutation invite(
           $content: String!
@@ -233,7 +253,7 @@ class InviteTestCase(TestCase):
           }
         }
       ''',
-      variable_values={**message_content, **message_envelope}
+      variable_values=message
     )
 
     token =  base58.b58encode(bytes(invite_executed.get('data').get('invite').get('id').encode('utf8'))+b'.'+bytes(base58.b58encode(bytes(self.passphrase.encode('utf8'))).encode('utf8')))
@@ -249,6 +269,10 @@ class InviteTestCase(TestCase):
       'sender_pubkey': identity.pubkey,
       'sign': identity.sign(json.dumps(message_content, ensure_ascii=False))
     }
+
+    message = {} 
+    message.update(message_content)
+    message.update(message_envelope)
 
     executed = self.client.execute('''
         mutation register(
@@ -271,7 +295,7 @@ class InviteTestCase(TestCase):
           }
         }
       ''',
-      variable_values={**message_content, **message_envelope}
+      variable_values=message
     )
 
     assert executed == {

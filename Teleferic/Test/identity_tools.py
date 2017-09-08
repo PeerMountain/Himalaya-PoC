@@ -7,14 +7,17 @@ import six
 from settings import ADDRESS_PREFIX
 
 class Identity():
-  def __init__(self):
-    rng = Random.new().read
-    self.key = RSA.generate(4096, rng)
+  def __init__(self, privkey=None):
+    if privkey is None:
+      rng = Random.new().read
+      self.key = RSA.generate(4096, rng)
+    else:
+      self.key = privkey
 
   @property
   def address(self):
     #The public key of the pair is hashed SHA-256.
-    step_1 = SHA256.new(self.key.exportKey()).digest()
+    step_1 = SHA256.new(self.key.publickey().exportKey()).digest()
     #The resulting Hash is further hashed with RIPEMD-160.
     step_2 = RIPEMD.new(step_1).digest()
     #Two bytes are prefixed to the resulting RIPEMD-160 hash in order to identify the deployment system.

@@ -23,9 +23,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'y5)uziy$$8cg(fpn1*3(d-gpdpz1=$m$&vd9!0_*ab*4(%%92p'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG') == '1'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '94.130.38.46'
+]
 
 
 # Application definition
@@ -42,6 +45,7 @@ INSTALLED_APPS = [
 ]
 
 if DEBUG == True:
+    TEST_RUNNER = "teamcity.django.TeamcityDjangoRunner"
     pass
 
 MIDDLEWARE = [
@@ -123,3 +127,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR,'static') 
