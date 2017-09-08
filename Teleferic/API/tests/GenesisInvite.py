@@ -34,6 +34,10 @@ class GenesisInviteTestCase(TestCase):
       'sign': self.identity.sign(json.dumps(message_content, ensure_ascii=False))
     }
 
+    message = {}
+    message.update(message_content)
+    message.update(message_envelope)
+
     executed = self.client.execute('''
         mutation register(
           $token: String!
@@ -54,9 +58,7 @@ class GenesisInviteTestCase(TestCase):
             ok
           }
         }
-      ''',
-      variable_values={**message_content, **message_envelope}
-    )
+      ''', variable_values=message)
 
     assert executed == {
         'data': {
