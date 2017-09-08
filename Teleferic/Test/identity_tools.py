@@ -7,9 +7,12 @@ import six
 from settings import ADDRESS_PREFIX
 
 class Identity():
-  def __init__(self):
-    rng = Random.new().read
-    self.key = RSA.generate(4096, rng)
+  def __init__(self, privkey=None):
+    if privkey is None:
+      rng = Random.new().read
+      self.key = RSA.generate(4096, rng)
+    else:
+      self.key = privkey
 
   @property
   def address(self):
