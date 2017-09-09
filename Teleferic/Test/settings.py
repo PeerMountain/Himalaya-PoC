@@ -1,0 +1,1 @@
+IDENTITY_FOLDER = '.identities'

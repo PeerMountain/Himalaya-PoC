@@ -20,7 +20,7 @@ def execute_register(token, address, pubkey):
       registration = Registration(
         invitation=invitation,
         address=address,
-        pubkey= pubkey,
+        pubkey= pubkey
       )
       registration.save()
       return registration.__str__()

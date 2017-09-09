@@ -4,7 +4,7 @@ from Crypto import Random
 import base58
 import six
 
-from settings import ADDRESS_PREFIX
+ADDRESS_PREFIX = [1, 0]
 
 class Identity():
   def __init__(self, privkey=None):
@@ -34,6 +34,10 @@ class Identity():
   @property
   def pubkey(self):
     return base58.b58encode(self.key.publickey().exportKey("DER"))
+  
+  @property
+  def privkey(self):
+    return base58.b58encode(self.key.exportKey())
 
   def export_private(self,passphrase):
     return self.key.exportKey(passphrase=passphrase, pkcs=8)

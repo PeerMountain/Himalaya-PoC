@@ -10,4 +10,4 @@ class Registration(models.Model):
   address = models.CharField(max_length=100)
 
   def __str__(self):
-    return self.address
+    return self.invitation.sender + ' -> ' + self.address
