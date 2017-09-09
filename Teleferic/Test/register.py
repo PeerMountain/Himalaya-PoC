@@ -6,12 +6,9 @@ import os
 
 from mingraphqlclient.min_graphql_clinet import MinGraphQLClient
 
-from settings import IDENTITY_FOLDER
+from settings import IDENTITY_FOLDER, ENDPOINT
 
-graphql_endpoint = 'http://94.130.38.46/graphql'
-graphql_endpoint = 'http://localhost/graphql'
-test_client = MinGraphQLClient(graphql_endpoint)
-
+test_client = MinGraphQLClient(ENDPOINT)
 
 token= input("Token: ")
 
