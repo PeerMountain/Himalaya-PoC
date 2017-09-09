@@ -1,5 +1,6 @@
 from identity_tools import Identity
 from Crypto.PublicKey import RSA
+import random
 import base58
 import json
 import os
@@ -22,7 +23,12 @@ privkey_file= open(identity_filepath, 'rb')
 privkey= RSA.importKey(privkey_file.read())
 identity= Identity(privkey)
 
-passphrase = str(input("Passphrase: "))
+passphrase = str(input("Passphrase (random): "))
+
+if passphrase == '':
+  passphrase = base58.b58encode(bytes(str(random.random()).encode('utf8')))
+  print('Passphrase',passphrase)
+
 
 invitation = identity.generate_invitation(passphrase=passphrase)
 

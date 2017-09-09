@@ -21,7 +21,7 @@ python invite.py
 ```
 ```
 Privkey name (identity): #Leave blank
-Passphrase: #Some text
+Passphrase (random): #Press enter
 ```
 The script print mutation maded and token result
 ```
@@ -45,7 +45,7 @@ You can find generated identity on ".identities" folder
 ```bash
 $ python invite.py
 Privkey name (identity): 1
-Passphrase: test
+Passphrase (random): test
 ...
 Invitation token: A4csVKEvPum
 
@@ -57,7 +57,7 @@ Registred success
 
 $ python invite.py
 Privkey name (identity): 2
-Passphrase: test2
+Passphrase (random): test2
 ...
 Invitation token: hjoX3qogqypx
 ```
