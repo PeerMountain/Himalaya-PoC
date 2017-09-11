@@ -50,6 +50,7 @@ query = '''
       }
     ){
       ok
+      message
     }
   }
 '''
@@ -58,6 +59,6 @@ print ( 'Following query will execute:' )
 print ( query )
 response = json.loads(test_client.execute(query))
 if False == response.get("data").get("register").get("ok"):
-  print('Error')
+  print('Error',response.get("data").get("register").get("message"))
 else:
   print('Registred success')

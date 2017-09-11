@@ -15,6 +15,7 @@ class Register(graphene.Mutation):
       message = RegistrationMessage()
 
     ok = graphene.Boolean()
+    message = graphene.String()
 
     @staticmethod
     def mutate(root, args, context, info):
@@ -29,12 +30,12 @@ class Register(graphene.Mutation):
       result_verify = execute_verify(sender_pubkey,message_dump,sender_sign)
 
       if(result_verify.get('success') == False):
-        return Register(ok = False)
+        return Register(ok = False, message='Verify')
 
       result = execute_register(token,sender,sender_pubkey)
       
       if(result == False):
-        return Register(ok = False)
+        return Register(ok = False, message='Result')
       
       return Register(ok=True)
 

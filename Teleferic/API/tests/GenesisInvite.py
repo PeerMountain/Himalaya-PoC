@@ -7,7 +7,7 @@ from API.schema import schema
 import base58
 import json
 
-from Test.identity_tools import Identity
+from Playground.identity_tools import Identity
 
 class GenesisInviteTestCase(TestCase):
   passphrase = "PeerMountain"

@@ -1,5 +1,6 @@
 from Crypto.Hash import RIPEMD, SHA256
 from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_v1_5
 from Crypto import Random
 import base58
 import six
@@ -56,10 +57,18 @@ class Identity():
   def generate_invitation(self,passphrase):
     rng = Random.new().read
     invite_keypair = RSA.generate(4096, rng)
-    invitation_content = invite_keypair.encrypt(self._to_format_for_encrypt(passphrase),32)
-    invitation_key = invite_keypair.exportKey('PEM',passphrase=passphrase)
+    
+    passphrase = bytes(passphrase.encode('utf8'))
+
+    h = RIPEMD.new(passphrase)
+    content = passphrase
+    
+    cipher = PKCS1_v1_5.new(invite_keypair)
+
+    invitation_content = cipher.encrypt(content+h.digest())
+    invitation_key = invite_keypair.exportKey('PEM',passphrase=passphrase,pkcs=8)
     return {
-      'content': base58.b58encode(invitation_content[0]),
+      'content': base58.b58encode(invitation_content),
       'key': base58.b58encode(invitation_key)
     }
     '''
