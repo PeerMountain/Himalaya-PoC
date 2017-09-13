@@ -1,13 +1,13 @@
 
-# Invite & Register Chain
-## Setup VirtualEvn
+# Invite & Register
+## Setup Virtualenv
 [Follow oficial intructions](https://virtualenv.pypa.io/en/stable/installation/)  
 Then, create a virtualenv inside that folder and activate it
 ```bash
 virtualenv .env -p python3
 source .env/bin/activate
 ```
-Install all dependeciens
+Install all dependecies
 ```bash
 pip install -r requirements.txt
 ```
@@ -47,7 +47,7 @@ python register.py
 Token: SVEV6gHt
 Privkey Filename: 1 #Key name 
 ```
-The script print mutation maded and result
+mutation's params and result are printed during execution
 ```
 Registred success
 ```
