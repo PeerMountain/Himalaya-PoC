@@ -8,11 +8,13 @@ fi
 . .env/bin/activate
 pip install -r requirements.txt
 
-if [ ! -f ./htmlcov ]
-then
-  rm htmlcov -Rf
-fi
-
 DEBUG=1 coverage run --source='.' manage.py test
 
-coverage html 
+coverage html
+
+if [ ! -f ./coverage.zip ]
+then
+  rm coverage.zip
+fi
+
+zip -r coverage.zip htmlcov/ -j htmlcov -m
