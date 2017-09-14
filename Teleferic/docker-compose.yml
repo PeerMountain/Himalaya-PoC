@@ -2,7 +2,7 @@ version: '2'
 
 services:
   teleferic:
-    build: 'Teleferic'
+    build: '.'
     volumes:
       - statics:/code/static
       - db:/code/db
