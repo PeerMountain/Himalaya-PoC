@@ -22,5 +22,10 @@ invitation.save()
 token =  base58.b58encode(bytes(invitation.__str__().encode('utf8'))+b'.'+bytes(base58.b58encode(bytes(passphrase.encode('utf8'))).encode('utf8')))
 
 print('Token:', token)
+#Token: HX8d
 exit()
+```
+Or load sample data to get same result
+```bash
+docker exec -ti himalaya_teleferic_1 python manage.py loaddata API/genesis_data.json
 ```
