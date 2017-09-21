@@ -8,7 +8,7 @@ fi
 . .env/bin/activate
 pip install -r requirements.txt
 
-DEBUG=1 coverage run --source='.' manage.py test
+coverage run --source='.'  manage.py test --behave_format behave_teamcity:TeamcityFormatter
 
 coverage html
 

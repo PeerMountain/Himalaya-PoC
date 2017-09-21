@@ -1,12 +1,14 @@
 import graphene
 
-from API.mutations import register_mutation, invite_mutation
+from API.mutations import register_mutation, invite_mutation, backup_mutation, restore_mutation
 
 from API.query import version_query
 
 class Mutations(
         register_mutation,
         invite_mutation,
+        backup_mutation,
+        restore_mutation,
         graphene.ObjectType
     ):
     # This class will inherit from multiple Queries

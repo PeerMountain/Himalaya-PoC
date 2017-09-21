@@ -1,4 +1,4 @@
-FROM python:3.4
+FROM python:3.5.2
 
 MAINTAINER DXMarkets
 
@@ -14,6 +14,6 @@ RUN python manage.py collectstatic --clear --noinput
 
 EXPOSE 8000
 
-ENV DEBUG 0
+ENV PRODUCTION 1
 
 CMD ./run.sh

@@ -1,8 +1,7 @@
 from django.test import TestCase
-from graphene.test import Client
+from django.test import Client
 
 from API.models import Invitation
-from API.schema import schema
 
 import base58
 import json
@@ -14,7 +13,7 @@ class GenesisInviteTestCase(TestCase):
   identity = Identity()
   
   def setUp(self):
-    self.client = Client(schema)
+    self.client = Client()
     invitation_context = self.identity.generate_invitation(self.passphrase)
     invitation = Invitation(
       content=invitation_context['content'],
@@ -30,37 +29,45 @@ class GenesisInviteTestCase(TestCase):
 
     message_envelope = {
       'sender': self.identity.address,
-      'sender_pubkey': self.identity.pubkey,
-      'sign': self.identity.sign(json.dumps(message_content, ensure_ascii=False))
+      'sender_pubkey': self.identity.pubkey
     }
 
-    message = {}
-    message.update(message_content)
-    message.update(message_envelope)
+    message_raw = {}
+    message_raw.update(message_content)
+    message_raw.update(message_envelope)
+    message = json.dumps(message_raw)
 
-    executed = self.client.execute('''
-        mutation register(
-          $token: String!
-          $sender: String!
-          $sender_pubkey: String!
-          $sign: String! 
-        ){
-          register(
-            envelope: {
-              sender: $sender
-              pubkey: $sender_pubkey
-              sign: $sign
-            }
-            message: {
-              token: $token
-            }
-          ) {
-            ok
+    query = '''
+      mutation register(
+        $token: String!
+        $sender: String!
+        $sender_pubkey: String!
+      ){
+        register(
+          envelope: {
+            sender: $sender
+            pubkey: $sender_pubkey
           }
+          message: {
+            token: $token
+          }
+        ) {
+          ok
         }
-      ''', variable_values=message)
+      }
+    '''
 
-    assert executed == {
+    response_raw = self.client.post('/graphql/', {
+      'query': query, 
+      'variables': message,
+      'sign': self.identity.sign(query+message)
+    })
+    
+    assert response_raw.status_code == 200
+
+    response = response_raw.json()
+
+    assert response == {
         'data': {
             'register': {
               'ok': True

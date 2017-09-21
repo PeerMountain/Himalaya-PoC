@@ -1,5 +1,5 @@
 from django.test import TestCase
-from graphene.test import Client
+from django.test import Client
 
 from API.models import Invitation
 from API.schema import schema
@@ -16,7 +16,7 @@ class InviteTestCase(TestCase):
     '''
     Genesis Invite
     '''
-    self.client = Client(schema)
+    self.client = Client()
     self.main_identity = Identity()
     identity = Identity()
     invitation_context = identity.generate_invitation(self.passphrase)
@@ -36,25 +36,23 @@ class InviteTestCase(TestCase):
     message_envelope = {
       'sender': self.main_identity.address,
       'sender_pubkey': self.main_identity.pubkey,
-      'sign': self.main_identity.sign(json.dumps(message_content))
     }
     
-    message = {} 
-    message.update(message_content)
-    message.update(message_envelope)
+    message_raw = {}
+    message_raw.update(message_content)
+    message_raw.update(message_envelope)
+    message = json.dumps(message_raw)
 
-    executed = self.client.execute('''
+    query = '''
         mutation register(
           $token: String!
           $sender: String!
-          $sender_pubkey: String!
-          $sign: String! 
+          $sender_pubkey: String! 
         ){
           register(
             envelope: {
               sender: $sender
               pubkey: $sender_pubkey
-              sign: $sign
             }
             message: {
               token: $token
@@ -63,9 +61,12 @@ class InviteTestCase(TestCase):
             ok
           }
         }
-      ''',
-      variable_values=message
-    )
+      '''
+    response_raw = self.client.post('/graphql', {
+      'query': query, 
+      'variables': message,
+      'sign': self.main_identity.sign(query+message)
+    })
 
   def test_create_invite(self):
     invite = self.main_identity.generate_invitation(self.passphrase)
@@ -77,24 +78,22 @@ class InviteTestCase(TestCase):
 
     message_envelope = {
       'sender': self.main_identity.address,
-      'sign': self.main_identity.sign(json.dumps(message_content))
     }
 
-    message = {} 
-    message.update(message_content)
-    message.update(message_envelope)
+    message_raw = {}
+    message_raw.update(message_content)
+    message_raw.update(message_envelope)
+    message = json.dumps(message_raw)
 
-    executed = self.client.execute('''
+    query = '''
         mutation invite(
           $content: String!
           $key: String!
           $sender: String!
-          $sign: String! 
         ){
           invite(
             envelope: {
               sender: $sender
-              sign: $sign
             }
             message: {
               content: $content
@@ -104,11 +103,18 @@ class InviteTestCase(TestCase):
             ok
           }
         }
-      ''',
-      variable_values=message
-    )
+      '''
+    
+    response_raw = self.client.post('/graphql', {
+      'query': query, 
+      'variables': message,
+      'sign': self.main_identity.sign(query+message)
+    })
+    assert response_raw.status_code == 200
 
-    assert executed == {
+    response = response_raw.json()
+
+    assert response == {
         'data': {
             'invite': {
               'ok': True
@@ -126,24 +132,22 @@ class InviteTestCase(TestCase):
 
     message_envelope = {
       'sender': self.main_identity.address+'1',
-      'sign': self.main_identity.sign(json.dumps(message_content))
     }
 
-    message = {}
-    message.update(message_content)
-    message.update(message_envelope)
+    message_raw = {}
+    message_raw.update(message_content)
+    message_raw.update(message_envelope)
+    message = json.dumps(message_raw)
 
-    executed = self.client.execute('''
+    query = '''
         mutation invite(
           $content: String!
           $key: String!
           $sender: String!
-          $sign: String! 
         ){
           invite(
             envelope: {
               sender: $sender
-              sign: $sign
             }
             message: {
               content: $content
@@ -153,11 +157,18 @@ class InviteTestCase(TestCase):
             ok
           }
         }
-      ''',
-      variable_values=message
-    )
+      '''
 
-    assert executed == {
+    response_raw = self.client.post('/graphql', {
+      'query': query, 
+      'variables': message,
+      'sign': self.main_identity.sign(query+message)
+    })
+    assert response_raw.status_code == 200
+
+    response = response_raw.json()
+
+    assert response == {
         'data': {
             'invite': {
               'ok': False
@@ -175,24 +186,22 @@ class InviteTestCase(TestCase):
 
     message_envelope = {
       'sender': self.main_identity.address,
-      'sign': self.main_identity.sign(json.dumps(message_content))[3:]
     }
 
-    message = {} 
-    message.update(message_content)
-    message.update(message_envelope)
+    message_raw = {}
+    message_raw.update(message_content)
+    message_raw.update(message_envelope)
+    message = json.dumps(message_raw)
 
-    executed = self.client.execute('''
+    query = '''
         mutation invite(
           $content: String!
           $key: String!
           $sender: String!
-          $sign: String! 
         ){
           invite(
             envelope: {
               sender: $sender
-              sign: $sign
             }
             message: {
               content: $content
@@ -202,11 +211,18 @@ class InviteTestCase(TestCase):
             ok
           }
         }
-      ''',
-      variable_values=message
-    )
+      '''
 
-    assert executed == {
+    response_raw = self.client.post('/graphql', {
+      'query': query, 
+      'variables': message,
+      'sign': self.main_identity.sign(query+message+'a')
+    })
+    assert response_raw.status_code == 200
+
+    response = response_raw.json()
+
+    assert response == {
         'data': {
             'invite': {
               'ok': False
@@ -224,24 +240,22 @@ class InviteTestCase(TestCase):
 
     message_envelope = {
       'sender': self.main_identity.address,
-      'sign': self.main_identity.sign(json.dumps(message_content))
     }
 
-    message = {} 
-    message.update(message_content)
-    message.update(message_envelope)
+    message_raw = {}
+    message_raw.update(message_content)
+    message_raw.update(message_envelope)
+    message = json.dumps(message_raw)
 
-    invite_executed = self.client.execute('''
+    query = '''
         mutation invite(
           $content: String!
           $key: String!
           $sender: String!
-          $sign: String! 
         ){
           invite(
             envelope: {
               sender: $sender
-              sign: $sign
             }
             message: {
               content: $content
@@ -252,11 +266,18 @@ class InviteTestCase(TestCase):
             id
           }
         }
-      ''',
-      variable_values=message
-    )
+      '''
 
-    token =  base58.b58encode(bytes(invite_executed.get('data').get('invite').get('id').encode('utf8'))+b'.'+bytes(base58.b58encode(bytes(self.passphrase.encode('utf8'))).encode('utf8')))
+    response_raw = self.client.post('/graphql', {
+      'query': query, 
+      'variables': message,
+      'sign': self.main_identity.sign(query+message)
+    })
+    assert response_raw.status_code == 200
+
+    response = response_raw.json()
+
+    token =  base58.b58encode(bytes(response.get('data').get('invite').get('id').encode('utf8'))+b'.'+bytes(base58.b58encode(bytes(self.passphrase.encode('utf8'))).encode('utf8')))
     
     message_content = {
       'token': token
@@ -266,26 +287,24 @@ class InviteTestCase(TestCase):
 
     message_envelope = {
       'sender': identity.address,
-      'sender_pubkey': identity.pubkey,
-      'sign': identity.sign(json.dumps(message_content, ensure_ascii=False))
+      'sender_pubkey': identity.pubkey
     }
 
-    message = {} 
-    message.update(message_content)
-    message.update(message_envelope)
+    message_raw = {}
+    message_raw.update(message_content)
+    message_raw.update(message_envelope)
+    message = json.dumps(message_raw)
 
-    executed = self.client.execute('''
+    query = '''
         mutation register(
           $token: String!
           $sender: String!
           $sender_pubkey: String!
-          $sign: String! 
         ){
           register(
             envelope: {
               sender: $sender
               pubkey: $sender_pubkey
-              sign: $sign
             }
             message: {
               token: $token
@@ -294,11 +313,18 @@ class InviteTestCase(TestCase):
             ok
           }
         }
-      ''',
-      variable_values=message
-    )
+      '''
 
-    assert executed == {
+    response_raw = self.client.post('/graphql', {
+      'query': query, 
+      'variables': message,
+      'sign': identity.sign(query+message)
+    })
+    assert response_raw.status_code == 200
+
+    response = response_raw.json()
+
+    assert response == {
         'data': {
             'register': {
               'ok': True

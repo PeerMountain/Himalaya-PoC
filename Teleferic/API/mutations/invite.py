@@ -23,17 +23,18 @@ class Invite(graphene.Mutation):
     def mutate(root, args, context, info):
       envelope = args.get('envelope')
       sender = envelope.get('sender')
-      sender_sign = envelope.get('sign')
+      sender_sign = context.POST.get('sign')
+      content = context.POST.get('query')+context.POST.get('variables')
+      result_authorize = execute_authorize(sender,content,sender_sign)
+
+      if(result_authorize.get('success') == False):
+        return Invite(ok=False,message=None)
 
       message = args.get('message')
       message_content = message.get('content')
       message_key = message.get('key')
       message_dump = json.dumps(args.get('message'))
       
-      result_authorize = execute_authorize(sender,message_dump,sender_sign)
-
-      if(result_authorize.get('success') == False):
-        return Invite(ok = False,message=result_authorize.get('message'))
 
       result = execute_invite(message_content,message_key,sender)
       

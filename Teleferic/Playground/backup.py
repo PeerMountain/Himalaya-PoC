@@ -28,39 +28,61 @@ privkey_file= open(identity_filepath, 'rb')
 privkey= RSA.importKey(privkey_file.read())
 identity= Identity(privkey)
 
+print('Sender:', identity.address)
+
 passphrase = str(input("Passphrase (random): "))
 
 if passphrase == '':
   passphrase = base58.b58encode(bytes(str(random.random()).encode('utf8')))
   print('Passphrase',passphrase)
 
-invitation = identity.generate_invitation(passphrase=passphrase)
 
+#Create Backup
+rng = Random.new().read
+backup_keypair = RSA.generate(4096, rng)
+
+description = input("Backup description (string): ").encode('utf8')
+content = input("Backup content (string): ").encode('utf8')
+
+description_hash = RIPEMD.new(description)
+content_hash = RIPEMD.new(content)
+
+cipher = PKCS1_v1_5.new(backup_keypair)
+
+backup_description = cipher.encrypt(bytes(description)+description_hash.digest())
+backup_content = cipher.encrypt(bytes(content)+content_hash.digest())
+
+backup_key = backup_keypair.exportKey('PEM',passphrase=passphrase,pkcs=8)
+
+# Following query will execute
 query = '''
   mutation (
     $sender: String!
+    $description: String!
     $content: String!
     $key: String!
   ){
-    invite (
+    backup(
       envelope: {
         sender: $sender
       }
       message: {
+        description: $description
         content: $content
         key: $key
       }
     ) {
       ok
-      id
-      message
+      hash
     }
   }
 '''
+#With this params 
 params_raw = {
   'sender': identity.address,
-  'content': invitation.get('content'),
-  'key': invitation.get('key')
+  'description': base58.b58encode(backup_description),
+  'content': base58.b58encode(backup_content),
+  'key': base58.b58encode(backup_key)
 }
 
 params = json.dumps(params_raw)
@@ -75,7 +97,6 @@ response_raw = requests.post(ENDPOINT, data = graphql_query)
 response = response_raw.json()
 
 try:
-  token = base58.b58encode(bytes(response.get("data").get("invite").get("id").encode('utf8'))+b'.'+bytes(base58.b58encode(bytes(passphrase.encode('utf8'))).encode('utf8')))
-  print('Invitation token:', token)
+  print('Backup Hash:', response.get("data").get("backup").get("hash"))
 except:
-  print('Error',response_raw)
+  print('Error', response_raw)

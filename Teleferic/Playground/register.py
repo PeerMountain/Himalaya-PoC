@@ -1,14 +1,19 @@
-from identity_tools import Identity
+from Crypto.Hash import RIPEMD
 from Crypto.PublicKey import RSA
+from Crypto import Random
+from Crypto.Cipher import PKCS1_v1_5
+
+import random
+
 import base58
 import json
+
 import os
 
-from mingraphqlclient.min_graphql_clinet import MinGraphQLClient
+from identity_tools import Identity
+import requests
 
 from settings import IDENTITY_FOLDER, ENDPOINT
-
-test_client = MinGraphQLClient(ENDPOINT)
 
 token= input("Token: ")
 
@@ -30,23 +35,19 @@ else:
   f.write(identity.key.exportKey('PEM').decode())
   f.close()
 
-message_content = {
-  'token': token
-}
-
-sign = identity.sign(json.dumps(message_content))
-
 query = '''
-  mutation {
+  mutation (
+    $token: String!
+    $sender: String!
+    $pubkey: String!
+  ){
     register(
-      message: {
-        token: "'''+token+'''"
-      }
-      
       envelope: {
-        sender: "'''+identity.address+'''"
-        pubkey: "'''+identity.pubkey+'''"
-        sign: "'''+sign+'''"
+        sender: $sender
+        pubkey: $pubkey
+      }
+      message: {
+        token: $token
       }
     ){
       ok
@@ -55,10 +56,25 @@ query = '''
   }
 '''
 
-print ( 'Following query will execute:' )
-print ( query )
-response = json.loads(test_client.execute(query))
-if False == response.get("data").get("register").get("ok"):
-  print('Error',response.get("data").get("register").get("message"))
-else:
+params_raw = {
+  'token': token,
+  'sender': identity.address,
+  'pubkey': identity.pubkey
+}
+
+params = json.dumps(params_raw)
+
+graphql_query = {
+  'query': query,
+  'variables': params,
+  'sign': identity.sign(query+params)
+}
+
+response_raw = requests.post(ENDPOINT, data = graphql_query)
+response = response_raw.json()
+
+
+try:
   print('Registred success')
+except:
+  print('Error',response_raw)

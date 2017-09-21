@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import sys
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'y5)uziy$$8cg(fpn1*3(d-gpdpz1=$m$&vd9!0_*ab*4(%%92p'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG') == '1'
+DEBUG = os.getenv('PRODUCTION') == None
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -45,8 +47,8 @@ INSTALLED_APPS = [
 ]
 
 if DEBUG == True:
-    TEST_RUNNER = "teamcity.django.TeamcityDjangoRunner"
-    pass
+    TEST_RUNNER = 'Teleferic.test_runner.CompositeTestRunner'
+    INSTALLED_APPS.append('django_behave')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

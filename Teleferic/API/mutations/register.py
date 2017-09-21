@@ -2,7 +2,7 @@ import graphene
 
 import json
 
-from .common_types import MessageEnvelope 
+from .common_types import ThirdPersonMessageEnvelope 
 
 from API.Mock import execute_register, execute_verify
 
@@ -11,7 +11,7 @@ class RegistrationMessage(graphene.InputObjectType):
 
 class Register(graphene.Mutation):
     class Input():
-      envelope = MessageEnvelope()
+      envelope = ThirdPersonMessageEnvelope()
       message = RegistrationMessage()
 
     ok = graphene.Boolean()
@@ -20,17 +20,18 @@ class Register(graphene.Mutation):
     @staticmethod
     def mutate(root, args, context, info):
       envelope = args.get('envelope')
+      sender_pubkey = envelope.get('pubkey')
+      sender_sign = context.POST.get('sign')
+      content = context.POST.get('query')+context.POST.get('variables')
+      result_authorize = execute_verify(sender_pubkey,content,sender_sign)
+
+      if(result_authorize.get('success') == False):
+        return Register(ok=False,message=None)
+
+      sender = envelope.get('sender')
       message = args.get('message')
       token = message.get('token')
-      sender = envelope.get('sender')
-      sender_sign = envelope.get('sign')
-      sender_pubkey = envelope.get('pubkey')
-      message_dump = json.dumps(args.get('message'), ensure_ascii=False)
-
-      result_verify = execute_verify(sender_pubkey,message_dump,sender_sign)
-
-      if(result_verify.get('success') == False):
-        return Register(ok = False, message='Verify')
+      
 
       result = execute_register(token,sender,sender_pubkey)
       
