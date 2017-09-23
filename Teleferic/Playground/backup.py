@@ -99,4 +99,4 @@ response = response_raw.json()
 try:
   print('Backup Hash:', response.get("data").get("backup").get("hash"))
 except:
-  print('Error', response_raw)
+  print('Error', response_raw.text)

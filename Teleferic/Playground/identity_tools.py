@@ -1,6 +1,7 @@
 from Crypto.Hash import RIPEMD, SHA256
 from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_v1_5
+from Crypto.Signature import PKCS1_v1_5 as Signer
+from Crypto.Cipher import PKCS1_v1_5 as Cipher
 from Crypto import Random
 import base58
 import six
@@ -44,10 +45,10 @@ class Identity():
     return self.key.exportKey(passphrase=passphrase, pkcs=8)
 
   def sign(self, content):
-    hash_message = RIPEMD.new(content).digest()
-    rng = Random.new().read
-    signature = self.key.sign(hash_message, rng)
-    return base58.b58encode_int(signature[0])
+    hash_message = RIPEMD.new(content)
+    signer = Signer.new(self.key)
+    signature = signer.sign(hash_message)
+    return base58.b58encode(signature)
 
   def verify(self, content, signature):
     hash_message = RIPEMD.new(content).digest()
@@ -63,7 +64,7 @@ class Identity():
     h = RIPEMD.new(passphrase)
     content = passphrase
     
-    cipher = PKCS1_v1_5.new(invite_keypair)
+    cipher = Cipher.new(invite_keypair)
 
     invitation_content = cipher.encrypt(content+h.digest())
     invitation_key = invite_keypair.exportKey('PEM',passphrase=passphrase,pkcs=8)
