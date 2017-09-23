@@ -10,8 +10,6 @@ RUN pip install -r requirements.txt
 
 ADD . /code/
 
-RUN python manage.py collectstatic --clear --noinput
-
 EXPOSE 8000
 
 ENV PRODUCTION 1

@@ -23,7 +23,7 @@ invitation.save()
 token =  base58.b58encode(bytes(invitation.__str__().encode('utf8'))+b'.'+bytes(base58.b58encode(bytes(passphrase.encode('utf8'))).encode('utf8')))
 
 print('Token:', token)
-#NfG35M4SGP3uvW3C9wCNTq7z1TvSsNRB2ajCmDiNuuSEvCi63
+#NfG35M4SFzK77txNkXZRL4S6NWyFio4Cv7ELHcCjekiBBTWGc
 exit()
 ```
 Or load sample data to get same result

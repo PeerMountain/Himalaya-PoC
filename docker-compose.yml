@@ -2,7 +2,7 @@ version: '2'
 
 services:
   teleferic:
-    build: '../Teleferic'
+    build: 'Teleferic'
     image: 'himalaya_teleferic:latest'
 
   gateway:
@@ -16,4 +16,3 @@ services:
       - teleferic
     volumes:
       - /etc/ssl/wildcard:/etc/ssl/wildcard
-      - ../Docs/static:/srv/www/public_html

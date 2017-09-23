@@ -20,8 +20,9 @@ Input: Passphrase
 * Generate InvitationContent encrypting Passphrase with Privkey using [RSAES-PKCS1-v1_5](https://www.dlitz.net/software/pycrypto/api/current/Crypto.Cipher.PKCS1_v1_5-module.html)
 * Generate InvitationKey exporting Privkey PEM [Ref](https://www.dlitz.net/software/pycrypto/api/current/Crypto.PublicKey.RSA._RSAobj-class.html#exportKey)
 * Generate json Message with InvitationContent and InvitationKey
-* Generate MessageSign of Message with my PubKey
-* Generate json envelope with MessageSign and my Address
+* Generate json envelope with Address
+* Generate MessageSign of query and variables with my PubKey
+* Put MessageSign as param
 * Send GraphQL query
 ```bash
 python invite.py
@@ -37,8 +38,9 @@ Invitation token: SVEV6gHt
 ## Register
 Input: Token
 * Generate json Message with Token
-* Generate MessageSign of Message with my PubKey
-* Generate json envelope with MessageSign, my Address and my Pubkey
+* Generate json envelope with my Address and my Pubkey
+* Generate MessageSign of query and variables with my PubKey
+* Put MessageSign as param
 * Send GraphQL query
 ```bash
 python register.py
