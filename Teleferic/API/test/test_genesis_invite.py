@@ -6,7 +6,7 @@ from API.models import Invitation
 import base58
 import json
 
-from Playground.identity_tools import Identity
+from identity_tools import Identity
 
 class GenesisInviteTestCase(TestCase):
   passphrase = "PeerMountain"
@@ -57,12 +57,12 @@ class GenesisInviteTestCase(TestCase):
       }
     '''
 
-    response_raw = self.client.post('/graphql/', {
+    response_raw = self.client.post('/teleferic', {
       'query': query, 
       'variables': message,
       'sign': self.identity.sign(query+message)
     })
-    
+
     assert response_raw.status_code == 200
 
     response = response_raw.json()

@@ -15,6 +15,14 @@ import requests
 
 from settings import IDENTITY_FOLDER, ENDPOINT
 
+import argparse
+
+parser = argparse.ArgumentParser(description='Generate restore call')
+parser.add_argument('-v', '--verbose', action='store_true', help='Prints query, variables and sign.')
+args = parser.parse_args()
+
+VERBOSE = args.verbose
+
 identity_filename = input("Privkey name (identity): ")
 identity_filepath= os.path.join(IDENTITY_FOLDER,identity_filename)
 
@@ -50,7 +58,7 @@ query = '''
       }
     ) {
       ok
-      restoreObject{
+      restoreContainer{
         key
         description
         content
@@ -72,15 +80,31 @@ graphql_query = {
   'sign': identity.sign(query+params)
 }
 
+if VERBOSE:
+  print(('/'*50)+' Begin Query '+('/'*50))
+  print(graphql_query['query'])
+  print(('/'*50)+' End Query '+('/'*50))
+  print(('/'*50)+' Begin Variables '+('/'*50))
+  print(graphql_query['variables'])
+  print(('/'*50)+' End Variables '+('/'*50))
+  print(('/'*50)+' Begin Sign '+('/'*50))
+  print(graphql_query['sign'])
+  print(('/'*50)+' End Sign '+('/'*50))
+
 response_raw = requests.post(ENDPOINT, data = graphql_query)
 response = response_raw.json()
+
+
+if response.get("data").get("restore").get("ok") == False:
+  print('Error', response_raw.text)
+  exit(1)
 
 passphrase = str(input("Passphrase: "))
 
 try:
-  backup_key_raw = base58.b58decode(response.get("data").get("restore").get("restoreObject").get("key"))
+  backup_key_raw = base58.b58decode(response.get("data").get("restore").get("restoreContainer").get("key"))
 except:
-  print('Error', response_raw)
+  print('Error', response_raw.text)
   exit(1)
   
 backup_key = RSA.importKey(backup_key_raw,passphrase=passphrase)
@@ -90,7 +114,7 @@ cipher = PKCS1_v1_5.new(backup_key)
 dsize = RIPEMD.digest_size
 sentinel = str(Random.new().read(15+dsize))
 
-description_raw = response.get("data").get("restore").get("restoreObject").get("description")
+description_raw = response.get("data").get("restore").get("restoreContainer").get("description")
 description_decode = base58.b58decode(description_raw)
 description_digest = cipher.decrypt(description_decode, sentinel)
 description = description_digest[:-dsize]
@@ -100,7 +124,7 @@ description_digest = RIPEMD.new(description).digest()
 if description_digest==description_hash:
   print('Backup Description:',description)
 
-content_raw = response.get("data").get("restore").get("restoreObject").get("content")
+content_raw = response.get("data").get("restore").get("restoreContainer").get("content")
 content_decode = base58.b58decode(content_raw)
 content_digest = cipher.decrypt(content_decode, sentinel)
 content = content_digest[:-dsize]

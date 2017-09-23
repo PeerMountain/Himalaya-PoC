@@ -52,7 +52,8 @@ class Identity():
 
   def verify(self, content, signature):
     hash_message = RIPEMD.new(content).digest()
-    result = self.key.verify(hash_message, (base58.b58encode_int(signature),))
+    signer = Signer.new(self.key)
+    result = signer.verify(hash_message, base58.b58decode(signature))
     return result == 1
 
   def generate_invitation(self,passphrase):

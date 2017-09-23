@@ -25,7 +25,7 @@ class InviteTestCase(TestCase):
       key=invitation_context['key']
     )
     invitation.save()
-    token =  base58.b58encode(bytes(invitation.__str__().encode('utf8'))+b'.'+bytes(base58.b58encode(bytes(self.passphrase.encode('utf8'))).encode('utf8')))
+    token = base58.b58encode(bytes(invitation.__str__().encode('utf8'))+b'.'+bytes(base58.b58encode(bytes(self.passphrase.encode('utf8'))).encode('utf8')))
     self.register(token)
 
   def register(self,token):
@@ -62,7 +62,7 @@ class InviteTestCase(TestCase):
           }
         }
       '''
-    response_raw = self.client.post('/graphql', {
+    response_raw = self.client.post('/teleferic', {
       'query': query, 
       'variables': message,
       'sign': self.main_identity.sign(query+message)
@@ -105,11 +105,12 @@ class InviteTestCase(TestCase):
         }
       '''
     
-    response_raw = self.client.post('/graphql', {
+    response_raw = self.client.post('/teleferic', {
       'query': query, 
       'variables': message,
       'sign': self.main_identity.sign(query+message)
     })
+
     assert response_raw.status_code == 200
 
     response = response_raw.json()
@@ -159,20 +160,19 @@ class InviteTestCase(TestCase):
         }
       '''
 
-    response_raw = self.client.post('/graphql', {
+    response_raw = self.client.post('/teleferic', {
       'query': query, 
       'variables': message,
       'sign': self.main_identity.sign(query+message)
     })
+
     assert response_raw.status_code == 200
 
     response = response_raw.json()
 
     assert response == {
         'data': {
-            'invite': {
-              'ok': False
-            }
+            'invite': {'ok':False}
         }
     }
 
@@ -213,7 +213,7 @@ class InviteTestCase(TestCase):
         }
       '''
 
-    response_raw = self.client.post('/graphql', {
+    response_raw = self.client.post('/teleferic', {
       'query': query, 
       'variables': message,
       'sign': self.main_identity.sign(query+message+'a')
@@ -224,9 +224,7 @@ class InviteTestCase(TestCase):
 
     assert response == {
         'data': {
-            'invite': {
-              'ok': False
-            }
+            'invite': {'ok':False}
         }
     }
 
@@ -268,7 +266,7 @@ class InviteTestCase(TestCase):
         }
       '''
 
-    response_raw = self.client.post('/graphql', {
+    response_raw = self.client.post('/teleferic', {
       'query': query, 
       'variables': message,
       'sign': self.main_identity.sign(query+message)
@@ -315,7 +313,7 @@ class InviteTestCase(TestCase):
         }
       '''
 
-    response_raw = self.client.post('/graphql', {
+    response_raw = self.client.post('/teleferic', {
       'query': query, 
       'variables': message,
       'sign': identity.sign(query+message)

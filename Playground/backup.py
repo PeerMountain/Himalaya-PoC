@@ -15,6 +15,14 @@ import requests
 
 from settings import IDENTITY_FOLDER, ENDPOINT
 
+import argparse
+
+parser = argparse.ArgumentParser(description='Generate backup call')
+parser.add_argument('-v', '--verbose', action='store_true', help='Prints query, variables and sign.')
+args = parser.parse_args()
+
+VERBOSE = args.verbose
+
 identity_filename = input("Privkey name (identity): ")
 identity_filepath= os.path.join(IDENTITY_FOLDER,identity_filename)
 
@@ -92,6 +100,17 @@ graphql_query = {
   'variables': params,
   'sign': identity.sign(query+params)
 }
+
+if VERBOSE:
+  print(('/'*50)+' Begin Query '+('/'*50))
+  print(graphql_query['query'])
+  print(('/'*50)+' End Query '+('/'*50))
+  print(('/'*50)+' Begin Variables '+('/'*50))
+  print(graphql_query['variables'])
+  print(('/'*50)+' End Variables '+('/'*50))
+  print(('/'*50)+' Begin Sign '+('/'*50))
+  print(graphql_query['sign'])
+  print(('/'*50)+' End Sign '+('/'*50))
 
 response_raw = requests.post(ENDPOINT, data = graphql_query)
 response = response_raw.json()

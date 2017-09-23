@@ -28,6 +28,8 @@ SECRET_KEY = 'y5)uziy$$8cg(fpn1*3(d-gpdpz1=$m$&vd9!0_*ab*4(%%92p'
 DEBUG = os.getenv('PRODUCTION') == None
 
 ALLOWED_HOSTS = [
+    'localhost',
+    'teleferic',
     'teleferic.local',
     'teleferic-dev.dxmarkets.com'
 ]
@@ -43,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'graphene_django',
-    'API'
+    'API',
+    'corsheaders'
 ]
 
 if DEBUG == True:
@@ -53,11 +56,14 @@ if DEBUG == True:
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'Teleferic.urls'
 

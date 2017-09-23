@@ -7,7 +7,7 @@ from API.schema import schema
 import base58
 import json
 
-from Playground.identity_tools import Identity
+from identity_tools import Identity
 
 class RegisterTestCase(TestCase):
   passphrase = "PeerMountain"
@@ -58,7 +58,7 @@ class RegisterTestCase(TestCase):
       }
     '''
 
-    response_raw = self.client.post('/graphql', {
+    response_raw = self.client.post('/teleferic', {
       'query': query, 
       'variables': message,
       'sign': self.identity.sign(query+message)
@@ -111,7 +111,7 @@ class RegisterTestCase(TestCase):
         }
       }
     '''
-    response_raw = self.client.post('/graphql', {
+    response_raw = self.client.post('/teleferic', {
       'query': query, 
       'variables': message_modified,
       'sign': self.identity.sign(query+message)
@@ -122,9 +122,7 @@ class RegisterTestCase(TestCase):
 
     assert response == {
         'data': {
-            'register': {
-              'ok': False
-            }
+            'register': {'ok':False}
         }
     }
 
@@ -163,7 +161,7 @@ class RegisterTestCase(TestCase):
       }
     '''
 
-    response_raw = self.client.post('/graphql', {
+    response_raw = self.client.post('/teleferic', {
       'query': query, 
       'variables': message,
       'sign': self.identity.sign(query+message)
@@ -174,9 +172,7 @@ class RegisterTestCase(TestCase):
     
     assert response == {
         'data': {
-            'register': {
-              'ok': False
-            }
+            'register': {'ok':False}
         }
     }
 
@@ -215,7 +211,7 @@ class RegisterTestCase(TestCase):
       }
     '''
     
-    response_raw = self.client.post('/graphql', {
+    response_raw = self.client.post('/teleferic', {
       'query': query, 
       'variables': message,
       'sign': self.identity.sign(query+message)
@@ -226,9 +222,7 @@ class RegisterTestCase(TestCase):
 
     assert response == {
         'data': {
-            'register': {
-              'ok': False
-            }
+            'register': {'ok':False}
         }
     }
 
@@ -267,13 +261,13 @@ class RegisterTestCase(TestCase):
       }
     '''
 
-    self.client.post('/graphql', {
+    self.client.post('/teleferic', {
       'query': query, 
       'variables': message,
       'sign': self.identity.sign(query+message)
     })
 
-    response_raw = self.client.post('/graphql', {
+    response_raw = self.client.post('/teleferic', {
       'query': query, 
       'variables': message,
       'sign': self.identity.sign(query+message)
@@ -284,8 +278,6 @@ class RegisterTestCase(TestCase):
 
     assert response == {
         'data': {
-            'register': {
-              'ok': False
-            }
+            'register': {'ok':False}
         }
     }

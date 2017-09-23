@@ -15,6 +15,15 @@ import requests
 
 from settings import IDENTITY_FOLDER, ENDPOINT
 
+import argparse
+
+parser = argparse.ArgumentParser(description='Generate invite call')
+parser.add_argument('-v', '--verbose', action='store_true', help='Prints query, variables and sign.')
+args = parser.parse_args()
+
+VERBOSE = args.verbose
+
+
 identity_filename = input("Privkey name (identity): ")
 identity_filepath= os.path.join(IDENTITY_FOLDER,identity_filename)
 
@@ -53,7 +62,6 @@ query = '''
     ) {
       ok
       id
-      message
     }
   }
 '''
@@ -71,11 +79,23 @@ graphql_query = {
   'sign': identity.sign(query+params)
 }
 
+if VERBOSE:
+  print(('/'*50)+' Begin Query '+('/'*50))
+  print(graphql_query['query'])
+  print(('/'*50)+' End Query '+('/'*50))
+  print(('/'*50)+' Begin Variables '+('/'*50))
+  print(graphql_query['variables'])
+  print(('/'*50)+' End Variables '+('/'*50))
+  print(('/'*50)+' Begin Sign '+('/'*50))
+  print(graphql_query['sign'])
+  print(('/'*50)+' End Sign '+('/'*50))
+
 response_raw = requests.post(ENDPOINT, data = graphql_query)
 response = response_raw.json()
+invite_id = response.get("data").get("invite").get("id")
 
 try:
-  token = base58.b58encode(bytes(response.get("data").get("invite").get("id").encode('utf8'))+b'.'+bytes(base58.b58encode(bytes(passphrase.encode('utf8'))).encode('utf8')))
+  token = base58.b58encode(bytes(invite_id.encode('utf8'))+b'.'+bytes(base58.b58encode(bytes(passphrase.encode('utf8'))).encode('utf8')))
   print('Invitation token:', token)
 except:
-  print('Error',response_raw)
+  print('Error',response_raw.text)

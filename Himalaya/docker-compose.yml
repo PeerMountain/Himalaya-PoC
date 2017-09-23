@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  teleferic:
+    build: '../Teleferic'
+    image: 'himalaya_teleferic:latest'
+
+  gateway:
+    build: '.'
+    image: 'himalaya_gateway:latest'
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped
+    links:
+      - teleferic
+    volumes:
+      - /etc/ssl/wildcard:/etc/ssl/wildcard
+      - ../Docs/static:/srv/www/public_html

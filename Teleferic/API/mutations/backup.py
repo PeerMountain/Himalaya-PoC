@@ -6,6 +6,8 @@ from .common_types import MessageEnvelope
 
 from API.Mock import execute_backup, execute_authorize
 
+from graphql import GraphQLError
+
 class BackupMessage(graphene.InputObjectType):
   description = graphene.String(description="b58(encrypt(`some text or object with descriptions`))")
   content = graphene.String(description="b58(encrypt(content))")
@@ -29,18 +31,20 @@ class Backup(graphene.Mutation):
       #args come on query or is mapped on variables
       content = context.POST.get('query')+context.POST.get('variables')
       
-      result_authorize = execute_authorize(sender,content,sender_sign)
+      try:
+        execute_authorize(sender,content,sender_sign)
+      except Exception as e:
+        return Backup(ok=False)
 
       message = args.get('message')
       message_description = message.get('description')
       message_content = message.get('content')
       message_key = message.get('key')
 
-
-      if(result_authorize.get('success') == False):
-        return Backup(ok = False,message=result_authorize.get('message'))
-
-      result = execute_backup(message_description,message_content,message_key,sender)
+      try:
+        result = execute_backup(message_description,message_content,message_key,sender)
+      except Exception as e:
+        return Backup(ok=False)
       
       return Backup(
         ok=True,

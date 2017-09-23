@@ -13,7 +13,7 @@ def execute_restore(sender=None,hash=None):
     backup = Backup.objects.get(hash=hash)
   
   if not backup:
-    return False
+    raise Exception("Backup not exist")
 
   return {
     'description':backup.description,

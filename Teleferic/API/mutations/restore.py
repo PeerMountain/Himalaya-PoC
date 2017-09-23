@@ -6,6 +6,8 @@ from .common_types import MessageEnvelope
 
 from API.Mock import execute_restore, execute_restore_container, execute_authorize
 
+from graphql import GraphQLError
+
 class RestoreMessage(graphene.InputObjectType):
   hash = graphene.String(description="Backup Hash")
   sender = graphene.String(description="Backup Sender")
@@ -26,7 +28,7 @@ class Restore(graphene.Mutation):
       message = RestoreMessage()
 
     ok = graphene.Boolean(required=True)
-    restore_object = graphene.Field(lambda: RestoreResponse)
+    restore_container = graphene.Field(lambda: RestoreResponse)
 
     @staticmethod
     def mutate(root, args, context, info):
@@ -34,22 +36,24 @@ class Restore(graphene.Mutation):
       sender = envelope.get('sender')
       sender_sign = context.POST.get('sign')
       content = context.POST.get('query')+context.POST.get('variables')
-      result_authorize = execute_authorize(sender,content,sender_sign)
-
-      if(result_authorize.get('success') == False):
-        return Restore(ok=False,restore_object=None)
-
+      
+      try:
+        execute_authorize(sender,content,sender_sign)
+      except Exception as e:
+        return Restore(ok=False)
+      
       message = args.get('message')
       message_hash = message.get('hash')
       message_sender = message.get('sender')
       
-
-
-      result = execute_restore(message_sender,message_hash)
+      try:
+        result = execute_restore(message_sender,message_hash)
+      except Exception as e:
+        return Restore(ok=False)
 
       return Restore(
         ok=True,
-        restore_object=RestoreResponse(**result)
+        restore_container=RestoreResponse(**result)
       )
 
 class Mutation(graphene.AbstractType):

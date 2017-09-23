@@ -6,6 +6,8 @@ from .common_types import MessageEnvelope
 
 from API.Mock import execute_invite, execute_authorize
 
+from graphql import GraphQLError
+
 class InvitationMessage(graphene.InputObjectType):
   content = graphene.String(description="b58(encrypt(passphrase))")
   key = graphene.String(description="b58(passphrase(privkey))")
@@ -16,7 +18,6 @@ class Invite(graphene.Mutation):
       message = InvitationMessage()
 
     ok = graphene.Boolean(required=True)
-    message = graphene.String()
     id = graphene.String()
 
     @staticmethod
@@ -25,19 +26,22 @@ class Invite(graphene.Mutation):
       sender = envelope.get('sender')
       sender_sign = context.POST.get('sign')
       content = context.POST.get('query')+context.POST.get('variables')
-      result_authorize = execute_authorize(sender,content,sender_sign)
 
-      if(result_authorize.get('success') == False):
-        return Invite(ok=False,message=None)
+      try:
+        execute_authorize(sender,content,sender_sign)
+      except Exception as e:
+        return Invite(ok=False)
 
       message = args.get('message')
       message_content = message.get('content')
       message_key = message.get('key')
       message_dump = json.dumps(args.get('message'))
       
+      try:
+        result = execute_invite(message_content,message_key,sender)
+      except Exception as e:
+        return Invite(ok=False)
 
-      result = execute_invite(message_content,message_key,sender)
-      
       return Invite(
         ok=True,
         id=result

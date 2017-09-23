@@ -1,0 +1,10 @@
+{
+  "name": "teleferic-docs",
+  "version": "0.0.2",
+  "dependencies": {
+    "@2fd/graphdoc": "^2.4.0"
+  },
+  "scripts": {
+    "build": "graphdoc -e https://teleferic-dev.dxmarkets.com/teleferic -o ./static --force"
+  }
+}

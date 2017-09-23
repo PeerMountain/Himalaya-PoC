@@ -1,1 +1,1 @@
-export const ENDPOINT= '/teleferic'
+export const ENDPOINT= 'https://teleferic-dev.dxmarkets.com/teleferic'

@@ -28,18 +28,13 @@ class Index extends Component {
   }
 
   graphQLFetcher = graphQLParams => {
-    const {query_raw, variables_raw} = graphQLParams
-    const query = JSON.stringify(query_raw)
-    const variables = JSON.stringify(variables_raw)
     const request = {
       ...graphQLParams,
       'sign': this.refs.sign.value
     }
     return fetch(ENDPOINT, {
       method: 'post',
-      headers: { 
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     }).then(response => response.json());
   }

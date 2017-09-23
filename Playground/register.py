@@ -15,6 +15,14 @@ import requests
 
 from settings import IDENTITY_FOLDER, ENDPOINT
 
+import argparse
+
+parser = argparse.ArgumentParser(description='Generate register call')
+parser.add_argument('-v', '--verbose', action='store_true', help='Prints query, variables and sign.')
+args = parser.parse_args()
+
+VERBOSE = args.verbose
+
 token= input("Token: ")
 
 identity_filename= input("Privkey Filename: ")
@@ -51,7 +59,6 @@ query = '''
       }
     ){
       ok
-      message
     }
   }
 '''
@@ -70,11 +77,25 @@ graphql_query = {
   'sign': identity.sign(query+params)
 }
 
+if VERBOSE:
+  print(('/'*50)+' Begin Query '+('/'*50))
+  print(graphql_query['query'])
+  print(('/'*50)+' End Query '+('/'*50))
+  print(('/'*50)+' Begin Variables '+('/'*50))
+  print(graphql_query['variables'])
+  print(('/'*50)+' End Variables '+('/'*50))
+  print(('/'*50)+' Begin Sign '+('/'*50))
+  print(graphql_query['sign'])
+  print(('/'*50)+' End Sign '+('/'*50))
+
 response_raw = requests.post(ENDPOINT, data = graphql_query)
 response = response_raw.json()
 
-
 try:
-  print('Registred success')
+  result = response.get("data").get("register").get("ok")
+  if result == True:
+    print('Registred success')
+  else:
+    print('Error',response_raw.text)
 except:
-  print('Error',response_raw)
+  print('Error',response_raw.text)
