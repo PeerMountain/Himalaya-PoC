@@ -21,5 +21,5 @@ from API.schema import schema
 
 urlpatterns = [
     url(r'^haku/', admin.site.urls),
-    url(r'^teleferic', GraphQLView.as_view(graphiql=False, schema=schema)),
+    url(r'^teleferic', GraphQLView.as_view(graphiql=True, schema=schema)),
 ]

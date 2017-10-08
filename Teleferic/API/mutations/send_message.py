@@ -1,19 +1,52 @@
 import graphene
 
-from .common_types import MessageEnvelope
+import json
 
-class SendMessage(graphene.Mutation):
-    class Input:
-        envelope = MessageEnvelope()
-        bodyHash = graphene.String(required=False)
-        dossierHash = graphene.String()
-        reader = graphene.String()
+from ..Mock import execute_authorize, execute_write_message
 
-    ok = graphene.Boolean()
+from ..types import MessageEnvelope, AESEncryptedContent
 
-    @staticmethod
-    def mutate(root, args, context, info):
-        return SendMessage(ok=False)
+from graphql import GraphQLError
+
+class Message(graphene.Mutation):
+  class Input():
+    envelope = MessageEnvelope()
+    content = AESEncryptedContent()
+
+  ok = graphene.Boolean(required=True)
+  txid = graphene.String()
+
+  @staticmethod
+  def mutate(root, args, context, info):
+    envelope = args.get('envelope')
+    
+    sender = envelope.get('sender')
+    sender_sign = context.POST.get('sign')
+    ACL = envelope.get('ACL')
+
+    content = [context.POST.get('query'),context.POST.get('variables')]
+
+    try:
+      execute_authorize(sender,ACL,content,sender_sign)
+    except Exception as e:
+      return Message(ok=False)
+
+    message = args.get('message')
+    message_content = message.get('content')
+    message_key = message.get('key')
+    message_dump = json.dumps(args.get('message'))
+    
+    try:
+      result = execute_write_message(envelope,content)
+    except Exception as e:
+      return Message(ok=False)
+
+    return Message(
+      ok=True,
+      txid=result
+    )
 
 class Mutation(graphene.AbstractType):
-    send_message = SendMessage.Field(description="Aca!")
+  send_message = Message.Field(description='''
+  Send PM message
+  ''')
