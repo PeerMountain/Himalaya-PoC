@@ -3,13 +3,19 @@ from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5 as Signer
 from Crypto.Hash import RIPEMD
 
-from .Reader import execute_get_pubkey 
+from . import Reader
 
-def execute_authorize(sender,ACL,content,content_hash,sign):
-  pubkey = execute_get_pubkey(sender)
-  for ACL_rule in ACL:
-    # Rise an exception if some address be not registred
-    execute_get_pubkey(sender)
+def authorize(
+  sender,
+  content,
+  content_hash,
+  sign,
+  ACL=None):
+  pubkey = Reader.get_pubkey(sender)
+  if ACL:
+    for ACL_rule in ACL:
+      # Rise an exception if some address be not registred
+      Reader.get_pubkey(sender)
   pubkey_decoded = base58.b58decode(pubkey)
   key = RSA.importKey(pubkey_decoded)
   signer = Signer.new(key)

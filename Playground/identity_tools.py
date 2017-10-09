@@ -35,7 +35,7 @@ class Identity():
 
   @property
   def pubkey(self):
-    return base58.b58encode(self.key.publickey().exportKey("DER"))
+    return self.key.publickey().exportKey("PEM")
   
   @property
   def privkey(self):

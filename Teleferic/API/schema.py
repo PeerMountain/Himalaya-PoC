@@ -2,7 +2,7 @@ import graphene
 
 from API.mutations import send_message_mutation
 
-from API.query import version_query
+from API.query import version_query, persona_query
 
 class Mutations(
         send_message_mutation,
@@ -14,6 +14,7 @@ class Mutations(
 
 class Query(
         version_query,
+        persona_query,
         graphene.ObjectType
     ):
     # This class will inherit from multiple Queries

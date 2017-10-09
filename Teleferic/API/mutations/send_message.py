@@ -2,7 +2,7 @@ import graphene
 
 import json
 
-from ..Mock import execute_authorize, execute_write_message
+from ..Mock import Authorize, Writer
 
 from ..types import MessageEnvelope, AESEncryptedContent
 
@@ -27,7 +27,7 @@ class Message(graphene.Mutation):
     content = [context.POST.get('query'),context.POST.get('variables')]
 
     try:
-      execute_authorize(sender,ACL,content,sender_sign)
+      Authorize.authorize(sender,ACL,content,sender_sign)
     except Exception as e:
       return Message(ok=False)
 
@@ -37,7 +37,7 @@ class Message(graphene.Mutation):
     message_dump = json.dumps(args.get('message'))
     
     try:
-      result = execute_write_message(envelope,content)
+      result = Writer.write_message(envelope,content)
     except Exception as e:
       return Message(ok=False)
 
