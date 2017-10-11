@@ -11,16 +11,12 @@ class Teleferic(graphene.ObjectType):
   address = Address()
   pubkey = RSAKey()
   nickname = graphene.String()
-  timestamp = graphene.Field(SignedTimestamp)
 
   def resolve_pubkey(self, *args):
     return Reader.get_pubkey(self.address)
   
   def resolve_nickname(self, *args):
     return Reader.get_nickname(self.address)
-
-  def resolve_timestamp(self, *args):
-    return SignedTimestamp(*Authorize.sign_current_timestamp())
     
 class Query(graphene.AbstractType):
   teleferic = graphene.Field(Teleferic,
@@ -36,3 +32,7 @@ class Query(graphene.AbstractType):
     return Teleferic(
       address= Reader.get_address('Teleferic')
     )
+
+  timestamp = graphene.Field(SignedTimestamp)
+  def resolve_timestamp(self, *args):
+    return SignedTimestamp(*Authorize.sign_current_timestamp())

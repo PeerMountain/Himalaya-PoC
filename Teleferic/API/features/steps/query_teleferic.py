@@ -87,11 +87,9 @@ def step_impl(context):
 def step_impl(context):
     context.query = '''
         query{
-            teleferic{
-                timestamp{
-                    timestamp
-                    signature
-                }
+            timestamp{
+                timestamp
+                signature
             }
         }
     '''
@@ -99,14 +97,14 @@ def step_impl(context):
 
 @then('we will have timestamp between initial_timestamp and current timestamp')
 def step_impl(context):
-    response_time = context.executed['data']['teleferic']['timestamp']['timestamp']
+    response_time = context.executed['data']['timestamp']['timestamp']
     assert context.initial_timestamp < response_time and time.time() > response_time
 
 @then('we will have valid signature according Teleferic pubkey')
 def step_impl(context):
     signer = Signer.new(context.pubkey)
-    signature_raw = context.executed['data']['teleferic']['timestamp']['signature']
+    signature_raw = context.executed['data']['timestamp']['signature']
     signature = base64.b64decode(signature_raw)
-    timestamp = str(context.executed['data']['teleferic']['timestamp']['timestamp'])
+    timestamp = str(context.executed['data']['timestamp']['timestamp'])
     timestamp_hash = RIPEMD.new(timestamp)
     assert signer.verify(timestamp_hash,signature)
