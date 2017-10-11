@@ -1,9 +1,12 @@
 import base58
+import base64
 from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5 as Signer
 from Crypto.Hash import RIPEMD
 
 from . import Reader
+import time
+import os
 
 def authorize(
   sender,
@@ -29,3 +32,15 @@ def authorize(
     raise Exception("Invalid sign")
   
   return True
+
+def sign_current_timestamp():
+  base_path = os.path.dirname(os.path.abspath(__file__))
+  identity_filepath = os.path.join(base_path,'teleferic.priv')
+  privkey_file = open(identity_filepath, 'rb')
+  key = RSA.importKey(privkey_file.read())
+  signer = Signer.new(key)
+  
+  timestamp = str(time.time())
+  signature = base64.b64encode(signer.sign(RIPEMD.new(timestamp))).decode('utf-8')
+  
+  return [timestamp,signature]
