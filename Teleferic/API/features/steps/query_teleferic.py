@@ -10,7 +10,13 @@ import time
 
 @given('pubkey of Teleferic')
 def step_impl(context):
-    context.pubkey = RSA.importKey(context.text)
+    if context.text:
+        context.pubkey = RSA.importKey(context.text)
+    else:
+        context.execute_steps('''
+            when send pubkey query of teleferic
+        ''')
+        context.pubkey = RSA.importKey(context.executed['data']['teleferic']['pubkey'])
 
 @when('send pubkey query of teleferic')
 def step_impl(context):

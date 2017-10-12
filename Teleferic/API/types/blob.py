@@ -1,7 +1,7 @@
 from graphene.types import Scalar
 from graphql.language import ast
 
-class AESEncryptedContent(Scalar):
+class AESEncryptedBlob(Scalar):
     '''AES-256 encrypted content'''
 
     @staticmethod
@@ -18,7 +18,7 @@ class AESEncryptedContent(Scalar):
     def parse_value(value):
         return value
 
-class RSAEncryptedContent(Scalar):
+class RSAEncryptedBlob(Scalar):
     '''RSA-4096 encrypted content'''
 
     @staticmethod

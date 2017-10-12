@@ -8,13 +8,13 @@ from . import Reader
 import time
 import os
 
-def authorize(
-  sender,
-  content,
-  content_hash,
-  sign,
-  ACL=None):
+def authorize_message(envelope):
+  sender = envelope.get('sender')
+  ACL = envelope.get('ACL')
   pubkey = Reader.get_pubkey(sender)
+  sign = envelope.get('messageSig')
+  message_hash = envelope.get('messageHash')
+  content= envelope.get('message')
   if ACL:
     for ACL_rule in ACL:
       # Rise an exception if some address be not registred
@@ -22,12 +22,12 @@ def authorize(
   pubkey_decoded = base58.b58decode(pubkey)
   key = RSA.importKey(pubkey_decoded)
   signer = Signer.new(key)
-  message_hash = RIPEMD.new(content)
-  if content_hash != message_hash.digest():
+  content_hash = RIPEMD.new(content)
+  if message_hash != content_hash.digest():
     raise Exception("Invalid hash")
   
   sign_decode = base58.b58decode(sign)
-  result = signer.verify(message_hash,sign_decode)
+  result = signer.verify(content_hash,sign_decode)
   if result == False:
     raise Exception("Invalid sign")
   

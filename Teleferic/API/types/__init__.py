@@ -1,5 +1,5 @@
-from .message_envelope import MessageEnvelope
-from .encrypted_content import AESEncryptedContent, RSAEncryptedContent
+from .envelope import PublicMessageEnvelope, PrivateMessageEnvelope
+from .blob import AESEncryptedBlob, RSAEncryptedBlob
 from .key import RSAKey
 from .sign import Sign
 from .invitation import Invitation

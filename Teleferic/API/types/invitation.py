@@ -2,7 +2,7 @@ import graphene
 
 from .sh256 import SHA256
 from .address import Address
-from.encrypted_content import AESEncryptedContent
+from .blob import RSAEncryptedBlob
 
 class InvitationAbstract(graphene.AbstractType):
     bootstrapNode = graphene.String(required=True)
@@ -10,7 +10,7 @@ class InvitationAbstract(graphene.AbstractType):
     offeringAddr = Address()
     serviceAnnouncementMessage = SHA256()
     serviceOfferingID = graphene.Int()
-    inviteName = AESEncryptedContent()
+    inviteName = RSAEncryptedBlob()
 
 class Invitation(graphene.InputObjectType, InvitationAbstract):
   '''

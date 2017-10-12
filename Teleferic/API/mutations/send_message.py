@@ -4,14 +4,13 @@ import json
 
 from ..Mock import Authorize, Writer
 
-from ..types import MessageEnvelope, AESEncryptedContent
+from ..types import PrivateMessageEnvelope
 
 from graphql import GraphQLError
 
-class Message(graphene.Mutation):
+class PrivateMessage(graphene.Mutation):
   class Input():
-    envelope = MessageEnvelope()
-    content = AESEncryptedContent()
+    envelope = PrivateMessageEnvelope()
 
   ok = graphene.Boolean(required=True)
   txid = graphene.String()
@@ -19,34 +18,23 @@ class Message(graphene.Mutation):
   @staticmethod
   def mutate(root, args, context, info):
     envelope = args.get('envelope')
-    
-    sender = envelope.get('sender')
-    sender_sign = context.POST.get('sign')
-    ACL = envelope.get('ACL')
-
-    content = [context.POST.get('query'),context.POST.get('variables')]
 
     try:
-      Authorize.authorize(sender,ACL,content,sender_sign)
+      Authorize.authorize_message(envelope)
     except Exception as e:
-      return Message(ok=False)
-
-    message = args.get('message')
-    message_content = message.get('content')
-    message_key = message.get('key')
-    message_dump = json.dumps(args.get('message'))
+      return PrivateMessage(ok=False)
     
     try:
-      result = Writer.write_message(envelope,content)
+      result = Writer.write_message(envelope)
     except Exception as e:
-      return Message(ok=False)
+      return PrivateMessage(ok=False)
 
-    return Message(
+    return PrivateMessage(
       ok=True,
       txid=result
     )
 
 class Mutation(graphene.AbstractType):
-  send_message = Message.Field(description='''
+  send_private_message = PrivateMessage.Field(description='''
   Send PM message
   ''')

@@ -7,8 +7,8 @@ import os
 CONTAINER_PREFIX = [1, 0]
 CONTAINER_STORAGE = os.path.join(os.path.dirname(os.path.abspath(__file__)),'containers')
 
-def write_message(envelope, content):
-  
+def write_message(envelope):
+  content= envelope.get('message')
   acl_rules= []
   for acl_rule in envelope.get('ACL'):
     acl_rule['reader'] = Persona.objects.get(pk=acl_rule.get('reader'))
