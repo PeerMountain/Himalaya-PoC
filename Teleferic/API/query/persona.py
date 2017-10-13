@@ -1,19 +1,11 @@
 import graphene
 
-from ..types import Address, RSAKey
+from ..types import Address, RSAKey, Persona as PersonaAbstract
 from graphene_django.types import DjangoObjectType
 from ..Mock import Reader
 
-class Persona(graphene.ObjectType):
-  address = Address()
-  pubkey = RSAKey()
-  nickname = graphene.String()
-
-  def resolve_pubkey(self, *args):
-    return Reader.get_pubkey(self.address)
-  
-  def resolve_nickname(self, *args):
-    return Reader.get_nickname(self.address)
+class Persona(graphene.ObjectType, PersonaAbstract):
+  pass
     
 class Query(graphene.AbstractType):
   persona = graphene.Field(Persona,

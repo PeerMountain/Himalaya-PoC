@@ -2,7 +2,7 @@ import graphene
 
 from API.mutations import send_message_mutation
 
-from API.query import version_query, persona_query, teleferic_query
+from API.query import persona_query, teleferic_query
 
 class Mutations(
         send_message_mutation,
@@ -13,7 +13,6 @@ class Mutations(
     pass
 
 class Query(
-        version_query,
         persona_query,
         teleferic_query,
         graphene.ObjectType

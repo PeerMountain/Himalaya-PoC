@@ -18,9 +18,6 @@ class MessageEnvelopeAbstract(graphene.AbstractType):
   messageType = MessageType(description='''
   Define general message type
   ''',required=True)
-  containers = graphene.List(ContainerHashes,description='''
-  Contains hash of all containers present on message
-  ''')
   messageHash = SHA256(description='''
   Contains SHA256 of encrypted message body
   ''',required=True)
@@ -33,6 +30,9 @@ class MessageEnvelopeAbstract(graphene.AbstractType):
   bodyHash = SHA256(description='''
   Contains SHA256 of decrypted message body
   ''',required=True)
+  message = AESEncryptedBlob(description='''
+  AES Encrypted message
+  ''',required=True)
 
 class PrivateMessageEnvelope(graphene.InputObjectType, MessageEnvelopeAbstract):
   '''
@@ -42,18 +42,15 @@ class PrivateMessageEnvelope(graphene.InputObjectType, MessageEnvelopeAbstract):
   ACL = graphene.List(ACLRule,description='''
   Define a list of readers with encrypted keys
   ''',required=True)
-  message = AESEncryptedBlob(description='''
-  AES Encrypted message
-  ''',required=True)
+  containers = graphene.List(ContainerHashes,description='''
+  Contains hash of all containers present on message
+  ''')
 
 class PublicMessageEnvelope(graphene.InputObjectType, MessageEnvelopeAbstract):
   '''
   Public Message Envelope
   Valid Sender and valid Signature
   '''
-  senderPubkey = Address(description='''
-  Sender RSA pubkey; Required by registration 
-  ''',required=True)
-  message = RSAEncryptedBlob(description='''
-  RSA Encrypted message with Teleferic pubkey
+  message = AESEncryptedBlob(description='''
+  AES Encrypted message usign "Peer Mountain" as secret key
   ''',required=True)

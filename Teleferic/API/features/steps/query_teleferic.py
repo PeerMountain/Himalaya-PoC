@@ -8,109 +8,122 @@ from Crypto.Hash import RIPEMD
 import base64
 import time
 
-@given('pubkey of Teleferic')
+@given('Teleferic has pubkey')
 def step_impl(context):
-    if context.text:
-        context.pubkey = RSA.importKey(context.text)
-    else:
-        context.execute_steps('''
-            when send pubkey query of teleferic
-        ''')
-        context.pubkey = RSA.importKey(context.executed['data']['teleferic']['pubkey'])
+    context.pubkey = RSA.importKey(context.text)
 
-@when('send pubkey query of teleferic')
+@when('I query the pubkey of Teleferic')
 def step_impl(context):
     context.query = '''
         query{
             teleferic{
-                pubkey
+                persona{
+                    pubkey
+                }
             }
         }
     '''
     context.executed = context.client.execute(context.query)
 
-@then('we will have equal pubkey')
+@then('the pubkey should match')
 def step_impl(context):
-    response_pubkey = RSA.importKey(context.executed['data']['teleferic']['pubkey'])
+    response_pubkey = RSA.importKey(context.executed['data']['teleferic']['persona']['pubkey'])
     assert context.pubkey.exportKey() == response_pubkey.exportKey()
 
-@given('nickname is "{nickname}"')
+@given('Teleferic nickname is "{nickname}"')
 def step_impl(context,nickname):
     context.nickname = nickname
 
-@when('send nickname query of teleferic')
+@when('I query the nickname of Teleferic')
 def step_impl(context):
     context.query = '''
         query{
             teleferic{
-                nickname
+                persona{
+                    nickname
+                }
             }
         }
     '''
     context.executed = context.client.execute(context.query)
 
-@then('we will have equal nickname')
+@then('the nickname should match')
 def step_impl(context):
     assert context.executed == {
         'data': {
             'teleferic': {
-                'nickname': context.nickname
+                'persona': {
+                    'nickname': context.nickname
+                }
             }
         }
     }
 
-@given('address is "{address}"')
+@given('Teleferic address is "{address}"')
 def step_impl(context,address):
     context.address = address
     
 
-@when('send address query of teleferic')
+@when('I query the address of Teleferic')
 def step_impl(context):
     context.query = '''
         query{
             teleferic{
-                address
+                persona{
+                    address
+                }
             }
         }
     '''
     context.executed = context.client.execute(context.query)
 
-@then('we will have equal address')
+@then('the addresses should match')
 def step_impl(context):
     assert context.executed == {
         'data': {
             'teleferic': {
-                'address': context.address
+                'persona':{
+                    'address': context.address
+                }
             }
         }
     }
 
-@given('current timestamp as initial_timestamp')
+@given('Teleferic has pubkey <pubKey>')
+def step_impl(context):
+    context.execute_steps('''
+        When I query the pubkey of Teleferic
+    ''')
+    context.pubkey = RSA.importKey(context.executed['data']['teleferic']['persona']['pubkey'])
+
+@given('the current timestamp is <initial_timestamp>')
 def step_impl(context):
     context.initial_timestamp = time.time()
 
-@when('we send signed timestap query of teleferic')
+@when('I query a signed timestap of Teleferic')
 def step_impl(context):
     context.query = '''
         query{
-            timestamp{
-                timestamp
-                signature
+            teleferic{
+                signedTimestamp{
+                    timestamp
+                    signature
+                }
             }
         }
     '''
     context.executed = context.client.execute(context.query)
 
-@then('we will have timestamp between initial_timestamp and current timestamp')
+@then('the timestamp will be between <initial_timestamp> and current timestamp')
 def step_impl(context):
-    response_time = context.executed['data']['timestamp']['timestamp']
+    response_time = context.executed['data']['teleferic']['signedTimestamp']['timestamp']
     assert context.initial_timestamp < response_time and time.time() > response_time
 
-@then('we will have valid signature according Teleferic pubkey')
+@then('the message should have a valid signature according to Teleferic pubkey')
 def step_impl(context):
     signer = Signer.new(context.pubkey)
-    signature_raw = context.executed['data']['timestamp']['signature']
+    signature_raw = context.executed['data']['teleferic']['signedTimestamp']['signature']
     signature = base64.b64decode(signature_raw)
-    timestamp = str(context.executed['data']['timestamp']['timestamp'])
+    timestamp = str(context.executed['data']['teleferic']['signedTimestamp']['timestamp'])
     timestamp_hash = RIPEMD.new(timestamp)
     assert signer.verify(timestamp_hash,signature)

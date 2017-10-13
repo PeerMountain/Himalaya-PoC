@@ -1,7 +1,7 @@
 Feature: Query Teleferic identity information
 
   Scenario: Get teleferic pubkey
-    Given pubkey of Teleferic
+    Given Teleferic has pubkey 
     """
     -----BEGIN PUBLIC KEY-----
     MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAvibs6QJ23DtU01mLVo6F
@@ -18,22 +18,22 @@ Feature: Query Teleferic identity information
     onmwCjRva9XmguDORNL460sCAwEAAQ==
     -----END PUBLIC KEY-----
     """
-    When send pubkey query of teleferic
-    Then we will have equal pubkey
+    When I query the pubkey of Teleferic
+    Then the pubkey should match
 
   Scenario: Get teleferic nickname
-    Given nickname is "Teleferic"
-    When send nickname query of teleferic
-    Then we will have equal nickname
+    Given Teleferic nickname is "Teleferic"
+    When I query the nickname of Teleferic
+    Then the nickname should match
 
   Scenario: Get teleferic address
-    Given address is "8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL"
-    When send address query of teleferic
-    Then we will have equal address
+    Given Teleferic address is "8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL"
+    When I query the address of Teleferic
+    Then the addresses should match
 
   Scenario: Get and verify Teleferig signed timestamp
-    Given pubkey of Teleferic
-    And current timestamp as initial_timestamp
-    When we send signed timestap query of teleferic
-    Then we will have timestamp between initial_timestamp and current timestamp
-    And we will have valid signature according Teleferic pubkey
+    Given Teleferic has pubkey <pubKey>
+    And the current timestamp is <initial_timestamp>
+    When I query a signed timestap of Teleferic
+    Then the timestamp will be between <initial_timestamp> and current timestamp
+    And the message should have a valid signature according to Teleferic pubkey
