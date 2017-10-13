@@ -8,7 +8,12 @@ WORKDIR /code
 ADD requirements.txt /code/
 RUN pip install -r requirements.txt
 
-ADD . /code/
+ADD API /code/API
+ADD Teleferic /code/Teleferic
+ADD gunicorn_conf.py /code/
+ADD manage.py /code/
+ADD settings.py /code/
+ADD run.sh /code/
 
 EXPOSE 8000
 
