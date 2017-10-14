@@ -10,7 +10,7 @@ class Persona(graphene.ObjectType, PersonaAbstract):
 class Query(graphene.AbstractType):
   persona = graphene.Field(Persona,
     address=graphene.String(default_value=None),
-    nickname=graphene.String(default_value=None),
+    nickname=graphene.String(default_value='Teleferic'),
     description='''
     Retrive identity info
     filtering by 

@@ -14,28 +14,50 @@ $ docker-compose build
 ## Push images to registry
 ### Ngxin gateway
 ```bash
-$ docker tag himalaya_gateway meteoro.dxmarkets.com:5000/himalaya_gateway
 $ docker push meteoro.dxmarkets.com:5000/himalaya_gateway:latest
 ```
 ### Teleferic
 ```bash
-$ docker tag himalaya_teleferic meteoro.dxmarkets.com:5000/himalaya_teleferic
 $ docker push meteoro.dxmarkets.com:5000/himalaya_teleferic:latest
 ```
-## Pull images from registry
+## Update Swarm
+```bash
+$ docker stack deploy -c docker-compose.himalaya.yml himalaya_dev --with-registry-auth
+```
 ### Nginx gateway
 ```bash
-$ docker pull meteoro.dxmarkets.com:5000/himalaya_gateway:latest
+$ docker service update himalaya_dev_gateway --with-registry-auth --update-order start-first --detach=false
 ```
 ### Teleferic
 ```bash
-$ docker pull meteoro.dxmarkets.com:5000/himalaya_teleferic:latest
+$ docker service update himalaya_dev_teleferic --with-registry-auth --update-order start-first --detach=false
 ```
-## Update running containers
+
+## Some commands
 ```bash
-$ docker-compose up --build -d
+#list services
+$ docker service ls
+#Inspect
+$ docker service inspect himalaya_dev_gateway  --pretty
+$ docker service inspect himalaya_dev_teleferic  --pretty
+#Scale
+$ docker service scale himalaya_dev_gateway=2
+$ docker service scale himalaya_dev_teleferic=3
 ```
-## Load Teleferic Persona
+
+#Monitorion
+## Start and Deploy
 ```bash
-$ docker exec himalaya_teleferic_1 python manage.py loaddata genesis_identity.json
+$ docker stack deploy -c docker-compose.cloud_dashboard.yml monitor
 ```
+## Access
+Go to [Grafana](http://94.130.38.47:8443)
+user: nacho
+pass: X53unbuxSRrVxv31A8bX
+## Stop and remove
+```bash
+$ docker stack rm monitor
+```
+
+
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"

@@ -8,15 +8,20 @@ WORKDIR /code
 ADD requirements.txt /code/
 RUN pip install -r requirements.txt
 
-ADD API /code/API
-ADD Teleferic /code/Teleferic
 ADD gunicorn_conf.py /code/
 ADD manage.py /code/
-ADD settings.py /code/
 ADD run.sh /code/
+ADD Teleferic /code/Teleferic
+ADD settings.py /code/
+ADD API /code/API
+
+RUN mkdir db
 
 EXPOSE 8000
 
 ENV PRODUCTION 1
+
+RUN python manage.py migrate
+RUN python manage.py loaddata genesis_identity.json
 
 CMD ./run.sh

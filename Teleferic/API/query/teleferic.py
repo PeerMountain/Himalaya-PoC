@@ -40,7 +40,9 @@ class Teleferic(graphene.ObjectType):
   def resolve_signedTimestamp(self, *args):
     return SignedTimestamp(*Authorize.sign_current_timestamp())
 
-  version = graphene.Field(Version)
+  version = graphene.Field(Version,description='''
+  Teleferic current version
+  ''')
   def resolve_version(self, *args):
       return Version()
 
