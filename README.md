@@ -5,7 +5,7 @@ root@peer-mountain01 ~ # docker run --entrypoint htpasswd registry:2 -Bbn user p
 ```
 ## Generate graphql docs
 ```bash
-$ graphdoc -e http://teleferic.local:8000/teleferic -o ../Docs --force
+$ graphdoc -e http://teleferic.local:8000/teleferic -o ./Docs --force
 ```
 ## Build images
 ```bash

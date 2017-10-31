@@ -14,6 +14,7 @@ ADD run.sh /code/
 ADD Teleferic /code/Teleferic
 ADD settings.py /code/
 ADD API /code/API
+ADD libs /code/libs
 
 RUN mkdir db
 

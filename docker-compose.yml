@@ -6,6 +6,7 @@ services:
     image: 'meteoro.dxmarkets.com:5000/himalaya_teleferic:latest'
     volumes:
       - db:/code/db
+      - messages_content:/code/API/Mock/messages
     networks:
       - teleferic
     deploy:
@@ -42,3 +43,4 @@ networks:
   teleferic:
 volumes:
   db:
+  messages_content:
