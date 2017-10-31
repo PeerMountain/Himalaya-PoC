@@ -3,8 +3,8 @@ import os
 from behave import given, when, then, step
 
 from Crypto.PublicKey import RSA
-from Crypto.Signature import PKCS1_v1_5 as Signer
-from Crypto.Hash import RIPEMD
+from libs.tools import Identity
+from Crypto.Hash import SHA256
 import base64
 import time
 
@@ -29,6 +29,11 @@ def step_impl(context):
 def step_impl(context):
     response_pubkey = RSA.importKey(context.executed['data']['teleferic']['persona']['pubkey'])
     assert context.pubkey.exportKey() == response_pubkey.exportKey()
+
+@then('the pubkey not should match')
+def step_impl(context):
+    response_pubkey = RSA.importKey(context.executed['data']['teleferic']['persona']['pubkey'])
+    assert context.pubkey.exportKey() != response_pubkey.exportKey()
 
 @given('Teleferic nickname is "{nickname}"')
 def step_impl(context,nickname):
@@ -59,6 +64,18 @@ def step_impl(context):
         }
     }
 
+@then('the nickname not should match')
+def step_impl(context):
+    assert context.executed != {
+        'data': {
+            'teleferic': {
+                'persona': {
+                    'nickname': context.nickname
+                }
+            }
+        }
+    }
+
 @given('Teleferic address is "{address}"')
 def step_impl(context,address):
     context.address = address
@@ -80,6 +97,18 @@ def step_impl(context):
 @then('the addresses should match')
 def step_impl(context):
     assert context.executed == {
+        'data': {
+            'teleferic': {
+                'persona':{
+                    'address': context.address
+                }
+            }
+        }
+    }
+
+@then('the addresses not should match')
+def step_impl(context):
+    assert context.executed != {
         'data': {
             'teleferic': {
                 'persona':{
@@ -121,9 +150,7 @@ def step_impl(context):
 
 @then('the message should have a valid signature according to Teleferic pubkey')
 def step_impl(context):
-    signer = Signer.new(context.pubkey)
-    signature_raw = context.executed['data']['teleferic']['signedTimestamp']['signature']
-    signature = base64.b64decode(signature_raw)
+    signer = Identity(context.pubkey)
+    signature = context.executed['data']['teleferic']['signedTimestamp']['signature']
     timestamp = str(context.executed['data']['teleferic']['signedTimestamp']['timestamp'])
-    timestamp_hash = RIPEMD.new(timestamp)
-    assert signer.verify(timestamp_hash,signature)
+    assert signer.verify(timestamp.encode(),signature)

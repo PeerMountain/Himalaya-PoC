@@ -2,69 +2,32 @@ import graphene
 
 import json
 
-from ..Mock import Authorize, Writer
+from ..Mock import Authorizer, Writer
 
-from ..types import PrivateMessageEnvelope, PublicMessageEnvelope
+from ..types import MessageEnvelope, TXID, SHA256
 
 from graphql import GraphQLError
 
-class PrivateMessage(graphene.Mutation):
+class Message(graphene.Mutation):
   class Input():
-    envelope = PrivateMessageEnvelope()
+    envelope = MessageEnvelope(required=True)
 
-  ok = graphene.Boolean(required=True)
-  txid = graphene.String()
+  envelopeID = graphene.Int()
+  cacheTXID = TXID()
+  messageHash = SHA256()
+  cacheTimestamp = graphene.Float()
 
   @staticmethod
   def mutate(root, args, context, info):
     envelope = args.get('envelope')
 
-    try:
-      Authorize.authorize_message(envelope)
-    except Exception as e:
-      return PrivateMessage(ok=False)
+    Authorizer.authorize_message(envelope)
     
-    try:
-      result = Writer.write_message(envelope)
-    except Exception as e:
-      return PrivateMessage(ok=False)
+    persisted = Writer.write_message(envelope)
 
-    return PrivateMessage(
-      ok=True,
-      txid=result
-    )
-
-class PublicMessage(graphene.Mutation):
-  class Input():
-    envelope = PublicMessageEnvelope()
-
-  ok = graphene.Boolean(required=True)
-  txid = graphene.String()
-
-  @staticmethod
-  def mutate(root, args, context, info):
-    envelope = args.get('envelope')
-
-    try:
-      Authorize.authorize_message(envelope)
-    except Exception as e:
-      return PrivateMessage(ok=False)
-    
-    try:
-      result = Writer.write_message(envelope)
-    except Exception as e:
-      return PrivateMessage(ok=False)
-
-    return PrivateMessage(
-      ok=True,
-      txid=result
-    )
+    return Message(**persisted)
 
 class Mutation(graphene.AbstractType):
-  send_private_message = PrivateMessage.Field(description='''
-  Send PM message
-  ''')
-
-  send_public_message = PublicMessage.Field(description='''
+  send_message = Message.Field(description='''
   Send PM message
   ''')

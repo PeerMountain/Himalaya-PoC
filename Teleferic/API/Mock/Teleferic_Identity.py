@@ -1,4 +1,7 @@
------BEGIN RSA PRIVATE KEY-----
+from libs.tools import Identity
+import time
+
+TELEFERIC_KEY = """-----BEGIN RSA PRIVATE KEY-----
 MIIJJwIBAAKCAgEAvibs6QJ23DtU01mLVo6FB9eyj12FpPHvgFvQ39zdRFnZ3jxq
 vFxENWBFrBV4x11enh4U3djBg2QhYuiEVYlfTto9NEGQtRz5g5kaM3yiZMVXIkyV
 mdXvU0cSsQqQP00lt2tm4zdClxVvwt3oN2KnxLH6aO/ENw64fp4rqSq8zJcjYNBG
@@ -49,3 +52,15 @@ JpPhWxJzaN3Sw4ZObJTHWlWrJUOCZJ7VgQdZF1oXXTykA5ATAZA5Of5CaUKVWuca
 AksaQQYfGmdq30S6rKSLTuoV1e1n0QseY7b0VHSTumlT0v3B+8zKNUYQXeaYzGLB
 1tJuL+2fNuqzPiA62ugUjgRGHSBylcpy/URQfyae61bPGOrDnScY1qMgpw==
 -----END RSA PRIVATE KEY-----
+"""
+
+def sign_current_timestamp():
+  teleferic_identity = Identity(TELEFERIC_KEY)
+  timestamp = str(time.time()).encode()
+  signature = teleferic_identity.sign(timestamp).decode()
+  
+  return [timestamp,signature]
+
+def decrypt_content(content):
+  teleferic_identity = Identity(TELEFERIC_KEY)
+  return teleferic_identity.decrypt(content)

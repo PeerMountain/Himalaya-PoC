@@ -1,7 +1,7 @@
 import graphene
 
 from ..types import Address, RSAKey, Sign
-from ..Mock import Reader, Authorize
+from ..Mock import Reader, Teleferic_Identity
 
 from .persona import Persona
 from settings import VERSION_NAME, VERSION_CODE, BUILD_NUMBER
@@ -32,13 +32,18 @@ class Teleferic(graphene.ObjectType):
   Teleferic persona info
   ''')
   def resolve_persona(self,*args):
-    return Persona(address= Reader.get_address('Teleferic'))
+    teleferic_identity = Reader.get_persona(nickname='Teleferic')
+    return Persona(
+      nickname=teleferic_identity.nickname,
+      address=teleferic_identity.address,
+      pubkey=teleferic_identity.pubkey
+    )
 
   signedTimestamp = graphene.Field(SignedTimestamp,description='''
   Teleferic's timestamp singned by Teleferic itself
   ''')
   def resolve_signedTimestamp(self, *args):
-    return SignedTimestamp(*Authorize.sign_current_timestamp())
+    return SignedTimestamp(*Teleferic_Identity.sign_current_timestamp())
 
   version = graphene.Field(Version,description='''
   Teleferic current version

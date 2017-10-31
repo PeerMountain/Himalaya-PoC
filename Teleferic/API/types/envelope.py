@@ -30,27 +30,19 @@ class MessageEnvelopeAbstract(graphene.AbstractType):
   bodyHash = SHA256(description='''
   Contains SHA256 of decrypted message body
   ''',required=True)
+  ACL = graphene.List(ACLRule,description='''
+  Define a list of readers with encrypted keys.
+  If is empty, message will be public and content
+  needs to be encrypted with 'Peer Mountain' passphrase
+  ''')
+  containers = graphene.List(ContainerHashes,description='''
+  Contains hash of all containers present on message
+  ''')
   message = AESEncryptedBlob(description='''
   AES Encrypted message
   ''',required=True)
 
-class PrivateMessageEnvelope(graphene.InputObjectType, MessageEnvelopeAbstract):
+class MessageEnvelope(graphene.InputObjectType, MessageEnvelopeAbstract):
   '''
-  Private Message Envelope
-  Registred Sender and valid Signature
+  Message Envelope
   '''
-  ACL = graphene.List(ACLRule,description='''
-  Define a list of readers with encrypted keys
-  ''',required=True)
-  containers = graphene.List(ContainerHashes,description='''
-  Contains hash of all containers present on message
-  ''')
-
-class PublicMessageEnvelope(graphene.InputObjectType, MessageEnvelopeAbstract):
-  '''
-  Public Message Envelope
-  Valid Sender and valid Signature
-  '''
-  message = AESEncryptedBlob(description='''
-  AES Encrypted message usign "Peer Mountain" as secret key
-  ''',required=True)

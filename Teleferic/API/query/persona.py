@@ -11,25 +11,22 @@ class Query(graphene.AbstractType):
   persona = graphene.Field(Persona,
     address=graphene.String(default_value=None),
     nickname=graphene.String(default_value='Teleferic'),
+    pubkey=graphene.String(default_value=None),
     description='''
     Retrive identity info
     filtering by 
-    nickname or address.
+    nickname, address or pubkey.
     '''
   )
 
   def resolve_persona(self, info, *args):
-    address= info.get('address')
-    nickname= info.get('nickname')
-    if not address:
-      if nickname:
-        return Persona(
-          address= Reader.get_address(nickname)
-        )
-      else:
-        raise Exception('Invalid nickname')
-    elif nickname:
-      raise Exception('Define only one filter argument.')
+    persona= Reader.get_persona(
+      info.get('address'),
+      info.get('nickname'),
+      info.get('pubkey')
+    )
     return Persona(
-      address= address
+      address=persona.address,
+      nickname=persona.nickname,
+      pubkey=persona.pubkey
     )
