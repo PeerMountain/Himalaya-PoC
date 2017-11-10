@@ -54,7 +54,7 @@ class Identity():
     return self.rsa.sign(content)
 
   def verify(self, content, signature):
-    return self.rsa.verify_sign(content,signature)
+    return self.rsa.verify(content,signature)
 
   def encrypt(self,content):
     return self.rsa.encrypt(content)

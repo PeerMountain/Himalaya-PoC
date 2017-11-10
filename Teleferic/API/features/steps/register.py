@@ -122,8 +122,8 @@ def step_imp(context, service_name):
   
   message_body = json.dumps({
     'inviteMsgID': context.message_hash.hexdigest(),
-    'keyProof': key_proof,
-    'inviteName': invite_name,
+    'keyProof': key_proof.decode(),
+    'inviteName': invite_name.decode(),
     'publicKey': context.identity.pubkey.decode(),
     'publicNickname' : context.personaName
   })
