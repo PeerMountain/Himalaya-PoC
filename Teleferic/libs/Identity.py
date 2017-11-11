@@ -8,16 +8,16 @@ from .tools import RSA
 ADDRESS_PREFIX = [1, 0]
 
 class Identity():
-  def __init__(self, privkey=None):
-    if privkey is None:
+  def __init__(self, key=None):
+    if key is None:
       rng = Random.new().read
       self.key = Key.generate(4096, rng)
     else:
-      key_type = type(privkey)
+      key_type = type(key)
       if key_type in (str,bytes):
-        self.key = Key.importKey(privkey)
+        self.key = Key.importKey(key)
       elif key_type == _RSAobj:
-        self.key = privkey
+        self.key = key
       else:
         raise Exception('Invalid key format.')
     self.rsa = RSA(self.key)
@@ -45,13 +45,22 @@ class Identity():
   
   @property
   def privkey(self):
-    return self.key.exportKey("PEM")
+    if self.key.has_private:
+      return self.key.exportKey("PEM")
+    else:
+      return False
 
   def export_private(self,passphrase):
-    return self.key.exportKey(passphrase=passphrase, pkcs=8)
+    if self.key.has_private:
+      return self.key.exportKey(passphrase=passphrase, pkcs=8)
+    else:
+      return False
 
   def sign(self, content):
-    return self.rsa.sign(content)
+    if self.key.has_private:
+      return self.rsa.sign(content)
+    else:
+      return False
 
   def verify(self, content, signature):
     return self.rsa.verify(content,signature)
@@ -60,4 +69,7 @@ class Identity():
     return self.rsa.encrypt(content)
 
   def decrypt(self,content):
-    return self.rsa.decrypt(content)
+    if self.key.has_private:
+      return self.rsa.decrypt(content)
+    else:
+      return False
