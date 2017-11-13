@@ -2,7 +2,7 @@
 import os
 from behave import given, when, then, step
 
-from HimalayaClient import Identity
+from TelefericClient import Identity
 
 @when('compute SHA256 hash of pubkey')
 def step_imp(context):

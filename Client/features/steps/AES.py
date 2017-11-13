@@ -2,7 +2,7 @@
 import os
 from behave import given, when, then, step
 
-from HimalayaClient.Crypto import AES
+from TelefericClient.Crypto import AES
 
 @given('a passphrase {key}')
 def step_imp(context, key):

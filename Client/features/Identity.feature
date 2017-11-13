@@ -23,7 +23,7 @@ Feature: Identity module
     And prefix resulting RIPEMD160 with [1, 0] bytes to generate the base address
     And apply SHA256 two times over resulting RIPEMD160 to generate the checksum
     And append last 4 bytes of resulting checksum at the end of base address to generate the address
-    Then the addres should be iZn2hyWChp6hkHEobZNdE9vmruR3MNVQZVFoBMc6PHEvKmaQM1jKoEC1uDF5Qf7deXN
+    Then the address should be iZn2hyWChp6hkHEobZNdE9vmruR3MNVQZVFoBMc6PHEvKmaQM1jKoEC1uDF5Qf7deXN
 
   Scenario: Address generation 2
     Given the following pubkey
@@ -48,4 +48,4 @@ Feature: Identity module
     And prefix resulting RIPEMD160 with [1, 0] bytes to generate the base address
     And apply SHA256 two times over resulting RIPEMD160 to generate the checksum
     And append last 4 bytes of resulting checksum at the end of base address to generate the address
-    Then the addres should be iYYKMxZzf31xixNbF8NhjwNHp6nk4M8YKj1msbbgXFoWW78LsgKQNCGhxrbZTQ8NZL6
+    Then the address should be iYYKMxZzf31xixNbF8NhjwNHp6nk4M8YKj1msbbgXFoWW78LsgKQNCGhxrbZTQ8NZL6

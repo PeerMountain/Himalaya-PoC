@@ -13,16 +13,17 @@ requires = ['']
 
 
 setup(
-  name='HimalayaClient',
-  version='1.0.5',
-  description='A python client for Himalaya API',
-  long_description=read('README.md'),
-  license="BSD",
-  author='Ignacio Althabe',
-  author_email='ignacio.althabe@dxmarkets.com',
-  keywords='peermountain python himalaya graphql api',
-  packages=find_packages(),
-  install_requires=[
-      'requests'
-  ]
+    name='TelefericClient',
+    version='0.1.0',
+    description='A python client for Himalaya API',
+    long_description=read('README.md'),
+    license="BSD",
+    author='Ignacio Althabe',
+    author_email='ignacio.althabe@dxmarkets.com',
+    keywords='peermountain python himalaya graphql api',
+    packages=find_packages(),
+    install_requires=[
+        'pycrypto',
+        'base58'
+    ]
 )

@@ -2,7 +2,7 @@
 import os
 from behave import given, when, then, step
 
-from HimalayaClient.Crypto import RSA
+from TelefericClient.Crypto import RSA
 
 @given('the following privkey')
 def step_imp(context):
