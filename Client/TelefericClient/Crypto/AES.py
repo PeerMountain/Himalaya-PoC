@@ -24,9 +24,7 @@ class AES():
         return s[:-ord(s[len(s) - 1:])]
 
     def encrypt(self, content):
-        print(content.hex()+'1')
         local_content = self.__pad(content)
-        print(local_content.hex()+'1')
         ciphed_content = self.cipher.encrypt(local_content)
         return base64.b64encode(ciphed_content)
 
