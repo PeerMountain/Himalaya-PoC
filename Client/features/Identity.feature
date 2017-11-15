@@ -1,6 +1,6 @@
 Feature: Identity module
 
-  Scenario: Address generation 1
+  Scenario: Belen address generation
     Given the following pubkey
     """
     -----BEGIN PUBLIC KEY-----
@@ -25,7 +25,7 @@ Feature: Identity module
     And append last 4 bytes of resulting checksum at the end of base address to generate the address
     Then the address should be iZn2hyWChp6hkHEobZNdE9vmruR3MNVQZVFoBMc6PHEvKmaQM1jKoEC1uDF5Qf7deXN
 
-  Scenario: Address generation 2
+  Scenario: Julia address generation
     Given the following pubkey
     """
     -----BEGIN PUBLIC KEY-----
@@ -49,3 +49,28 @@ Feature: Identity module
     And apply SHA256 two times over resulting RIPEMD160 to generate the checksum
     And append last 4 bytes of resulting checksum at the end of base address to generate the address
     Then the address should be iYYKMxZzf31xixNbF8NhjwNHp6nk4M8YKj1msbbgXFoWW78LsgKQNCGhxrbZTQ8NZL6
+
+  Scenario: Luis address generation
+    Given the following pubkey
+    """
+    -----BEGIN PUBLIC KEY-----
+    MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAy5jwblJ0hPscye+ruZst
+    k3Q5otjkYaA/fRo/TZrHZdZwwaUvNtWyg3v5vgtxhuMuLmQ1thUntRNN+DEw+HmX
+    tD4n96sebRzjFlfod6tCO5/K5vOP/gCnbXYR+D1zWfseC2Rsjt+TPQxCbxn67hGc
+    6bk3xWF4imG1UaCUoLnimXk709m/QRGQXBXlYU1Yk8vYNPawM3vWR30UHzp5IBMU
+    W29RsRyePLD6rLNsuK7s6s3EYzgVnYpT+isYnvXmsmczrqi1eW4vDObP2/Wy87YF
+    rEzO9RCjG2z/VVF97DOpbt09MzO1BXgWYU/LWJVMEqBcmE9mNFgd1oDfwQE+HYph
+    RBH0lvFaYtTccLIiyeVSY79PZmLCvuKqYJh3Eya1G5o6kg1GEmvu82urmLnbxytc
+    WvreQr0boCo3dNEzoHsd/4CsgjgoWbKgSUflkNvK+KtbVhbFk8gXH8zMGx6LpgZj
+    K+giwaMY3zaGj9iRnNLyPbgP/LxmbFOdWEAZx5KKaHrq7NTcGFwOhWxsPPa1wQaq
+    Ml4m8GVgXYYaPRwZXKPoErGbvDIgk6Q7YvJH6FFvIdFgd+Goa4V4lXSzncEl5MKu
+    TthFzgk2jnsTbNEIWYWRkepFIk2Z1xgqal6svtwdY7iKwidgo7YyTKehciPvlZq2
+    vZk664BI42LZB5Az/N22rt0CAwEAAQ==
+    -----END PUBLIC KEY-----
+    """
+    When compute SHA256 hash of pubkey
+    And compute RIPEMD160 of resulting SHA256
+    And prefix resulting RIPEMD160 with [1, 0] bytes to generate the base address
+    And apply SHA256 two times over resulting RIPEMD160 to generate the checksum
+    And append last 4 bytes of resulting checksum at the end of base address to generate the address
+    Then the address should be iXeYpmSnUi7CyK7MUxL8b7Vd1sd6ZRK3FMZxpy6RhGDHy85VxQ6c6WM6yYfyaLqWQZB
