@@ -4,7 +4,7 @@ from Crypto.PublicKey.RSA import _RSAobj
 from Crypto import Random
 import base58
 
-from .Crypto import RSA 
+from .Cryptography import RSA 
 ADDRESS_PREFIX = [1, 0]
 
 class Identity():

@@ -2,9 +2,9 @@
 import os
 from behave import given, when, then, step
 
-from TelefericClient.Crypto import AES
+from TelefericClient.Cryptography import AES
 
-@given('a passphrase {key}')
+@given('secret 32 bytes passphrase {key}')
 def step_imp(context, key):
   context.passphrase = key.strip().encode()
 
