@@ -4,9 +4,14 @@ from behave import given, when, then, step
 
 from TelefericClient.Cryptography import AES
 
+@given('a passphrase {key}')
+def step_imp(context, key):
+  context.passphrase = key.strip().encode()
+
 @given('secret 32 bytes passphrase {key}')
 def step_imp(context, key):
   context.passphrase = key.strip().encode()
+  assert len(context.passphrase) == 32
 
 @when('I encrypt the resulted content with the resulted passphrase using AES')
 def step_imp(context):

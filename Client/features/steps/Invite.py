@@ -3,6 +3,7 @@ import os
 from behave import given, when, then, step
 
 from TelefericClient.Cryptography import AES
+from Crypto.Hash import SHA256,HMAC
 
 from collections import OrderedDict
 import msgpack
@@ -23,7 +24,7 @@ def step_impl(context):
   cipher = AES(context.passphrase)
   context.encryptedInviteName = cipher.encrypt(context.inviteName)
 
-@then('the resulting encrypted invite name should be {result}')
+@then('the resulting encrypted <inviteName> should be {result}')
 def step_impl(context, result):
   print(context.encryptedInviteName)
   assert context.encryptedInviteName == result.strip().encode()  
@@ -67,26 +68,87 @@ def step_impl(context):
 def step_impl(context):
   context.packMessageBody = msgpack.packb(context.messageBody)
 
-@when('encode resulting pack with Base64')
+@when('encode resulting message body pack with Base64')
 def step_impl(context):
   context.b64PackMessageBody = base64.b64encode(context.packMessageBody)
 
-@then('resulting message body should be equal to {result}')
+@then('resulting <messageBody> should be equal to {result}')
 def step_impl(context,result):
   assert result.strip().encode() == context.b64PackMessageBody
 
-@given('message body {result}')
+@given('message body content {result}')
 def step_impl(context, result):
   context.b64PackMessageBody = result.strip().encode()
 
-@when('I decode message boy with Base64')
+@when('I decode message body with Base64')
 def step_impl(context):
   context.packMessageBody = base64.b64decode(context.b64PackMessageBody)
 
-@when('parse resulting content with Message Pack')
+@when('parse resulting message body with Message Pack')
 def step_impl(context):
   context.messageBody = msgpack.unpackb(context.packMessageBody)
 
 @then('{attribute} attribute should be {value}')
 def step_impl(context,attribute,value):
   assert context.messageBody[attribute.strip().encode()] == value.strip().encode()
+
+@given('40 bytes random salt {dossierSalt}')
+def step_imp(context,dossierSalt):
+  parts = dossierSalt.replace(':','')
+  context.dossierSalt = bytes(bytearray.fromhex(parts))
+  assert len(context.dossierSalt) == 40
+
+@given('message body type <bodyType> equal to 0 (Invitation)')
+def step_imp(context):
+  context.bodyType = 0
+
+@when('I compose invite message content sorting attributes alphabetically')
+def step_imp(context):
+  messageContent = OrderedDict()
+  messageContent['bodyType'] = context.bodyType
+  messageContent['dossierSalt'] = context.dossierSalt
+  messageContent['messageBody'] = context.b64PackMessageBody
+  context.messageContent = messageContent
+
+@when('format message content with Message Pack')
+def step_imp(context):
+  context.packMessageContent = msgpack.packb(context.messageContent)
+
+@when('encrypt resulting message content pack using AES with public passphrase "Peer Mountain"')
+def step_imp(context):
+  cipher = AES('Peer Mountain'.encode())
+  context.encryptedPackMessageContent = cipher.encrypt(context.packMessageContent)
+
+@when('encode resulting encrypted message content pack with Base64')
+def step_imp(context):
+  context.b64EncryptedPackMessageContent = base64.b64encode(context.encryptedPackMessageContent)
+
+@then('resulting <messageContent> should be {result}')
+def step_imp(context,result):
+  print(context.b64EncryptedPackMessageContent)
+  assert result.strip().encode() == context.b64EncryptedPackMessageContent
+
+@when('I compute SHA256 hash of message body')
+def step_imp(context):
+  context.hashMessageBody = SHA256.new(context.b64PackMessageBody).digest()
+
+@when('encode resulting message body hash with Base64')
+def step_imp(context):
+  context.b64HashMessageBody = base64.b64encode(context.hashMessageBody)
+
+@then('resulting <messageHash> should be {result}')
+def step_imp(context,result):
+  assert context.b64HashMessageBody == result.strip().encode()
+
+@when('I compute HMAC-SHA256 hash of message body with given 40bytes salt')
+def step_imp(context):
+  context.dossierHash = HMAC.new(context.dossierSalt,context.b64PackMessageBody,SHA256).digest()
+
+@when('encode resulting message body hmac-hash with Base64')
+def step_imp(context):
+  context.b64DossierHash = base64.b64encode(context.dossierHash)
+
+@then('resulting <dossierHash> should be {result}')
+def step_imp(context,result):
+  print(context.b64DossierHash)
+  assert context.b64DossierHash == result.strip().encode()
