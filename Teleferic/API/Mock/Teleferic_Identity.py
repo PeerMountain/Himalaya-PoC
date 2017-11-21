@@ -1,5 +1,6 @@
 from libs.tools import Identity
 import time
+from collections import OrderedDict
 
 TELEFERIC_KEY = """-----BEGIN RSA PRIVATE KEY-----
 MIIJJwIBAAKCAgEAvibs6QJ23DtU01mLVo6FB9eyj12FpPHvgFvQ39zdRFnZ3jxq
@@ -58,8 +59,10 @@ def sign_current_timestamp():
   teleferic_identity = Identity(TELEFERIC_KEY)
   timestamp = str(time.time()).encode()
   signature = teleferic_identity.sign(timestamp).decode()
-  
-  return [timestamp,signature]
+  result = OrderedDict()
+  result['signature'] = signature
+  result['timestamp'] = timestamp
+  return result
 
 def decrypt_content(content):
   teleferic_identity = Identity(TELEFERIC_KEY)

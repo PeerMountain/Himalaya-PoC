@@ -20,9 +20,6 @@ class Version(graphene.ObjectType):
     def resolve_build_number(self, *args):
         return BUILD_NUMBER
   
-class SignedTimestamp(graphene.ObjectType):
-  timestamp = graphene.Float()
-  signature = Sign()
 
 class Teleferic(graphene.ObjectType):
   '''
@@ -36,14 +33,14 @@ class Teleferic(graphene.ObjectType):
     return Persona(
       nickname=teleferic_identity.nickname,
       address=teleferic_identity.address,
-      pubkey=teleferic_identity.pubkey
+      pubkey=teleferic_identity.pubkey.encode()
     )
 
-  signedTimestamp = graphene.Field(SignedTimestamp,description='''
+  signedTimestamp = graphene.Field(Sign,description='''
   Teleferic's timestamp singned by Teleferic itself
   ''')
   def resolve_signedTimestamp(self, *args):
-    return SignedTimestamp(*Teleferic_Identity.sign_current_timestamp())
+    return Teleferic_Identity.sign_current_timestamp()
 
   version = graphene.Field(Version,description='''
   Teleferic current version
