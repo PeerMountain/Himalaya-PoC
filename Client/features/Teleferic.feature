@@ -14,11 +14,11 @@ Feature: Query bootstap node information
       }
     }
     '''
-    And bootstap url https://teleferic-dev.dxmarkets.com/teleferic/
+    And bootstap url http://teleferic.local:8000/teleferic
     When I send query to bootstrap node
-    And get property data.teleferic.persona.pubkey
+    And get property data.teleferic.persona.pubkey from query response
     And decode property with Base64
-    Then result should be
+    Then decoded property should be
     """
     -----BEGIN PUBLIC KEY-----
     MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAvibs6QJ23DtU01mLVo6F
@@ -48,10 +48,10 @@ Feature: Query bootstap node information
       }
     }
     '''
-    And bootstap url https://teleferic-dev.dxmarkets.com/teleferic/
+    And bootstap url http://teleferic.local:8000/teleferic
     When I send query to bootstrap node
-    And get property data.teleferic.persona.address
-    Then result should be iZUTgbvR4iaNYzPgJFodTtT7xJxhyusyoyChCvsbXLH4rRgv3sgm2R2ksh8yRPnhumH
+    And get property data.teleferic.persona.address from query response
+    Then property value should be iZUTgbvR4iaNYzPgJFodTtT7xJxhyusyoyChCvsbXLH4rRgv3sgm2R2ksh8yRPnhumH
   
   @wip
   Scenario: Get Teleferic signed timestamp
@@ -63,7 +63,7 @@ Feature: Query bootstap node information
       }
     }
     '''
-    And bootstap url https://teleferic-dev.dxmarkets.com/teleferic/
+    And bootstap url http://teleferic.local:8000/teleferic
     When I send query to bootstrap node
     And get property data.teleferic.signedTimestamp
     And decode property with Base64
