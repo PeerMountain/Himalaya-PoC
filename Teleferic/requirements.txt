@@ -10,3 +10,4 @@ six==1.10.0
 django-behave==0.1.5
 behave-teamcity==0.1.25
 django-cors-headers==2.1.0
+msgpack-python==0.4.8
