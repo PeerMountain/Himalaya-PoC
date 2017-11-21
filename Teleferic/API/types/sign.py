@@ -1,12 +1,14 @@
 from graphene.types import Scalar
 from graphql.language import ast
+import msgpack
+import base64
 
 class Sign(Scalar):
     '''RSA-4096 signature'''
 
     @staticmethod
     def serialize(value):
-        return value
+        return base64.b64encode(msgpack.packb(value)).decode('utf-8')
 
     @staticmethod
     def parse_literal(node):
@@ -16,4 +18,4 @@ class Sign(Scalar):
 
     @staticmethod
     def parse_value(value):
-        return value
+        return base64.b64decode(msgpack.unpack(value))
