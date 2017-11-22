@@ -27,13 +27,13 @@ class RSA():
         return self.key.decrypt(ciphred_content)
 
     def sign(self, content):
-        content_hash = SHA256.new(content).hexdigest().encode()
+        content_hash = SHA256.new(content).digest()
         signature = self.key.sign(content_hash, None)
         bytes_signature = long_to_bytes(signature[0])
         return base64.b64encode(bytes_signature)
 
     def verify(self, content, b64_bytes_signature):
-        content_hash = SHA256.new(content).hexdigest().encode()
+        content_hash = SHA256.new(content).digest()
         bytes_signature = base64.b64decode(b64_bytes_signature)
         signature = bytes_to_long(bytes_signature)
         return self.key.verify(content_hash, [signature])
