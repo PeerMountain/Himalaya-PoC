@@ -20,7 +20,7 @@ class Message(graphene.Mutation):
   @staticmethod
   def mutate(root, args, context, info):
     envelope = args.get('envelope')
-
+    
     Authorizer.authorize_message(envelope)
     
     persisted = Writer.write_message(envelope)

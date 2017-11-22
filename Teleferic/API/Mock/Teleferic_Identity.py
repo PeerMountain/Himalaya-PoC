@@ -58,7 +58,7 @@ AksaQQYfGmdq30S6rKSLTuoV1e1n0QseY7b0VHSTumlT0v3B+8zKNUYQXeaYzGLB
 def sign_current_timestamp():
   teleferic_identity = Identity(TELEFERIC_KEY)
   timestamp = str(time.time()).encode()
-  signature = teleferic_identity.sign(timestamp).decode()
+  signature = teleferic_identity.sign(timestamp)
   result = OrderedDict()
   result['signature'] = signature
   result['timestamp'] = timestamp

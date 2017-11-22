@@ -13,7 +13,6 @@ import base64
 @given('secret passphrase {passphrase}')
 def step_impl(context, passphrase):
     context.passphrase = passphrase.strip().encode()
-    print(len(context.passphrase))
     assert len(context.passphrase) == 32
 
 
@@ -30,7 +29,6 @@ def step_impl(context):
 
 @then('the resulting encrypted <inviteName> should be {result}')
 def step_impl(context, result):
-    print(context.encryptedInviteName)
     assert context.encryptedInviteName == result.strip().encode()
 
 
@@ -152,11 +150,22 @@ def step_imp(context):
         context.encryptedPackMessageContent)
 
 
-@then('resulting <messageContent> should be {result}')
+@then('resulting <message> should be {result}')
 def step_imp(context, result):
-    print(context.b64EncryptedPackMessageContent)
     assert result.strip().encode() == context.b64EncryptedPackMessageContent
 
+@when(u'I compute SHA256 hash of message content')
+def step_impl(context):
+  context.rawMessageHash = SHA256.new(context.message).digest()
+
+
+@when(u'encode resulting message hash with Base64')
+def step_impl(context):
+    context.messageHash = base64.b64encode(context.rawMessageHash)
+
+@then('resulting message content hash <messageHash> should be {result}')
+def step_imp(context, result):
+    assert context.messageHash == result.strip().encode()
 
 @when('I compute SHA256 hash of message body')
 def step_imp(context):
@@ -168,7 +177,7 @@ def step_imp(context):
     context.b64HashMessageBody = base64.b64encode(context.hashMessageBody)
 
 
-@then('resulting <messageHash> should be {result}')
+@then('resulting message body hash <bodyHash> should be {result}')
 def step_imp(context, result):
     assert context.b64HashMessageBody == result.strip().encode()
 
@@ -186,7 +195,6 @@ def step_imp(context):
 
 @then('resulting <dossierHash> should be {result}')
 def step_imp(context, result):
-    print(context.b64DossierHash)
     assert context.b64DossierHash == result.strip().encode()
 
 
@@ -215,6 +223,7 @@ def step_impl(context):
 @when(u'I format signable object with Message Pack')
 def step_impl(context):
     context.formated_signable_object = msgpack.packb(context.signable_object)
+    print('asas',context.formated_signable_object)
 
 
 @when(u'generate RSA signature <signature> using <privkey> of formated signable object')
@@ -225,7 +234,7 @@ def step_impl(context):
 @when(u'compose signature object')
 def step_impl(context):
     context.signature_object = OrderedDict()
-    context.signature_object['signature'] = context.signature,
+    context.signature_object['signature'] = context.signature
     context.signature_object['timestamp'] = context.telefericSignedTimestamp
 
 
@@ -243,6 +252,56 @@ def step_impl(context):
 
 @then(u'resulting <messageSig> should be {result}')
 def step_impl(context, result):
-    print(context.messageHash)
     print(context.b64encoded_format_signature_object)
     assert context.b64encoded_format_signature_object == result.strip().encode()
+
+
+@given(u'dossier hash {dossierHash}')
+def step_impl(context, dossierHash):
+    context.dossierHash = dossierHash.strip().encode()
+
+
+@given(u'following mutation')
+def step_impl(context):
+    context.mutation = context.text.strip()
+
+
+@given(u'sender address {sender}')
+def step_impl(context, sender):
+    context.sender = sender.strip().encode()
+
+
+@given(u'message type {messageType}')
+def step_impl(context, messageType):
+    context.messageType = messageType.strip().encode()
+
+
+@given(u'body hash {bodyHash}')
+def step_impl(context, bodyHash):
+    context.bodyHash = bodyHash.strip().encode()
+
+
+@given(u'message signature {messageSig}')
+def step_impl(context, messageSig):
+    context.messageSig = messageSig.strip().encode()
+
+
+@given(u'message {message}')
+def step_impl(context, message):
+    context.message = message.strip().encode()
+
+
+@when(u'I compose variable object')
+def step_impl(context):
+    context.variables = context.text.strip()
+
+
+@then(u'response should be success')
+def step_impl(context):
+    raise NotImplementedError(u'STEP: Then response should be success')
+
+
+@then(u'response should have cacheTXID property')
+def step_impl(context):
+    raise NotImplementedError(
+        u'STEP: Then response should have cacheTXID property')

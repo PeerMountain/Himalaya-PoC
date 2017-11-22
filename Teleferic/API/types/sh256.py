@@ -1,5 +1,6 @@
 from graphene.types import Scalar
 from graphql.language import ast
+import base64
 
 class SHA256(Scalar):
     '''SHA-256 hash'''
@@ -16,4 +17,4 @@ class SHA256(Scalar):
 
     @staticmethod
     def parse_value(value):
-        return value
+        return base64.b64decode(value)

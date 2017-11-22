@@ -23,6 +23,15 @@ def step_impl(context):
     })
     context.query_response = r.json()
 
+@when(u'send mutation with variables to bootstrap node <bootstrapNode>')
+def step_impl(context):
+    r = requests.post(context.bootstrap_node, data = {
+        'query': context.mutation,
+        'variables': context.variables
+    })
+    print(r.json())
+    context.query_response = r.json()
+
 @when('get property {property_path} from query response')
 def step_impl(context, property_path):
     parts = property_path.split('.')
