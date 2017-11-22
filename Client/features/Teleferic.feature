@@ -14,7 +14,7 @@ Feature: Query bootstap node information
       }
     }
     '''
-    And bootstap url http://teleferic.local:8000/teleferic
+    And bootstrap node url http://teleferic.local:8000/teleferic
     When I send query to bootstrap node
     And get property data.teleferic.persona.pubkey from query response
     And decode property with Base64
@@ -48,24 +48,25 @@ Feature: Query bootstap node information
       }
     }
     '''
-    And bootstap url http://teleferic.local:8000/teleferic
+    And bootstrap node url http://teleferic.local:8000/teleferic
     When I send query to bootstrap node
     And get property data.teleferic.persona.address from query response
     Then property value should be iZUTgbvR4iaNYzPgJFodTtT7xJxhyusyoyChCvsbXLH4rRgv3sgm2R2ksh8yRPnhumH
   
   @wip
   Scenario: Get Teleferic signed timestamp
-    Given following query
+    Given bootstrap node url http://teleferic.local:8000/teleferic
+    And bootstrap node pubkey <bootstrapNodePubkey>
+    And following query
     '''
     query{
       teleferic{
         signedTimestamp
       }
     }
-    '''
-    And bootstap url http://teleferic.local:8000/teleferic
+    ''' 
     When I send query to bootstrap node
-    And get property data.teleferic.signedTimestamp
+    And get property data.teleferic.signedTimestamp from query response
     And decode property with Base64
     And unpack property with Message Pack
     Then result should have signature property

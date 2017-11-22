@@ -4,12 +4,15 @@ from behave import given, when, then, step
 
 import requests
 import base64
+import msgpack
+
+from TelefericClient.Cryptography import RSA
 
 @given('following query')
 def step_impl(context):
     context.query = context.text.strip()
 
-@given('bootstap url {bootstrapNode}')
+@given('bootstrap node url {bootstrapNode}')
 def step_impl(context, bootstrapNode):
     context.bootstrap_node = bootstrapNode.strip().encode()
 
@@ -30,7 +33,7 @@ def step_impl(context, property_path):
 
 @when('decode property with Base64')
 def step_impl(context):
-    context.b64decode_property_value = base64.b64decode(context.property_value)
+    context.property = base64.b64decode(context.property_value)
 
 @then('property value should be {wanted_value}')
 def step_impl(context, wanted_value):
@@ -38,4 +41,37 @@ def step_impl(context, wanted_value):
 
 @then('decoded property should be')
 def step_impl(context):
-    assert context.text.strip().encode() == context.b64decode_property_value
+    assert context.text.strip().encode() == context.property
+
+
+@given('bootstrap node pubkey <bootstrapNodePubkey>')
+def step_impl(context):
+    context.execute_steps("""
+        Given following query
+        '''
+        query{
+            teleferic{
+                persona{
+                pubkey
+                }
+            }
+        }
+        '''
+        And bootstrap node url """+context.bootstrap_node.decode('utf-8')+"""
+        When I send query to bootstrap node
+        And get property data.teleferic.persona.pubkey from query response
+        And decode property with Base64
+    """)
+    context.bootstrapNodePubkey = RSA(context.property.decode('utf-8'))
+
+@when(u'unpack property with Message Pack')
+def step_impl(context):
+    context.property = msgpack.unpackb(context.property)
+
+@then(u'result should have {property_key} property')
+def step_impl(context, property_key):
+    assert property_key.strip().encode() in context.property
+
+@then(u'signature should be valid for timestamp')
+def step_impl(context):
+    assert context.bootstrapNodePubkey.verify(context.property[b'timestamp'],context.property[b'signature'])
