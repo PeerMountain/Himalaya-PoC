@@ -10,15 +10,18 @@ class AES():
     MODE = Base_AES.MODE_ECB
 
     def __init__(self, key):
-        if(len(key) >= self.KEY_SIZE):
+        key_length = len(key)
+        if key_length > self.KEY_SIZE:
             raise Exception(
-                'Key length must be equal to {0}.'.format(self.KEY_SIZE))
-        
-        self.key = self.__pad(key,self.KEY_SIZE)
+                'Key length must be lower or equal to {0}.'.format(self.KEY_SIZE))
+        elif key_length < self.KEY_SIZE:
+            self.key = self.__pad(key,self.KEY_SIZE)
+        else:
+            self.key = key
         self.cipher = Base_AES.new(self.key, self.MODE)
 
     def __pad(self, s, l=BLOCK_SIZE):
-        return s + (l - len(s) % l) * chr(l - len(s) % l)
+        return s + (l - len(s) % l) * chr(l - len(s) % l).encode()
 
     def __unpad(self, s):
         return s[:-ord(s[len(s) - 1:])]
