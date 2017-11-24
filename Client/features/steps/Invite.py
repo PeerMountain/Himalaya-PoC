@@ -137,18 +137,11 @@ def step_imp(context):
     context.packMessageContent = msgpack.packb(context.messageContent)
 
 
-@when('encrypt resulting message content pack using AES with public passphrase "Peer Mountain"')
+@when('encrypt resulting message content pack using AES module with public passphrase "Peer Mountain"')
 def step_imp(context):
     cipher = AES('Peer Mountain'.encode())
-    context.encryptedPackMessageContent = cipher.encrypt(
+    context.b64EncryptedPackMessageContent = cipher.encrypt(
         context.packMessageContent)
-
-
-@when('encode resulting encrypted message content pack with Base64')
-def step_imp(context):
-    context.b64EncryptedPackMessageContent = base64.b64encode(
-        context.encryptedPackMessageContent)
-
 
 @then('resulting <message> should be {result}')
 def step_imp(context, result):
@@ -223,7 +216,6 @@ def step_impl(context):
 @when(u'I format signable object with Message Pack')
 def step_impl(context):
     context.formated_signable_object = msgpack.packb(context.signable_object)
-    print('asas',context.formated_signable_object)
 
 
 @when(u'generate RSA signature <signature> using <privkey> of formated signable object')
@@ -252,7 +244,6 @@ def step_impl(context):
 
 @then(u'resulting <messageSig> should be {result}')
 def step_impl(context, result):
-    print(context.b64encoded_format_signature_object)
     assert context.b64encoded_format_signature_object == result.strip().encode()
 
 
@@ -298,10 +289,9 @@ def step_impl(context):
 
 @then(u'response should be success')
 def step_impl(context):
-    raise NotImplementedError(u'STEP: Then response should be success')
+    assert not 'errors' in context.query_response
 
 
-@then(u'response should have cacheTXID property')
-def step_impl(context):
-    raise NotImplementedError(
-        u'STEP: Then response should have cacheTXID property')
+@then(u'response should have messageHash property equal to {messageHash}')
+def step_impl(context,messageHash):
+    assert context.messageHash == messageHash.strip().encode()

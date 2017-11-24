@@ -29,7 +29,6 @@ def step_impl(context):
         'query': context.mutation,
         'variables': context.variables
     })
-    print(r.json())
     context.query_response = r.json()
 
 @when('get property {property_path} from query response')
