@@ -6,6 +6,9 @@ from . import Reader
 from libs.tools import Identity
 import time
 import os
+import base64
+import base58
+
 
 MESSAGES_STORAGE = os.path.join(os.path.dirname(os.path.abspath(__file__)),'messages')
 
@@ -35,10 +38,10 @@ def write_message(envelope):
       acl_rules.append(ACLRule.objects.create(**acl_rule))
 
   message = Message(
-    messageHash= envelope.get('messageHash'),
+    messageHash= base64.b64encode(envelope.get('messageHash')),
     messageType= envelope.get('messageType'),
-    dossierHash= envelope.get('dossierHash'),
-    bodyHash= envelope.get('bodyHash'),
+    dossierHash= base64.b64encode(envelope.get('dossierHash')),
+    bodyHash= base64.b64encode(envelope.get('bodyHash')),
     sender= Persona.objects.get(pk=envelope.get('sender')),
   )
 
@@ -47,13 +50,15 @@ def write_message(envelope):
   
   message.save()
 
-  container_path = os.path.join(MESSAGES_STORAGE,message.messageHash)
+  file_name = base58.b58encode(envelope.get('messageHash'))
+
+  container_path = os.path.join(MESSAGES_STORAGE,file_name)
   file = open(container_path, 'w+')
   file.write(content)
 
   return {
-    "envelopeID": message.pk,
-    "cacheTXID": message.pk,
+    "envelopeID": message.pk.decode('utf-8'),
+    "cacheTXID": message.pk.decode('utf-8'),
     "cacheTimestamp": time.time(),
-    "messageHash": message.messageHash
+    "messageHash": SHA256.new(envelope.get('message').encode()).digest()
   }

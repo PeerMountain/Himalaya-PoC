@@ -7,7 +7,7 @@ class SHA256(Scalar):
 
     @staticmethod
     def serialize(value):
-        return value
+        return base64.b64encode(value).decode()
 
     @staticmethod
     def parse_literal(node):

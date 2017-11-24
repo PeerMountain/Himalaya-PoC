@@ -16,7 +16,7 @@ def validate_timestamped_signature(sender_pubkey, message_hash, signature):
   timestamp = signature[b'timestamp']
   
   validator_map = OrderedDict()
-  validator_map['messageHash'] = message_hash
+  validator_map['messageHash'] = base64.b64encode(message_hash)
   validator_map['timestamp'] = timestamp
   
   validator = msgpack.packb(validator_map)
@@ -34,16 +34,16 @@ def authorize_message(envelope):
   '''
     if envelope.get('messageType') is '1':
         try:
-            public_cipher = AES('Peer Mountain')
-            message = envelope.get('message').encode()
+            public_cipher = AES(b'Peer Mountain')
+            message = envelope.get('message')
             message_content_raw = public_cipher.decrypt(message)
             # Parse message
-            message_content = json.loads(message_content_raw.decode())
-            if message_content.get('bodyType') == 1:
+            message_content = msgpack.unpackb(message_content_raw)
+            if message_content.get(b'bodyType') == 1:
                 check_sender = False
                 message_body = json.loads(message_content.get('messageBody'))
                 sender_pubkey = message_body.get('publicKey')
-        except:
+        except Exception as e:
             pass
 
     if check_sender:
@@ -68,68 +68,69 @@ def authorize_message(envelope):
     else:
         # Validate Pulic Message
         # Decrypt
-        public_cipher = AES('Peer Mountain')
+        public_cipher = AES(b'Peer Mountain')
         try:
             message_content_raw = public_cipher.decrypt(message)
             # Parse message
-            message_content = json.loads(message_content_raw.decode())
+            message_content = msgpack.unpackb(message_content_raw)
         except Exception as e:
             raise Exception('Invalid public message content.')
 
         # Validate Body
         body_hash = envelope.get('bodyHash')
-        message_body_raw = message_content.get('messageBody').encode()
-        current_body_hash = SHA256.new(message_body_raw).hexdigest()
+        message_body_raw = message_content.get(b'messageBody')
+        current_body_hash = SHA256.new(message_body_raw).digest()
         if body_hash != current_body_hash:
             raise Exception('Invalid bodyHash.')
 
         # Validate dossierSalt
-        dossier_salt = message_content.get('dossierSalt').encode()
+        dossier_salt = message_content.get(b'dossierSalt')
         if len(dossier_salt) != 40:
             raise Exception('Invalid dossierSalt.')
 
         # Validate dossierHash
         dossier_hash = envelope.get('dossierHash')
-        if dossier_hash != HMAC.new(dossier_salt, message_body_raw, SHA256).hexdigest():
+        if dossier_hash != HMAC.new(dossier_salt, message_body_raw, SHA256).digest():
             raise Exception('Invalid dossierHash.')
 
         # Parse message body
         try:
-            message_body = json.loads(message_body_raw.decode())
+            decoded_message_body = base64.b64decode(message_body_raw)
+            message_body = msgpack.unpackb(decoded_message_body)
         except Exception as e:
             raise Exception('Invalid messageBody.')
 
         {
             0: validate_invite,
             1: validate_registration
-        }.get(message_content.get('bodyType'))(message_body)
+        }.get(message_content.get(b'bodyType'))(message_body)
 
     return True
 
 
 def validate_registration(message_body):
     # Validate bootstrap node
-    invite_message_hash = message_body.get('inviteMsgID')
+    invite_message_hash = message_body.get(b'inviteMsgID')
     if invite_message_hash in (None, ''):
         raise Exception('Invalid invite message hash.')
 
-    nickname = message_body.get('publicNickname')
+    nickname = message_body.get(b'publicNickname')
     if nickname in (None, ''):
         raise Exception('Invalid nickname.')
 
     invite_message = Reader.get_message_content(invite_message_hash)
-    public_cipher = AES('Peer Mountain')
+    public_cipher = AES(b'Peer Mountain')
     try:
         invite_message_content_raw = public_cipher.decrypt(invite_message)
         # Parse message
         invite_message_content = json.loads(
             invite_message_content_raw.decode())
         invite_message_body_content = json.loads(
-            invite_message_content.get('messageBody'))
+            invite_message_content.get(b'messageBody'))
     except Exception as e:
         raise Exception('Invalid invite message content.')
 
-    key_proof_raw = message_body.get('keyProof')
+    key_proof_raw = message_body.get(b'keyProof')
     print(key_proof_raw)
     try:
         key_proof = Teleferic_Identity.decrypt_content(key_proof_raw.encode())
@@ -164,32 +165,32 @@ def validate_registration(message_body):
 
 def validate_invite(message_body):
     # Validate bootstrap node
-    bootstrap_node = message_body.get('bootstrapNode')
+    bootstrap_node = message_body.get(b'bootstrapNode')
     if bootstrap_node in (None, ''):
         raise Exception('Invalid bootstrapNode.')
 
     # Validate bootstrap address
-    bootstrap_address = message_body.get('bootstrapAddr')
+    bootstrap_address = message_body.get(b'bootstrapAddr')
     if bootstrap_address in (None, ''):
         raise Exception('Invalid bootstrapAddr.')
 
     # Validate offering address
-    offering_address = message_body.get('offeringAddr')
+    offering_address = message_body.get(b'offeringAddr')
     if offering_address in (None, ''):
         raise Exception('Invalid offeringAddr.')
 
     # Validate service announcement message
     service_announcement_message = message_body.get(
-        'serviceAnnouncementMessage')
-    if service_announcement_message in (None, ''):
+        b'serviceAnnouncementMessage')
+    if False and service_announcement_message in (None, ''):
         raise Exception('Invalid serviceAnnouncementMessage.')
 
     # Validate service offering id
-    service_offering_id = message_body.get('serviceOfferingID')
+    service_offering_id = message_body.get(b'serviceOfferingID')
     if service_offering_id in (None, ''):
         raise Exception('Invalid serviceOfferingID.')
 
     # Validate invite name
-    invite_name_raw = message_body.get('inviteName')
+    invite_name_raw = message_body.get(b'inviteName')
     if invite_name_raw in (None, ''):
         raise Exception('Invalid inviteName.')
