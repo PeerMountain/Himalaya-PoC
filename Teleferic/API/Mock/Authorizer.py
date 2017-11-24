@@ -123,9 +123,9 @@ def validate_registration(message_body):
     try:
         invite_message_content_raw = public_cipher.decrypt(invite_message)
         # Parse message
-        invite_message_content = json.loads(
+        invite_message_content = msgpack.unpackb(
             invite_message_content_raw.decode())
-        invite_message_body_content = json.loads(
+        invite_message_body_content = msgpack.unpackb(
             invite_message_content.get(b'messageBody'))
     except Exception as e:
         raise Exception('Invalid invite message content.')
