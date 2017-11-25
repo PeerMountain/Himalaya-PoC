@@ -188,7 +188,7 @@ Feature: Invitation message
   
 
   Scenario Outline: Send Message
-    Given bootstrap node url http://teleferic.local:8000/teleferic
+    Given bootstrap node url https://teleferic-dev.dxmarkets.com/teleferic/
     And sender address <sender>
     And message type <messageType>
     And message hash <messageHash>
