@@ -25,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'y5)uziy$$8cg(fpn1*3(d-gpdpz1=$m$&vd9!0_*ab*4(%%92p'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('PRODUCTION') == None
+DEBUG = os.getenv('PRODUCTION') != '1'
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -89,12 +89,24 @@ WSGI_APPLICATION = 'Teleferic.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db', 'db.sqlite3'),
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db', 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'HOST': 'pgdb',
+            'NAME': 'pm_dev',
+            'USER': 'pm_dev',
+            'PASSWORD': 'pm_dev',
+            'PORT': 5432
+        }
+    }
 
 
 # Password validation

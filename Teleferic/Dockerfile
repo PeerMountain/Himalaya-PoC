@@ -11,18 +11,15 @@ RUN pip install -r requirements.txt
 ADD gunicorn_conf.py /code/
 ADD manage.py /code/
 ADD run.sh /code/
-ADD Teleferic /code/Teleferic
 ADD settings.py /code/
-ADD API /code/API
 ADD libs /code/libs
+ADD Teleferic /code/Teleferic
+ADD API /code/API
 
 RUN mkdir db
 
 EXPOSE 8000
 
 ENV PRODUCTION 1
-
-RUN python manage.py migrate
-RUN python manage.py loaddata genesis_identity.json
 
 CMD ./run.sh
