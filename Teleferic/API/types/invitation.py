@@ -4,7 +4,7 @@ from .sh256 import SHA256
 from .address import Address
 from .blob import RSAEncryptedBlob
 
-class InvitationAbstract(graphene.AbstractType):
+class InvitationAbstract():
     bootstrapNode = graphene.String(required=True)
     bootstrapAddr = Address()
     offeringAddr = Address()

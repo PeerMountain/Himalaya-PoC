@@ -18,7 +18,7 @@ class Restore(graphene.ObjectType):
     def resolve_build_number(self, *args):
         return BUILD_NUMBER
 
-class Query(graphene.AbstractType):
+class Query():
     version = graphene.Field(Version)
 
     def resolve_version(self, *args):

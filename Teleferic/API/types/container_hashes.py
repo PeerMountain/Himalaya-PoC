@@ -3,7 +3,7 @@ import graphene
 from .sh256 import SHA256
 from .hmac_sha256 import HMACSHA256
 
-class ContainerHashes(graphene.AbstractType):
+class ContainerHashes():
   containerHash = SHA256()
   objectHash = SHA256()
   metaHashes = graphene.List(SHA256)

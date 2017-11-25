@@ -11,7 +11,7 @@ from .blob import AESEncryptedBlob, RSAEncryptedBlob
 from .acl_rule import ACLRule
 from .container_hashes import ContainerHashesInput as ContainerHashes
 
-class MessageEnvelopeAbstract(graphene.AbstractType):
+class MessageEnvelopeAbstract():
   sender = Address(description='''
   Sender PMAddress
   ''',required=True)

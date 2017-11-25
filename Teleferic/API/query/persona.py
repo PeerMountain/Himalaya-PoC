@@ -7,7 +7,7 @@ from ..Mock import Reader
 class Persona(graphene.ObjectType, PersonaAbstract):
   pass
     
-class Query(graphene.AbstractType):
+class Query():
   persona = graphene.Field(Persona,
     address=graphene.String(default_value=None),
     nickname=graphene.String(default_value='Teleferic'),
@@ -19,11 +19,11 @@ class Query(graphene.AbstractType):
     '''
   )
 
-  def resolve_persona(self, info, *args):
+  def resolve_persona(self, info, **args):
     persona= Reader.get_persona(
-      info.get('address'),
-      info.get('nickname'),
-      info.get('pubkey')
+      args.get('address'),
+      args.get('nickname'),
+      args.get('pubkey')
     )
     return Persona(
       address=persona.address,

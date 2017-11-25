@@ -39,16 +39,16 @@ class Teleferic(graphene.ObjectType):
   signedTimestamp = graphene.Field(Sign,description='''
   Teleferic's timestamp singned by Teleferic itself
   ''')
-  def resolve_signedTimestamp(self, *args):
+  def resolve_signedTimestamp(self, info, **args):
     return Teleferic_Identity.sign_current_timestamp()
 
   version = graphene.Field(Version,description='''
   Teleferic current version
   ''')
-  def resolve_version(self, *args):
+  def resolve_version(self, info, **args):
       return Version()
 
-class Query(graphene.AbstractType):
+class Query():
   teleferic = graphene.Field(Teleferic,
     description='''
     Retrive information
@@ -58,5 +58,5 @@ class Query(graphene.AbstractType):
     '''
   )
 
-  def resolve_teleferic(self, *args):
+  def resolve_teleferic(self, info, **args):
     return Teleferic()

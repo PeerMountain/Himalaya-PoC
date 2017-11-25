@@ -3,7 +3,7 @@ import graphene
 from .address import Address
 from .key import AESKey
 
-class ACLRuleAbstract(graphene.AbstractType):
+class ACLRuleAbstract():
   reader = Address()
   '''PM Address'''
   key = AESKey()

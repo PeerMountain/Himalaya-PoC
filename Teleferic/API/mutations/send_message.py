@@ -9,7 +9,7 @@ from ..types import MessageEnvelope, TXID, SHA256
 from graphql import GraphQLError
 
 class Message(graphene.Mutation):
-  class Input():
+  class Arguments:
     envelope = MessageEnvelope(required=True)
 
   envelopeID = graphene.Int()
@@ -18,7 +18,7 @@ class Message(graphene.Mutation):
   cacheTimestamp = graphene.Float()
 
   @staticmethod
-  def mutate(root, args, context, info):
+  def mutate(root, info, **args):
     envelope = args.get('envelope')
     
     Authorizer.authorize_message(envelope)
@@ -27,7 +27,7 @@ class Message(graphene.Mutation):
 
     return Message(**persisted)
 
-class Mutation(graphene.AbstractType):
+class Mutation():
   send_message = Message.Field(description='''
   Send PM message
   ''')
