@@ -52,7 +52,7 @@ Feature: Query bootstap node information
     And get property data.teleferic.persona.address from query response
     Then property value should be iZUTgbvR4iaNYzPgJFodTtT7xJxhyusyoyChCvsbXLH4rRgv3sgm2R2ksh8yRPnhumH
   
-  @wip
+  
   Scenario: Get Teleferic signed timestamp
     Given bootstrap node url https://teleferic-dev.dxmarkets.com/teleferic/
     And bootstrap node pubkey <bootstrapNodePubkey>

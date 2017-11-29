@@ -6,7 +6,11 @@ from Crypto.PublicKey import RSA as Key
 from Crypto.Hash import HMAC, SHA256
 from libs.tools import RSA, AES, Identity
 
+import base64
+import msgpack
 import json
+
+from collections import OrderedDict
 
 IDENTITY_MAP = {}
 
@@ -28,7 +32,7 @@ def step_imp(context, persona_name):
     IDENTITY_MAP[persona_name] = new_identity
     identity = new_identity
   context.identity = identity
-  context.personaName = persona_name
+  context.personaName = persona_name.strip().encode()
 
 @given('service info of "{service_name}"')
 def step_imp(context, service_name):
@@ -37,28 +41,48 @@ def step_imp(context, service_name):
 @given('valid genesis invitation message')
 def step_imp(context):
   cipher = AES(context.inviteKey)
-  encrypted_invite_name = cipher.encrypt(context.inviteName).decode()
+  encrypted_invite_name = cipher.encrypt(context.inviteName)
 
   message_body_partial = {
     'inviteName': encrypted_invite_name
   }
-  message_body = json.dumps({**message_body_partial,**context.service})
-  body_hash = SHA256.new(message_body.encode())
+  message_body = base64.b64encode(msgpack.packb({**message_body_partial,**context.service}))
+  body_hash = SHA256.new(message_body)
 
-  dossier_hash = HMAC.new(context.dossierSalt.encode(),message_body.encode(),SHA256)
-  message_content_raw = json.dumps({
+  dossier_hash = HMAC.new(context.dossierSalt,message_body,SHA256)
+  message_content_raw = msgpack.packb({
     "dossierSalt": context.dossierSalt,
     "bodyType": 0,
     "messageBody": message_body
   })
 
-  message_content = AES('Peer Mountain').encrypt(message_content_raw).decode()
+  message_content = AES(b'Peer Mountain').encrypt(message_content_raw)
 
   genesis_identity = Identity(context.REGISTRED_IDENTITY)
 
-  message_sign = genesis_identity.sign(message_content.encode()).decode()
+  executed = context.client.execute('''
+    query{
+      teleferic{
+        signedTimestamp
+      }
+    }
+  ''')
+  assert not 'errors' in executed
 
-  context.message_hash = SHA256.new(message_content.encode())
+  signable_object = OrderedDict()
+  signable_object['messageHash'] = base64.b64encode(SHA256.new(message_content).digest())
+  signable_object['timestamp'] = executed['data']['teleferic']['signedTimestamp']
+
+  signable_object_format = msgpack.packb(signable_object)
+
+  signature = genesis_identity.sign(signable_object_format)
+
+  message_sign = base64.b64encode(msgpack.packb({
+    "signature": signature,
+    "timestamp": executed['data']['teleferic']['signedTimestamp']
+  }))
+
+  context.message_hash = SHA256.new(message_content)
 
   query = '''
     mutation (
@@ -89,11 +113,11 @@ def step_imp(context):
   variables = {
     "sender": genesis_identity.address,
     "messageType": 'REGISTRATION',
-    "messageHash": context.message_hash.hexdigest(), 
-    "dossierHash": dossier_hash.hexdigest(),
-    "bodyHash": body_hash.hexdigest(),
-    "messageSig": message_sign,
-    "message": message_content,
+    "messageHash":base64.b64encode(context.message_hash.digest()).decode(), 
+    "dossierHash": base64.b64encode(dossier_hash.digest()).decode(),
+    "bodyHash": base64.b64encode(body_hash.digest()).decode(),
+    "messageSig": message_sign.decode(),
+    "message": message_content.decode(),
   }
   executed = context.client.execute(query,variable_values=variables)
 
@@ -101,7 +125,7 @@ def step_imp(context):
   assert {
     "data": {
       "sendMessage": {
-        "messageHash": context.message_hash.hexdigest()
+        "messageHash": base64.b64encode(context.message_hash.digest()).decode()
       }
     }
   } == executed
@@ -111,37 +135,58 @@ def step_imp(context, service_name):
   context.execute_steps('''
       When I query the pubkey of Teleferic
   ''')
-  telefericPubkey = Key.importKey(context.executed['data']['teleferic']['persona']['pubkey'])
+  telefericPubkey = Key.importKey(base64.b64decode(context.executed['data']['teleferic']['persona']['pubkey']))
   teleferic_key = RSA(telefericPubkey)
   
+  print(telefericPubkey)
+
   context.service = SERVICE_MAP.get(service_name)
 
-
-  invite_name = teleferic_key.encrypt(context.inviteName.encode())
-  key_proof = teleferic_key.encrypt(context.inviteKey.encode())
+  invite_name = teleferic_key.encrypt(context.inviteName)
+  key_proof = teleferic_key.encrypt(context.inviteKey)
   
-  message_body = json.dumps({
-    'inviteMsgID': context.message_hash.hexdigest(),
+  message_body = base64.b64encode(msgpack.packb({
+    'inviteMsgID': base64.b64encode(context.message_hash.digest()).decode(),
     'keyProof': key_proof.decode(),
     'inviteName': invite_name.decode(),
     'publicKey': context.identity.pubkey.decode(),
-    'publicNickname' : context.personaName
-  })
+    'publicNickname' : context.personaName.decode()
+  }))
 
-  body_hash = SHA256.new(message_body.encode())
+  body_hash = SHA256.new(message_body)
 
-  dossier_hash = HMAC.new(context.dossierSalt.encode(),message_body.encode(),SHA256)
-  message_content_raw = json.dumps({
+  dossier_hash = HMAC.new(context.dossierSalt,message_body,SHA256)
+  message_content_raw = msgpack.packb({
     "dossierSalt": context.dossierSalt,
     "bodyType": 1,
     "messageBody": message_body
   })
 
-  message_content = AES('Peer Mountain').encrypt(message_content_raw).decode()
+  message_content = AES(b'Peer Mountain').encrypt(message_content_raw)
 
-  message_sign = context.identity.sign(message_content.encode()).decode()
+  executed = context.client.execute('''
+    query{
+      teleferic{
+        signedTimestamp
+      }
+    }
+  ''')
+  assert not 'errors' in executed
 
-  context.message_hash = SHA256.new(message_content.encode())
+  signable_object = OrderedDict()
+  signable_object['messageHash'] = base64.b64encode(SHA256.new(message_content).digest())
+  signable_object['timestamp'] = executed['data']['teleferic']['signedTimestamp']
+
+  signable_object_format = msgpack.packb(signable_object)
+
+  signature = context.identity.sign(signable_object_format)
+
+  message_sign = base64.b64encode(msgpack.packb({
+    "signature": signature,
+    "timestamp": executed['data']['teleferic']['signedTimestamp']
+  }))
+
+  context.message_hash = SHA256.new(message_content)
 
   context.query = '''
     mutation (
@@ -172,19 +217,21 @@ def step_imp(context, service_name):
   context.variables = {
     "sender": context.identity.address,
     "messageType": 'REGISTRATION',
-    "messageHash": context.message_hash.hexdigest(), 
-    "dossierHash": dossier_hash.hexdigest(),
-    "bodyHash": body_hash.hexdigest(),
-    "messageSig": message_sign,
-    "message": message_content,
+    "messageHash": base64.b64encode(context.message_hash.digest()).decode(), 
+    "dossierHash": base64.b64encode(dossier_hash.digest()).decode(),
+    "bodyHash": base64.b64encode(body_hash.digest()).decode(),
+    "messageSig": message_sign.decode(),
+    "message": message_content.decode(),
   }
 
 @when('I change {attribute} with {value}')
 def step_imp(context,attribute,value):
-  context.__setattr__(attribute,value)
+  context.__setattr__(attribute,value.strip().encode())
 
 @when('I send registration message')
 def step_imp(context):
+  print(context.query)
+  print(json.dumps(context.variables))
   context.executed = context.client.execute(context.query,variable_values=context.variables)
 
 @then('response should be {result}')
@@ -194,7 +241,7 @@ def step_imp(context,result):
     assert {
       "data": {
         "sendMessage": {
-          "messageHash": context.message_hash.hexdigest()
+          "messageHash": base64.b64encode(context.message_hash.digest()).decode()
         }
       }
     } == context.executed

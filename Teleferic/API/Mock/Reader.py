@@ -1,4 +1,5 @@
 import base58
+import base64
 from Crypto.Hash import RIPEMD, SHA256
 from Crypto.PublicKey import RSA
 from API.models import Persona
@@ -41,6 +42,7 @@ def check_persona_not_registred(pubkey,nickname):
   return True
 
 def get_message_content(message_hash):
-  container = open(os.path.join(MESSAGES_STORAGE,message_hash), 'r')
+  reencoding = base58.b58encode(base64.b64decode(message_hash))
+  container = open(os.path.join(MESSAGES_STORAGE,reencoding), 'r')
   content = container.read()
   return content
