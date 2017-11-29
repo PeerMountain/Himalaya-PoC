@@ -19,6 +19,7 @@ Feature: Query Teleferic identity information
     -----END PUBLIC KEY-----
     """
     When I query the pubkey of Teleferic
+    And decode teleferic pubkey with Base64
     Then the pubkey should match
   
   Scenario: Get teleferic pubkey
@@ -40,6 +41,7 @@ Feature: Query Teleferic identity information
     -----END PUBLIC KEY-----
     """
     When I query the pubkey of Teleferic
+    And decode teleferic pubkey with Base64
     Then the pubkey not should match
 
   Scenario: Get teleferic nickname
@@ -79,5 +81,7 @@ Feature: Query Teleferic identity information
     Given Teleferic has pubkey <pubKey>
     And the current timestamp is <initial_timestamp>
     When I query a signed timestap of Teleferic
+    And I decode signed timestap with Base64
+    And I unpack signed timestap with MessagePack
     Then the timestamp will be between <initial_timestamp> and current timestamp
     And the message should have a valid signature according to Teleferic pubkey

@@ -23,7 +23,7 @@ Feature: Invite and Register users
     And I compose invitation message with <encryptedInviteName>, <bootstrapNode>, <offeringAddr>, <serviceAnnouncementMessage>, <serviceOfferingID> and <inviteName>. And I store it in <messageBody>
     And I compose message content with <dossierSalt>, <bodyType> and <messageBody>. And I store it in <messageContent>
     And I encrypt <messageContent> as JSON string using AES with "<AESKey>" as passphrase and store it in <encryptedMessage>
-    And I sign <encryptedMessage> using RSA-SHA256 with <identity> and store it on <messageSignature>
+    And I sign <encryptedMessage> using RSA-SHA256 with <identity> and signed timestamp from teleferic and store it on <messageSignature>
     And I send <encryptedMessage> and <messageSignature> as public message to Teleferic
     Then the query response should be "<result>"
 
@@ -42,4 +42,4 @@ Feature: Invite and Register users
     | valid       | valid    | valid       | valid       | DJANCrVFcMQ34zMShKwFXAi3I33hN4KbWdVs5nbP  | 1                 | None          | 1             | 1            | 1                          | Invalid bootstrapNode              | yYc4lrQr3junX5yJFah16Vw89lThV9A | Peer Mountain | failure |
     | valid       | valid    | valid       | valid       | DJANCrVFcMQ34zMShKwFXAi3I33hN4KbWdVs5nbP  | 1                 | 1             | None          | 1            | 1                          | Invalid bootstrapAddr              | yYc4lrQr3junX5yJFah16Vw89lThV9A | Peer Mountain | failure |
     | valid       | valid    | valid       | valid       | DJANCrVFcMQ34zMShKwFXAi3I33hN4KbWdVs5nbP  | 1                 | 1             | 1             | None         | 1                          | Invalid offeringAddr               | yYc4lrQr3junX5yJFah16Vw89lThV9A | Peer Mountain | failure |
-    | valid       | valid    | valid       | valid       | DJANCrVFcMQ34zMShKwFXAi3I33hN4KbWdVs5nbP  | 1                 | 1             | 1             | 1            | None                       | Invalid serviceAnnouncementMessage | yYc4lrQr3junX5yJFah16Vw89lThV9A | Peer Mountain | failure |
+    #| valid       | valid    | valid       | valid       | DJANCrVFcMQ34zMShKwFXAi3I33hN4KbWdVs5nbP  | 1                 | 1             | 1             | 1            | None                       | Invalid serviceAnnouncementMessage | yYc4lrQr3junX5yJFah16Vw89lThV9A | Peer Mountain | failure |

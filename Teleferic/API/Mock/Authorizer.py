@@ -1,5 +1,4 @@
 import base64
-import json
 from Crypto.Hash import SHA256, HMAC
 
 from libs.tools import Identity, AES
@@ -41,8 +40,8 @@ def authorize_message(envelope):
             message_content = msgpack.unpackb(message_content_raw)
             if message_content.get(b'bodyType') == 1:
                 check_sender = False
-                message_body = json.loads(message_content.get('messageBody'))
-                sender_pubkey = message_body.get('publicKey')
+                message_body = msgpack.unpackb(base64.b64decode(message_content.get(b'messageBody')))
+                sender_pubkey = message_body.get(b'publicKey')
         except Exception as e:
             pass
 
@@ -124,34 +123,33 @@ def validate_registration(message_body):
         invite_message_content_raw = public_cipher.decrypt(invite_message)
         # Parse message
         invite_message_content = msgpack.unpackb(
-            invite_message_content_raw.decode())
-        invite_message_body_content = msgpack.unpackb(
-            invite_message_content.get(b'messageBody'))
+            invite_message_content_raw)
+        invite_message_body_content = msgpack.unpackb(base64.b64decode(
+            invite_message_content.get(b'messageBody')))
     except Exception as e:
         raise Exception('Invalid invite message content.')
 
     key_proof_raw = message_body.get(b'keyProof')
-    print(key_proof_raw)
     try:
-        key_proof = Teleferic_Identity.decrypt_content(key_proof_raw.encode())
+        key_proof = Teleferic_Identity.decrypt_content(key_proof_raw)
     except Exception as e:
         raise Exception('Invalid keyProof1.')
     if key_proof == None:
         raise Exception('Invalid keyProof.2')
 
-    decoder = AES(key_proof.decode())
+    decoder = AES(key_proof)
 
-    original_invite_name_raw = invite_message_body_content.get('inviteName')
+    original_invite_name_raw = invite_message_body_content.get(b'inviteName')
     original_invite_name = decoder.decrypt(original_invite_name_raw)
 
-    given_invitite_name_raw = message_body.get('inviteName')
+    given_invitite_name_raw = message_body.get(b'inviteName')
     given_invitite_name = Teleferic_Identity.decrypt_content(
         given_invitite_name_raw)
 
     if original_invite_name != given_invitite_name:
         raise Exception('Invalid inviteKey.')
 
-    public_key = message_body.get('publicKey')
+    public_key = message_body.get(b'publicKey')
 
     Reader.check_persona_not_registred(public_key, nickname)
 
