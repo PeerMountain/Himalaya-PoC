@@ -3,6 +3,8 @@ import os
 from behave import given, when, then, step
 
 from TelefericClient import Identity
+from TelefericClient.Cryptography import RSA
+import base64
 
 @when('compute SHA256 hash of pubkey')
 def step_imp(context):
@@ -28,3 +30,25 @@ def step_imp(context):
 def step_imp(context, address):
   identity = Identity(context.key.key)
   assert identity.address == address.strip()
+
+@when(u'I encode the key it with Base64')
+def step_impl(context):
+    raw_key = context.key.key.exportKey('PEM')
+    context.encoded_key = base64.b64encode(raw_key)
+
+@then(u'resulting string should be {result}')
+def step_impl(context,result):
+    print(context.encoded_key)
+    assert result.strip().encode() == context.encoded_key
+
+@given(u'following private key')
+def step_impl(context):
+    context.privkey = context.text.strip().encode()
+
+@when(u'I export public key from private key on PEM format')
+def step_impl(context):
+    context.pubkey = RSA(context.privkey).key.publickey().exportKey()
+
+@then(u'resulting public key should be following')
+def step_impl(context):
+    assert context.pubkey == context.text.strip().encode()
