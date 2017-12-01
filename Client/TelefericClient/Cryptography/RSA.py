@@ -11,7 +11,7 @@ class RSA():
 
     def __init__(self, key):
         key_type = type(key)
-        if key_type == str:
+        if key_type == str or key_type == bytes:
             self.key = Key.importKey(key)
         elif key_type == _RSAobj:
             self.key = key
