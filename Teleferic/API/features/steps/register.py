@@ -137,8 +137,6 @@ def step_imp(context, service_name):
   ''')
   telefericPubkey = Key.importKey(base64.b64decode(context.executed['data']['teleferic']['persona']['pubkey']))
   teleferic_key = RSA(telefericPubkey)
-  
-  print(telefericPubkey)
 
   context.service = SERVICE_MAP.get(service_name)
 
