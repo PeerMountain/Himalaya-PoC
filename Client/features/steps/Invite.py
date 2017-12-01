@@ -118,9 +118,9 @@ def step_imp(context, dossierSalt):
     assert len(context.dossierSalt) == 40
 
 
-@given('message body type <bodyType> equal to 0 (Invitation)')
-def step_imp(context):
-    context.bodyType = 0
+@given('message body type <bodyType> equal to {code} ({name})')
+def step_imp(context,code,name):
+    context.bodyType = int(code)
 
 
 @when('I compose invite message content sorting attributes alphabetically')
@@ -143,22 +143,28 @@ def step_imp(context):
     context.b64EncryptedPackMessageContent = cipher.encrypt(
         context.packMessageContent)
 
+
 @then('resulting <message> should be {result}')
 def step_imp(context, result):
+    print(context.b64EncryptedPackMessageContent)
     assert result.strip().encode() == context.b64EncryptedPackMessageContent
+
 
 @when(u'I compute SHA256 hash of message content')
 def step_impl(context):
-  context.rawMessageHash = SHA256.new(context.message).digest()
+    context.rawMessageHash = SHA256.new(context.message).digest()
 
 
 @when(u'encode resulting message hash with Base64')
 def step_impl(context):
     context.messageHash = base64.b64encode(context.rawMessageHash)
 
+
 @then('resulting message content hash <messageHash> should be {result}')
 def step_imp(context, result):
+    print(context.messageHash)
     assert context.messageHash == result.strip().encode()
+
 
 @when('I compute SHA256 hash of message body')
 def step_imp(context):
@@ -172,6 +178,7 @@ def step_imp(context):
 
 @then('resulting message body hash <bodyHash> should be {result}')
 def step_imp(context, result):
+    print(context.b64HashMessageBody)
     assert context.b64HashMessageBody == result.strip().encode()
 
 
@@ -188,6 +195,7 @@ def step_imp(context):
 
 @then('resulting <dossierHash> should be {result}')
 def step_imp(context, result):
+    print(context.b64DossierHash)
     assert context.b64DossierHash == result.strip().encode()
 
 
@@ -244,6 +252,7 @@ def step_impl(context):
 
 @then(u'resulting <messageSig> should be {result}')
 def step_impl(context, result):
+    print(context.b64encoded_format_signature_object)
     assert context.b64encoded_format_signature_object == result.strip().encode()
 
 
@@ -293,5 +302,5 @@ def step_impl(context):
 
 
 @then(u'response should have messageHash property equal to {messageHash}')
-def step_impl(context,messageHash):
+def step_impl(context, messageHash):
     assert context.messageHash == messageHash.strip().encode()
