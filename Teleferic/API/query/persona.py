@@ -28,5 +28,5 @@ class Query():
     return Persona(
       address=persona.address,
       nickname=persona.nickname,
-      pubkey=persona.pubkey
+      pubkey=persona.pubkey.encode()
     )
