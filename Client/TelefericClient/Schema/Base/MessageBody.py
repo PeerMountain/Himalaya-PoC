@@ -15,6 +15,8 @@ class MessageBody(Base):
             raise Exception('Body type should be integer.')
         self.type = body_type
         for key, value in kwargs.items():
+            if type(value) == bytes:
+                value = value.decode()
             self.content[key] = value
 
     def get(self, key):

@@ -37,7 +37,6 @@ class MessageContent():
             self.content['signature'] = signature
 
         self.content['dossierSalt'] = self.generate_dossier_salt()
-        self.content['messageBody'] = self.body.build()
 
     def generate_dossier_salt(self):
         salt = bytes(bytearray(random.getrandbits(8) for _ in range(40)))
@@ -47,6 +46,7 @@ class MessageContent():
         return msgpack.packb(self.content)
 
     def build(self, passphrase):
+        self.content['messageBody'] = self.body.build()
         cipher = AES(passphrase)
         build = cipher.encrypt(self.pack())
         self.hash = base64.b64encode(SHA256.new(build).digest()).decode()

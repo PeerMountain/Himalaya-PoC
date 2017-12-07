@@ -18,20 +18,20 @@ def step_impl(context, inviteKey):
 @given(u'Teleferic pubkey from {bootstrapNode}')
 def step_impl(context, bootstrapNode):
     context.execute_steps("""
-      Given following query
-      '''
-      query{
-        teleferic{
-          persona{
-            pubkey
-          }
+        Given following query
+        '''
+        query{
+            teleferic{
+                persona{
+                    pubkey
+                }
+            }
         }
-      }
-      '''
-      And bootstrap node url %s
-      When I send query to bootstrap node
-      And get property data.teleferic.persona.pubkey from query response
-      And decode property with Base64
+        '''
+        And bootstrap node url %s
+        When I send query to bootstrap node
+        And get property data.teleferic.persona.pubkey from query response
+        And decode property with Base64
     """ % bootstrapNode.strip())
     context.teleferic_pubkey = context.property
 
@@ -66,7 +66,7 @@ def step_impl(context, inviteMsgID):
 @given(u'RSA encrypted with pubkey of {bootstrapNode} bootstrap node of {inviteKey} as <keyProof>')
 def step_impl(context, bootstrapNode, inviteKey):
     context.execute_steps('''
-      Given Teleferic pubkey from %s
+        Given Teleferic pubkey from %s
     ''' % bootstrapNode.strip())
     encoded_inviteKey = inviteKey.strip().encode()
     cipher = RSA(context.teleferic_pubkey)
@@ -76,7 +76,7 @@ def step_impl(context, bootstrapNode, inviteKey):
 @given(u'RSA encrypted with pubkey of {bootstrapNode} bootstrap node of {inviteName} as <nameProof>')
 def step_impl(context, bootstrapNode, inviteName):
     context.execute_steps('''
-      Given Teleferic pubkey from %s
+        Given Teleferic pubkey from %s
     ''' % bootstrapNode.strip())
     encoded_inviteName = inviteName.strip().encode()
     cipher = RSA(context.teleferic_pubkey)
@@ -97,13 +97,13 @@ def step_impl(context, nickname):
 
 @when(u'I pack following registration message body shape')
 def step_impl(context):
-  aux = OrderedDict()
-  aux["inviteMsgID"] = context.inviteMsgID
-  aux["keyProof"] = context.keyProof
-  aux["inviteName"] = context.nameProof
-  aux["publicKey"] = context.publicKey
-  aux["publicNickname"] = context.publicNickname
-  context.pack = msgpack.packb(aux)
+    aux = OrderedDict()
+    aux["inviteMsgID"] = context.inviteMsgID
+    aux["keyProof"] = context.keyProof
+    aux["inviteName"] = context.nameProof
+    aux["publicKey"] = context.publicKey
+    aux["publicNickname"] = context.publicNickname
+    context.pack = msgpack.packb(aux)
 
 
 @when(u'encode the pack with Base64')
@@ -115,6 +115,7 @@ def step_impl(context):
 def step_impl(context, result):
     assert context.encoded_pack == result.strip().encode()
 
+
 @when(u'I compose resgiter message content with following shape')
 def step_impl(context):
     messageContent = OrderedDict()
@@ -123,12 +124,14 @@ def step_impl(context):
     messageContent['messageBody'] = context.b64PackMessageBody
     context.messageContent = messageContent
 
+
 @given(u'following private key encoded in Base64 {privkey}')
 def step_impl(context, privkey):
     context.privkey = RSA(base64.b64decode(privkey.strip().encode()))
 
+
 @given(u'signed timestamp from bootstrap node {bootstrapNode}')
-def step_impl(context,bootstrapNode):
+def step_impl(context, bootstrapNode):
     context.execute_steps("""
     Given bootstrap node url %s
     And bootstrap node pubkey <bootstrapNodePubkey>
@@ -145,6 +148,7 @@ def step_impl(context,bootstrapNode):
     """ % bootstrapNode.strip())
     context.telefericSignedTimestamp = context.property_value
 
+
 @when(u'generate RSA signature <signature> using {privkey} of formated signable object')
-def step_impl(context,privkey):
+def step_impl(context, privkey):
     context.signature = context.privkey.sign(context.formated_signable_object)

@@ -38,7 +38,6 @@ def step_impl(context):
 
 @then(u'resulting string should be {result}')
 def step_impl(context,result):
-    print(context.encoded_key)
     assert result.strip().encode() == context.encoded_key
 
 @given(u'following private key')

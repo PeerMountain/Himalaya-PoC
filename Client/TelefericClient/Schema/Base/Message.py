@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 from TelefericClient.Cryptography import RSA
 
+from Crypto.Hash import SHA256
 
 class Message():
 
@@ -13,11 +14,11 @@ class Message():
         self.passphrase = passphrase
         self.readers = readers
 
-    def build(self, identity, bootstrap_node):
+    def build(self, identity, client):
         build_content = self.message_content.build(self.passphrase)
         content = {
             'sender': identity.address,
-            'messageSig': identity.sign_message(self.message_content.hash,bootstrap_node),
+            'messageSig': identity.sign_message(self.message_content.hash,client),
             'messageType': self.message_content.type,
             'messageHash': self.message_content.hash,
             'dossierHash': self.message_content.hmac,

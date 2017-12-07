@@ -8,8 +8,6 @@ import msgpack
 
 from collections import OrderedDict
 
-from TelefericClient.Client import Client
-
 from .Cryptography import RSA
 ADDRESS_PREFIX = [1, 0]
 
@@ -23,7 +21,7 @@ class Identity():
         else:
             key_type = type(key)
             if key_type in (str, bytes):
-                self.key = Key.importKey(key)
+                self.key = Key.importKey(key.strip())
             elif key_type == _RSAobj:
                 self.key = key
             else:
@@ -84,25 +82,16 @@ class Identity():
         else:
             return False
 
-    def sign_message(self, message_hash, bootstrap_node):
+    def sign_message(self, message_hash, client):
         if type(message_hash) is str:
             message_hash = message_hash.encode()
 
-        client = Client(bootstrap_node)
-        teleferic_pubkey = client.request('''
-            query{
-                teleferic{
-                    signedTimestamp
-                }
-            }
-        ''')
-        node_signed_timestamp = teleferic_pubkey[
-            'data']['teleferic']['signedTimestamp']
+        node_signed_timestamp = client.get_node_signedtimestamp()
 
         signable_object = OrderedDict()
         signable_object['messageHash'] = message_hash
         signable_object['timestamp'] = node_signed_timestamp
-
+        
         signable_object = msgpack.packb(signable_object)
 
         return base64.b64encode(msgpack.packb({

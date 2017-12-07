@@ -1,4 +1,4 @@
-from .Base import Message, MessageContent, MessageBody
+from .Base import Message, MessageContent, MessageBody, MessageEnvelope
 from collections import OrderedDict
 import random
 
@@ -6,15 +6,12 @@ from TelefericClient.Cryptography import AES
 from TelefericClient import Client
 
 
-class Invite():
+class Invite(MessageEnvelope):
 
     MESSAGE_TYPE = 'REGISTRATION'
     MESSAGE_BODY_TYPE = 0
 
-    def __init__(self, bootstrapAddr, bootstrapNode, inviteName, offeringAddr, serviceAnnouncementMessage, serviceOfferingID, inviteKey=None):
-        self.bootstrap_node = bootstrapNode
-        self.client = Client(bootstrapNode)
-        
+    def compose(self, bootstrapAddr, bootstrapNode, inviteName, offeringAddr, serviceAnnouncementMessage, serviceOfferingID, inviteKey=None):
         if inviteKey is None:
             self.inviteKey = self.generate_random_passphrase()
         else:
@@ -45,33 +42,3 @@ class Invite():
         for i in range(40):
             key_accumulator += chr(random.randint(0, 255))
         return key_accumulator
-
-    def send(self, identity):
-        return self.client.request(
-            query='''
-            mutation (
-                $sender: Address!
-                $messageType: MessageType!
-                $messageHash: SHA256!
-                $bodyHash: SHA256!
-                $messageSig: Sign!
-                $message: AESEncryptedBlob!
-                $dossierHash: HMACSHA256!
-                ){
-                sendMessage(
-                    envelope: {
-                    sender: $sender
-                    messageType: $messageType
-                    messageHash: $messageHash
-                    bodyHash: $bodyHash
-                    messageSig: $messageSig
-                    message: $message
-                    dossierHash: $dossierHash
-                    }
-                ) {
-                    messageHash
-                }
-            }
-            ''',
-            variables=self.message.build(identity,self.bootstrap_node)
-        )

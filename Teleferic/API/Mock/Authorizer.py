@@ -14,7 +14,6 @@ def validate_timestamped_signature(sender_pubkey, message_hash, signature):
     sign = signature[b'signature']
     timestamp = signature[b'timestamp']
 
-    print('Pub',sender_pubkey)
     validator_map = OrderedDict()
     validator_map['messageHash'] = base64.b64encode(message_hash)
     validator_map['timestamp'] = timestamp
@@ -44,7 +43,7 @@ def authorize_message(envelope):
                 check_sender = False
                 message_body = msgpack.unpackb(
                     base64.b64decode(message_content.get(b'messageBody')))
-                sender_pubkey = message_body.get(b'publicKey')
+                sender_pubkey = message_body.get(b'publicKey').decode()
         except Exception as e:
             raise Exception(
                 'Invalid public message content passphrase, should be "Peer Mountain"')
