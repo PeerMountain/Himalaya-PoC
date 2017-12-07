@@ -6,31 +6,34 @@ from graphene.test import Client
 from API.schema import schema
 from settings import VERSION_NAME, VERSION_CODE, BUILD_NUMBER
 
-@given('we have version query')
+@given('Teleferic current version is <current_version>')
 def step_impl(context):
-    context.client = Client(schema)
-    pass
+    context.current_version = {
+        'data': {
+            'teleferic': {
+                'version': {
+                    'name': VERSION_NAME,
+                    'code': VERSION_CODE,
+                    'buildNumber': BUILD_NUMBER
+                }
+            }
+        }
+    }
 
-@when('we require current version')
-def step_impl(context):  # -- NOTE: number is converted into integer
+@when('I query the current version of Teleferic')
+def step_impl(context):
     context.executed = context.client.execute('''
         query {
-            version{
-                name
-                code
-                buildNumber
+            teleferic{
+                version{
+                    name
+                    code
+                    buildNumber
+                }
             }
         }
     ''')
 
-@then('response data is equal to current version')
+@then('the current version should match')
 def step_impl(context):
-    assert context.executed == {
-        'data': {
-            'version': {
-                'name': VERSION_NAME,
-                'code': VERSION_CODE,
-                'buildNumber': BUILD_NUMBER
-            }
-        }
-    }
+    assert context.executed == context.current_version

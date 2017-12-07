@@ -1,0 +1,195 @@
+Feature: RSA Module
+
+  Scenario Outline: Signature
+    Given the following privkey
+    """
+    -----BEGIN RSA PRIVATE KEY-----
+    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
+    -----END RSA PRIVATE KEY-----
+    """
+    And a content <message>
+    When I calculate SHA256 of the content
+    And I sign the content hash with RSA
+    And I convert the signature from long to bytes
+    And I encode the signature from bytes on base64
+    Then the signature and <given_sign> should be equal
+
+    Examples:
+    | message  | given_sign |
+    | Chuck 1  | MMSVunATD72rdk1vgLIhpxImPpM/Q6vHo6jSkkVDqqKy0aq1DtrHGXAecbF+70sjb9DveYJ2PLKE3z6k/4qUhaOXYGHf5hOP1IcrnXy26OG1tPY52hEyq7ogfsf00uL2sxaC1fo7qz6cLqm+2z4++bb1P29mBiIpARsYpTxtd4hyHIy+Dl01qwgmz8nsEDgASDW+Lt/xeIffuk5RL5xBdzbpChpdoILp1bJSdgzoMGOCCZBdX3ZifqV3rTDV3mp2R2jpSYvHE64STO/OnrTe2mt7IwxHSOGzjq1TDGOkDtJZhBVUMLIYjWpNJUzAXGiZC3f4G4UwwBSQ+wv23e91wlryKmfIQchIIRTtCVfoom6iZWyNLG9xVt7chVmM8/iGS64stwxxwxEhhyt3iaBEWNP+Wg1rzMybUijLG4dhR/aLkweHKAmWMRii5Eo5lEzCNO0Va/Ax8EhugzgjL183ebxtTQJCz99wXFW1IC0ijhDJHk6JDF+o9JG8kNvLW9Cj5hnmlL4cqBN1ZUFh0wRVDo0VvSqCSwKHdUJDX/o5Jct7CoOph5XG8RdKXFr2y61Kba7dC9gmgzAQH9egvw32l1r2SY58YWQ+mH3V4tCY2u9g9H1C0FRf1E00/IwyJ3/P6HODBpeSAKWEqcprhY4R+jFFYGbhE1fBFfXbTitBkZU= |
+    | Test 2   | A1k9egfKe/o5qRBE2lubdE3NFmr4aVADmBa/d/lFNlxIk1RztFR9f7NpmRKa/+KK741zMapvv2oi5CLkBQ3sidTu2RJOqAsmbZt3UcPSE2/vkQao9KG56BNsrGG95aF1VKYGA1c1y0V45wAR6mB1NkOx2n6c4XAx9HCnxC1NaUCfArzQxPyEwJY4Xj+9c0af6+Z1KHxIDR8FKoDT0llXXsbT75cmMwwCQ+i6E9CqVPFZ0COBTwRiHkTMPG0r2LnAISh9OJdKBTqusTlhB6t4CrlOA1zr7tLGYTHf4jpz+PLB5Cs93vyeBaEk7xfqVO7arZdc5RYGcy1Ax7qFlA4DwJw/pDSvhIBc6rygSRtq5JKnNM0SdZkORw3FszVXtpsxRVZ2vl4xJ+zmcLT49Ols48QXFJdci93z8qDAP6wlhyHaViBmj9+uRdURp2VYx4pQLtC6QPmxfa9GMLl3AGoy4gjsJ69n/ZYiS5r63SG/lK+ReRBHmt5PkMKFANyyVZ8inErLByBBiQXf9e4NKlp1OVjGWBhlVC3oeCvyqeSWgMPqJhzZMt4TBBihSL2sRTkepS2fU3FYHMwStFOmCupyAgBM7Sf7tZddkoMFrLY/WtVhPmAA7wGCdxDjON4h5GMwBbI2ih5YURVzAajO1wYPvbGZckHaUWYFXO+t47kLVQo= |
+    | Sample 3 | KGA8lxD1eY03r7WCxgxRKcf+B9tTLG0a69ieosfilJ9v2guHFVOYJ7D5ziKp725JP6YE8w2bQ2m/G7r0WdbBE4/FuE7IRtYu5IFwPK0RsiczL07aBY8blIpjA+r8n/3aYH/OS8Qor0ck48YvaFZtxMXjqmE0KmLBa9KTYwkRYb0/s7TjGzi2mTJxqeMywpyf/5PsrYA6MZeWOCNlm4njqc7jdGpGsG/5k0jHVuTbA1RZ21DN53afn/0rb3jf7fWj5x+JEpVtTXdht6QYC648oiFL3FbBNd4Fw21WVaLKUERjCvP7GKN265qVX69GR8ql0dlJ+z1DtOdJeOFX1ny0Rc7C0SPbUj8/7vVEaWiLaJXB1JtSqP++ZGiVEuGQkjnkWU5QeyutnOmCCIZmJu2f3rJSOsi/WhxA3Srr/lkqiAQ4ZItQnvkrEEyhwFWI7LkH4jBWcCFfDtjSjNKG8LFLgi9Ceu3Pv7J+ZwU15PHikE63Mbmc1rsSIktR8Uf2wPDjJvSzfWMQylidyum8Oft68geLPcRI1W87TnFE65muHwel2s5DvQVsa1brkFx0BFNjbd98Z6NdJhgyOyR1IxOeOvrElZeE119Xc132UAwqUuElkXzSzYBHtekoQ36LA+FtdB2STu2dKkPbkm2xSh196fcjC1xMWOrkqgHEVose7lw= |
+
+
+  Scenario Outline: Signature Verification
+    Given the following pubkey
+    """
+    -----BEGIN PUBLIC KEY-----
+    MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAz614m40n+FfHIzLNFKaR
+    14ownMR6JAmtZ2UV5XUCfhrQxStGnVkwIKxOsg3ZgCsjbHRfMx2NDlubk7jmj7qh
+    Jy5YRuAViWke6dnJ6CbE6W2ErUXwlqbpWwFRaeLof/4Hb+PhwpXYBzBBERAk8rrC
+    /yN8kYqvMUBd1mi6w+8StLkqvg5MRnx/g5/yF+lvGOeHfRMox2MtUD7IM6Z5Z4ym
+    axNe3faOCl8oBTKypLezlM+phQ0Uk4uMejA6YoSFv+f5pf4JJnx6DMzSWSvo4GPX
+    /OYKTfmSn8XNT5eCYmhwzF3vRTw+AffR4JHLTk23ER4uJpaw99Iiqo4yDbJNYgro
+    dXMvGhYh6OoFDovFXUbcFzP52dg5hmoMYn9eZLwBKIAMcSMPNxJks38kZmr/hHCc
+    9NLZbHRkoJ9dn2nRwD4YxRuV03cIsL+KDbn0u3uTH9aExkxEQ44IHsAnHlV5NxDb
+    JHF0xMcFYoJOouKDFaD4FUcYtdQ2VheuFOEfM9aVutOKnTacmLHnkHmg6wH/5GhP
+    zAWYWD376SyKKPqNcKFomvONIkNKiCX9HBtIUZl68skpihdocPWEkOPCwcAhZNmp
+    P6YsepN15X/tAf67x/ssZ7ktACa2Kc9rSVA4NxWBvmxrnQ5UlVPzfSqWlcDtVVnP
+    +xZeGuS3KJx307sqM0lCYf0CAwEAAQ==
+    -----END PUBLIC KEY-----
+    """
+    And a content <content>
+    When I calculate SHA256 of the content
+    And I decode signature <given_sign> with base64
+    And I convert the signature from bytes to long
+    Then verify the signature with calculate hash should be valid
+
+    Examples:
+    | content  | given_sign |
+    | Sample 1 | RW/6+Lsagfwxq+qRlWwxQUIUYNiLLQRr3ljCqjGb3wAuWz3VS4gcEjrOvF6lJWOzTAa76drgWqkkywyDkZSHV7TU7YIkbR50QhwnOFx7x9Gm6Zcfp+WyMW2QcSxcuq5i3VYhq3DTHjvaK55HeURQ4nfcY82EGWxzkO44mY2yxcUxm0Ob2ZCPcSOOzMu6ROZcl+ueI8WdZsDqXA2kq34uO1PSL+6oMjM4YA1LvyEH79tiTm++cxU8BkuC165qJS7R+IA6oZGIe7ZEinriarS7hnZNFMHlcZBksy04LdnhT6FndObysSWCXdL4LjN+o05HY+I2uF9zi1Yn75Cx+8tqLRaKqCE+CSGLVgd17PUs3WXw2OP8atiW3Q9W4jEFnU10afYxOLIRhgZrdOH4p4veMXeGyGrsN6cp1z+yVckM9Pkcasou9kR1wFz1dGY9Jz4AmzS3XAxFc6qWYDvaTLXWjgzXVeGifJhiIsgHB5GVk7Ltw/iCdaNKfBQ8aMiJ6w5IJ+P4n1cr2QcA/x07TUVzLLjezqLosNj7rpo2Ca2HczUfs7NychQnPGDZN0FZsl7oF1BYXnhbz1zzSK3iDtI1lj6gwgHoc8P4PTomjJ0dFFFMPAk4CbaEYTNbRui1e3TaSfxcNDNNGhzPYon+CSeuAOg5kLc34HicUrAjsPG7XMk= |
+    | Chuck 2  | P1Cgx9Yo0uwwm1B9tQ0M1hhbRBQ0FKlnlqec6A+6thloTVeUMsiUHIbhXM24C+NVqss1NXICAcNiEgyH31YvOZAvSvszxe80KMUdince2fj07GBpS7ScQ2mzQUReROQYoVQTJAM2zWX16gq+zruQQ0AwUhmOBL+bUry35uAdwrVn2IXPLWt9+8VUL4OWKPlAPVkI3YYui7kZyeZMBar3BMIqGtwkUrmP4JJ2dKYL/btNhvV34LIuK4TFOv6DEkZgKBpNHS1KKEP849Lbd2wgVnuToOaq9D2qLA0cLZxxAD183l0WJNBPrIKjN4gQ7BMriC7S9sXgGH5r+hkSf2Cad0d2ArvOL7p9V4JErUg7jXFiBkOC6kbGaZ5bMJmOAdIErB9anvPHwACQF1B6JzgQ9x+PWyDN9aNzCORHUleDIQCvqqiVS0UYbduXMqHCadpgDwCjjIhw3COvcIG19JTvwOoeSDTaGT7Yt7cOz5D/ibXuJUfJDlSqqDraSo0Iy6Pff2BMZBpPhpnbGulPIGMwn89htl40UN7I7Oty2qiPUpmY5YrPIxoGmwAFwlYrFhveDo2sBVqcFG9pxbqu7ENeOuNP9Pf8apm2fABCzu8epJUBZ5T+D6dPaKF4x01C6Wepxx3A1xdkyZPSEDXE6mHIkLW3gAYwEFBe07JKt0kjc/o= |
+    | Test 3   | S1MbYZR9gHjt1DTYnTRpOt5NxIs1Nan2D2eVilYR4ojh0VZ5C129XNlUNVJ0/SXjHVFL2JIpcpF2iKml3rGCuP49K9uAhw9d5fiFojpC3DG90AMJzDXGu34GHYHQ4pbSZCClGkhrMqrMmsYVWM8u2IdQ/LlCEnExPpe9Nr3MBHeJ8wNih1IXkpkV6WBVU3htnid3n8Si+6p2OIIMXcR7s2/oC6iYRIl4gREGQ8gBOqmpbf2patLVoe5X26UzhTbKKkyK7V1MWMqpvOefDYlKLHRFM+A1hXHhmSGacDjLJx5xgmjKwukiIkwQ2DO/uaxNvx9g0S7aAVMtsJxSrhvzBCAL0nhULI7LaMNBm7LqfG82B/3HkWi2l8w36T+aYpf2rK6ztKmfD9f3CkYYwmyFGRjS7eWdHoHynV0900gRTG6eDlt98ttzdtJ/fRovW8HzapicjArjF6ZOrzf4PbmcS1dBM90Z8tiX4bUD/joA5JUibFjQHTktN96LsNkw3w1HMVyM952vvtApFeuPeyAX0gJ2CVQq/1deoL88yS2Z9sWY4DE4bnmrVz56AivZua8yTxx8NAW66mNnpgvc10GHH8pc8AG3p02GAyP8t6KWkU3AyhUqkdtKCHkO5D0lQczkWmYiYddO8ahoCNuk5Jo7k7qosbPHXIxT2Uw8Yr23fiM= |
+
+  Scenario Outline: Encrypt
+    Given the following pubkey
+    """
+    -----BEGIN PUBLIC KEY-----
+    MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAz614m40n+FfHIzLNFKaR
+    14ownMR6JAmtZ2UV5XUCfhrQxStGnVkwIKxOsg3ZgCsjbHRfMx2NDlubk7jmj7qh
+    Jy5YRuAViWke6dnJ6CbE6W2ErUXwlqbpWwFRaeLof/4Hb+PhwpXYBzBBERAk8rrC
+    /yN8kYqvMUBd1mi6w+8StLkqvg5MRnx/g5/yF+lvGOeHfRMox2MtUD7IM6Z5Z4ym
+    axNe3faOCl8oBTKypLezlM+phQ0Uk4uMejA6YoSFv+f5pf4JJnx6DMzSWSvo4GPX
+    /OYKTfmSn8XNT5eCYmhwzF3vRTw+AffR4JHLTk23ER4uJpaw99Iiqo4yDbJNYgro
+    dXMvGhYh6OoFDovFXUbcFzP52dg5hmoMYn9eZLwBKIAMcSMPNxJks38kZmr/hHCc
+    9NLZbHRkoJ9dn2nRwD4YxRuV03cIsL+KDbn0u3uTH9aExkxEQ44IHsAnHlV5NxDb
+    JHF0xMcFYoJOouKDFaD4FUcYtdQ2VheuFOEfM9aVutOKnTacmLHnkHmg6wH/5GhP
+    zAWYWD376SyKKPqNcKFomvONIkNKiCX9HBtIUZl68skpihdocPWEkOPCwcAhZNmp
+    P6YsepN15X/tAf67x/ssZ7ktACa2Kc9rSVA4NxWBvmxrnQ5UlVPzfSqWlcDtVVnP
+    +xZeGuS3KJx307sqM0lCYf0CAwEAAQ==
+    -----END PUBLIC KEY-----
+    """
+    And a content <content>
+    When I encrypt the content with RSA
+    And I encode the result with base64
+    Then the encoded content should be equal to <given_encrypted_content>
+
+    Examples:
+    | content  | given_encrypted_content |
+    | Test 1   | NSHV4njZuQbvwiBSK/gfBMDYmuhVffWtjuz59xnIokMY73ixBzek1fnEkmnChDZYgIwFQDjuaBJ3cvQJmoAQHQSoVjjCDcIdlV0bRLqIQzKv3U5TKXGf8FtJX80myh8F0ClfCzTkBbUZQNUQJEF4VxoZ08Fh+VVtqf+YGkh4ZmqbigVQ/XLkiNU9MMb7j6qidauhcaj9vPMnPCTbA7XSc+hVVXSUjZi+hJYa16pqXUgjuewUyXJXdk49nuza6RVH4lZ0RqNlv92mNosv5MDYCjuIguwAqaYwaR7f862Gogc/tFLDW/S1fXubfwbRQsZN7nxgB/F8s9rWafjr9hLSysZ/ep2IvXbB6p3g87F4GmIjdXq5dRkD/i4J/9VrV3Oii8x9swW7asv7S7/2fJNGozUtfrL9AygYiJrWUihIDnVnJKFbZDi3UugVIoVAOZ3tJHhUd67MO//POaru5PKdNIM2fqUsHmjkA5wGGl1BouswsO1PLjDpxHQkGvpbKzE0jmW88028WNGXiutOYSJIMRHLrJbsdoBb/hBcTYPb8f66XLPBRWIdFEykQRB91R1LfS2fWTHoyW8vqUkKsvAZrPiKLqNzAKNWIn/W3gmIL66gi2a5MITRbh04fq+PmAF8f/n3xxY95rlctcbVvGiJDxEHShm6xe3cGBq6YkcPKL4= |
+    | Chuck 2  | Uwq/VsoyScNbSvfzonKDb7+HuB/afGewroGn7fR+smlak6irJr58etbWAdFT56tsmpJstR+nWo9Za0t67mGut0gyyrTuFZ8xX4OktwoMsEqsxUQFX8mmJ4F2tZPaxffw35uLgbNKeda8AUfQDbmWSLBB0ZvWDLezqgaAsKT+lGZ5ogW9kPT1dWLVHS1jdqykUloWj6zopYo7f32SuoKoUAdxPKMRjLxnb8+x0zJ09WTzzRlQKCJ/wrgU+Ujoi34q3cAgUlLIYMz50SnV8hUSayxuAD83Mj7GSHm0C6mYUJl4TkbVjaLakTihke0L3w1NkJ8xwDrUzlgiV+2B8w9QAPIwBG51+YJQmfPQk5UqTMVxwHulih7DfC/OVYHZIfkbSX6e7bZfPypZz91vPgpMelmp9M219vN0CMsZYHVLP59ghfpdJNEhjwajoel2LeHlqW4pAFDjs9S7gBk2ebwQ1tqoHFNev9K57KtusRUbbaTpWHOjCJJRuYhG4ZukRv7cHvGnBwbiKaxu/Kj/Lyi1tX2+TOhvnDB2qiKuZtSciNP4MsVzfWBrgWcblpo/FTdwX2SjyHgwnNFMihXey1JO/pKSzs0pNuiJ7xA+pKKnC0XB1g9noRFh5aYWhsEDQA+fXzBnUpXxdy6ow7EPIAA8Z2N3lv5EGjLOH31mtLN8I38= |
+    | Sample 3 | D7UDDcKyaDP07jwW7z43Le3musCVsDcVRjDzEXsg6/BK0kSH/mfmv97AqNDxX9eI025aw1goFJTMQ6ljWAPKaFxOWtl7iQQPzm8htyMivaPHnsXRqFckj40WquIJk1wN64cuYSYSnrqTOx1J37Y54tjlNTF1/kJykvkiVkAbUN2n0G8MmUXodBKrqsVOBCKnlYaNaxV1BKQS5CRhoVwi1cojXL+PMZ54azLpjqoFJ840nBU4OiZ6jBCtozhtnJMm7t5ari7+WNxhwjg2PRwrNMu1n7JWOEEPFUCLydQg8ambhtm8NBBSC6Tm3MOkdQCfvj5kfzQvK6QLGaMm7S8mpxtN4fQRjgYBe6aEaF4n7GrGemQ1drTkcZj3jgtK1Ci0GfbAw1UH4hfoTxse+rEugtQO+06SdzF9MoXePK3p4PbA9hs+3UeCccZPhZqPu9o/j9tXOdgPxqruKHOLBZHW680XFHzBjGud+KbgItEkrt5cNNmWLD2tBi7zsTShpOl6KNjOIHIQVZ3gS08HlmtPYHRf+3c2SZZERHmYM4oGTMYK0eWhAumS3M/aU/kaOwQXr0b1N/2tpk9kiTlasuigoSAsseIq1mu1VbehZ3WjXa9imhwqWkxRp1R8M0C7ZF95Vt2rJc1uVc8YYF7pVVkln6SVv2uG8yeEvlfiWU60bDQ= |
+  
+  Scenario Outline: Decrypt
+    Given the following privkey
+    """
+    -----BEGIN RSA PRIVATE KEY-----
+    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
+    -----END RSA PRIVATE KEY-----
+    """
+    And a content <given_encrypted_content>
+    When I decode the content with base64
+    And I decrypt the result with RSA
+    Then the decryped content should be equal to <given_decrypted_content>
+
+    Examples:
+    | given_decrypted_content | given_encrypted_content |
+    | Test 1                  | NSHV4njZuQbvwiBSK/gfBMDYmuhVffWtjuz59xnIokMY73ixBzek1fnEkmnChDZYgIwFQDjuaBJ3cvQJmoAQHQSoVjjCDcIdlV0bRLqIQzKv3U5TKXGf8FtJX80myh8F0ClfCzTkBbUZQNUQJEF4VxoZ08Fh+VVtqf+YGkh4ZmqbigVQ/XLkiNU9MMb7j6qidauhcaj9vPMnPCTbA7XSc+hVVXSUjZi+hJYa16pqXUgjuewUyXJXdk49nuza6RVH4lZ0RqNlv92mNosv5MDYCjuIguwAqaYwaR7f862Gogc/tFLDW/S1fXubfwbRQsZN7nxgB/F8s9rWafjr9hLSysZ/ep2IvXbB6p3g87F4GmIjdXq5dRkD/i4J/9VrV3Oii8x9swW7asv7S7/2fJNGozUtfrL9AygYiJrWUihIDnVnJKFbZDi3UugVIoVAOZ3tJHhUd67MO//POaru5PKdNIM2fqUsHmjkA5wGGl1BouswsO1PLjDpxHQkGvpbKzE0jmW88028WNGXiutOYSJIMRHLrJbsdoBb/hBcTYPb8f66XLPBRWIdFEykQRB91R1LfS2fWTHoyW8vqUkKsvAZrPiKLqNzAKNWIn/W3gmIL66gi2a5MITRbh04fq+PmAF8f/n3xxY95rlctcbVvGiJDxEHShm6xe3cGBq6YkcPKL4= |
+    | Sample 2                | r7Vr/nJnrg61UuNq4tWflMh+cuOoaEQwbiLSL+TQzP7DDBOtnLhQklDoffp8thIlJF/3PvP0n3zvrlpfzIrXdy20trpV5XGsYeST22ygVI6ZvDwtzC3yQR5yLHumt8NmH5l2XObLXArenq5kDDHvSqp34I2lk6bDYqp6nwta+q7WZpbme/SjRmi9/Ciwu/R1HTeHzcGsErp8xfKcEX9Vt5XNfmTfVdklwlp9g76LGGkRIUPwrUF8EcOLz35Wemp3Jl+xu3cDj/rR40dLy4/gpvRPfrdZAjRPKJSWayiGxSIGBQX/AyVDtnWHy5vaqMPdU0h8ujtTCdEihvCezUop50/gjPoxpjuju61NkO9U7e7LAujX4PDduhD4gvi4Ef4UwhDuMSMFJ6w3tL4Yen6ZA6hOIbLvuEKcaTZaPXHMwJdvxJNXriibJt6zuYP01NuW2N8JqZebY4iyvmrURsNQtiG1GbKU79kirTxuyRomyqWCGP8ytEpwbetdVN3NOTrDrfVuQi5EpIEcj7IUZ34D6EK4YNQrj/iNIcVlp0HV7PGzr5Nza5yeaq+5j/AYyeO5QDY2twLqMyUg7uxrK+s//K36INzw7kfa86g0a53TazWzjnkveRiyvXRZzU5qQ2R/1ox1p0EcaNMblevz3uAl+3gpdAdItx74ooG3wyjSLa0= |
+    | Chuck 3                 | G0P6CMhyHxur0o6QSOquqt6ktyDW91l6PB/52nC+Q9SGLRDFu/tUizjvcnu4rA0jaVcvJLjkad6F+TQJRURm2wBncREoh+kcY1lcfVXHegRYYJgzV1RCniJwzPPs4Pisl0aj1NPl/otHZvpWNOP7R49olYF3Pvw9D4iC6G9LlC1iirYy3tQkGr7YuKNePPiqgBkdp9ywwhc/1nvsW+iXjKg5qBdV94sCwdROp3z3iCkPrRSHGipJT3+SrdVAsWTx9fxz+Jdhtfsb4NKJ9lPx5abzLIHu+K3TXUo6CZoqiYM1duQEZ290XIGXaba40w02NoLlXDux6XKEpGglS1aXS6RItF+bebmw7kQlTgAiZj3oRgI0BNLvAEZySYN8CCxYkdwvK2vOeyJMsxj3V4OPxHbvySScWnyGRIvvVQrl8BWSjxBxHQFe6xlEHIwIcBbuBmOCvCKyhNwhdXgesV0Z84m8rElVMWWJqTD434ABYIxCsAsOmB6oJ4ElG7y/G+6/fPTReQwd96X5qNjPfrqyDpvpwNea+rQukJetLseFpsYcPIaN2emOMMs9hpymBju5ruaBZD0bLBXwKtowfnbws+Abil3tUslJtJqXbVExpPnr4+r3fkYslvw+3ZGT593o4CYSfkgmXit41AeqoMM2osYioloSbLvboPpuv9vyTKw= |

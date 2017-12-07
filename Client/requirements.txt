@@ -1,0 +1,5 @@
+pycrypto==2.6.1
+behave==1.2.5
+base58==0.2.5
+msgpack-python==0.4.8
+requests==2.18.4

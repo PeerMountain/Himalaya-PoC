@@ -1,18 +1,19 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from django.contrib import admin
 
-from .models import Invitation, Registration, Backup
+from API.models import *
 
-class InvitationAdmin(admin.ModelAdmin):
+class PersonaAdmin(admin.ModelAdmin):
+    pass
+    
+class MessageAdmin(admin.ModelAdmin):
     pass
 
-admin.site.register(Invitation, InvitationAdmin)
-
-class RegistrationAdmin(admin.ModelAdmin):
+class ACLAdmin(admin.ModelAdmin):
     pass
 
-admin.site.register(Registration, RegistrationAdmin)
-
-class BackupAdmin(admin.ModelAdmin):
-    pass
-
-admin.site.register(Backup, BackupAdmin)
+admin.site.register(Persona, PersonaAdmin)
+admin.site.register(Message, MessageAdmin)
+admin.site.register(ACLRule, ACLAdmin)

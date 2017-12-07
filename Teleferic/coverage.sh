@@ -8,7 +8,7 @@ fi
 . .env/bin/activate
 pip install -r requirements.txt
 
-coverage run --source='.'  manage.py test --behave_format behave_teamcity:TeamcityFormatter
+coverage run --source='.'  manage.py test API --behave_format behave_teamcity:TeamcityFormatter
 
 coverage html
 
@@ -18,3 +18,5 @@ then
 fi
 
 zip -r coverage.zip htmlcov/ -j htmlcov -m
+
+rm -R htmlcov

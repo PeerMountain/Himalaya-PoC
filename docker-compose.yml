@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+  pgdb:
+    image: postgres:alpine
+    environment:
+      POSTGRES_PASSWORD: pm_dev
+      POSTGRES_USER: pm_dev
+      POSTGRES_DB: pm_dev
+    networks:
+      - pgdb
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdb:/var/lib/postgresql/data
+
+  teleferic:
+    build: 'Teleferic'
+    image: 'meteoro.dxmarkets.com:5000/himalaya_teleferic:latest'
+    volumes:
+      - messages_content:/code/API/Mock/messages
+    networks:
+      - pgdb
+      - teleferic
+    ports:
+      - 8000:8000
+    depends_on:
+      - pgdb
+    environment:
+      - PRODUCTION=1
+    deploy:
+      replicas: 10
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+      restart_policy:
+        condition: on-failure
+
+  gateway:
+    build: '.'
+    image: 'meteoro.dxmarkets.com:5000/himalaya_gateway:latest'
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - teleferic
+    links:
+      - teleferic
+    volumes:
+      - /etc/ssl/wildcard:/etc/ssl/wildcard
+    deploy:
+      replicas: 5
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 16M
+      restart_policy:
+        condition: on-failure
+
+networks:
+  pgdb:
+  teleferic:
+volumes:
+  pgdb:
+  messages_content:

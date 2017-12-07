@@ -3,6 +3,6 @@ from django_behave.runner import DjangoBehaveTestSuiteRunner
 
 class CompositeTestRunner(
   DjangoBehaveTestSuiteRunner,
-  TeamcityDjangoRunner
+  #TeamcityDjangoRunner
 ):
   pass

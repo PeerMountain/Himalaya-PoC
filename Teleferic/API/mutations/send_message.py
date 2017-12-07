@@ -1,19 +1,33 @@
 import graphene
 
-from .common_types import MessageEnvelope
+import json
 
-class SendMessage(graphene.Mutation):
-    class Input:
-        envelope = MessageEnvelope()
-        bodyHash = graphene.String(required=False)
-        dossierHash = graphene.String()
-        reader = graphene.String()
+from ..Mock import Authorizer, Writer
 
-    ok = graphene.Boolean()
+from ..types import MessageEnvelope, TXID, SHA256
 
-    @staticmethod
-    def mutate(root, args, context, info):
-        return SendMessage(ok=False)
+from graphql import GraphQLError
 
-class Mutation(graphene.AbstractType):
-    send_message = SendMessage.Field(description="Aca!")
+class Message(graphene.Mutation):
+  class Arguments:
+    envelope = MessageEnvelope(required=True)
+
+  envelopeID = graphene.Int()
+  cacheTXID = TXID()
+  messageHash = SHA256()
+  cacheTimestamp = graphene.Float()
+
+  @staticmethod
+  def mutate(root, info, **args):
+    envelope = args.get('envelope')
+    
+    Authorizer.authorize_message(envelope)
+    
+    persisted = Writer.write_message(envelope)
+
+    return Message(**persisted)
+
+class Mutation():
+  send_message = Message.Field(description='''
+  Send PM message
+  ''')
