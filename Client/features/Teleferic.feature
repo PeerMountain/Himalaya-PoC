@@ -70,8 +70,23 @@ Feature: Query bootstap node information
     And unpack property with Message Pack
     Then result should have signature property
     And result should have timestamp property
-    And signature should be valid for timestamp
-  
-  
 
-  
+  @wip(stef)
+  Scenario: Validate timestamp signature
+    Given bootstrap node url https://teleferic-dev.dxmarkets.com/teleferic/
+    And bootstrap node pubkey <bootstrapNodePubkey>
+    And following query
+    '''
+    query{
+      teleferic{
+        signedTimestamp
+      }
+    }
+    ''' 
+    When I send query to bootstrap node
+    And get property data.teleferic.signedTimestamp from query response
+    And decode property with Base64
+    And unpack property with Message Pack
+    Then result should have signature property
+    And result should have timestamp property
+    And signature should be valid for timestamp
