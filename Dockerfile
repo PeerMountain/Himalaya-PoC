@@ -1,5 +1,5 @@
 FROM nginx
 
-COPY Teleferic/static /srv/www/haku_static
+ADD Teleferic/static /srv/www/haku_static
 
-COPY nginx.conf /etc/nginx/
+ADD nginx.conf /etc/nginx/
