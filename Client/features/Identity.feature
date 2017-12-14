@@ -1,5 +1,81 @@
 Feature: Identity module
 
+  @wip(stef)
+  Scenario: Address Generation
+    Given the following 4096 pubkey
+    """
+    -----BEGIN PUBLIC KEY-----
+    MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAz614m40n+FfHIzLNFKaR
+    14ownMR6JAmtZ2UV5XUCfhrQxStGnVkwIKxOsg3ZgCsjbHRfMx2NDlubk7jmj7qh
+    Jy5YRuAViWke6dnJ6CbE6W2ErUXwlqbpWwFRaeLof/4Hb+PhwpXYBzBBERAk8rrC
+    /yN8kYqvMUBd1mi6w+8StLkqvg5MRnx/g5/yF+lvGOeHfRMox2MtUD7IM6Z5Z4ym
+    axNe3faOCl8oBTKypLezlM+phQ0Uk4uMejA6YoSFv+f5pf4JJnx6DMzSWSvo4GPX
+    /OYKTfmSn8XNT5eCYmhwzF3vRTw+AffR4JHLTk23ER4uJpaw99Iiqo4yDbJNYgro
+    dXMvGhYh6OoFDovFXUbcFzP52dg5hmoMYn9eZLwBKIAMcSMPNxJks38kZmr/hHCc
+    9NLZbHRkoJ9dn2nRwD4YxRuV03cIsL+KDbn0u3uTH9aExkxEQ44IHsAnHlV5NxDb
+    JHF0xMcFYoJOouKDFaD4FUcYtdQ2VheuFOEfM9aVutOKnTacmLHnkHmg6wH/5GhP
+    zAWYWD376SyKKPqNcKFomvONIkNKiCX9HBtIUZl68skpihdocPWEkOPCwcAhZNmp
+    P6YsepN15X/tAf67x/ssZ7ktACa2Kc9rSVA4NxWBvmxrnQ5UlVPzfSqWlcDtVVnP
+    +xZeGuS3KJx307sqM0lCYf0CAwEAAQ==
+    -----END PUBLIC KEY-----
+    """
+    And the address prefix [1, 0]
+    Then the address should be iZn2hyWChp6hkHEobZNdE9vmruR3MNVQZVFoBMc6PHEvKmaQM1jKoEC1uDF5Qf7deXN
+
+    Given the following 2048 pubkey
+    """
+    -----BEGIN PUBLIC KEY-----
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsGqfj7/6fQqCz8ZzDfDx
+    mlfulwC/8VnpS6H0Y1kDLZgpjELzSlQlL2wbGV52aeqBTU1o+x2YbZr1NWCDcwZV
+    kLCfG2kf+tOLL337u5v0Ku7g074zIrrll5PqwXFZyT5B30/m23QBnKA4AiopAOs0
+    jV1DB1wvoL3OEJ3XpS0HtsBQynp/0j6Qmi+Oj6BC9bZWLHgGU2Lbjz7MLL//ZNte
+    stJpoSMxmFDYXL0cxYwXUiV0V7yVmOzZKMmKxreiAaWdOLlzkJWYbx5GDIffeM1E
+    0r1gV4EKp+70+NlyqD+zBeAG/1lwxfQ94r9WzoVRacNGmE9v+BjswO74/veVRPvh
+    XwIDAQAB
+    -----END PUBLIC KEY-----
+    """
+    And the address prefix [2, 1]
+    Then the address calculation should return an error
+
+    Given the following 1024 pubkey
+    """
+    -----BEGIN PUBLIC KEY-----
+    MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCvdib/izF/trWRVRCFcJGG1Fx5
+    1QCVBEhODe/p+jjw40PCAg+84tg9mvqketPJYnE4oqIG88ThZcO+lrm/ZYIjmsG8
+    gf4TZ1nRJHmBDa1ZiI5NkAAPRZL1eLozQsW1P8JSgT8kLAYYrLtrprQknKgNhgcO
+    tEI7VKWkUq25zghZTQIDAQAB
+    -----END PUBLIC KEY-----
+    """
+    And the address prefix [1, 5]
+    Then the address calculation should return an error
+
+  @wip(stef)
+  Scenario: Address Generation Steps
+    Given the following pubkey
+    """
+    -----BEGIN PUBLIC KEY-----
+    MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAz614m40n+FfHIzLNFKaR
+    14ownMR6JAmtZ2UV5XUCfhrQxStGnVkwIKxOsg3ZgCsjbHRfMx2NDlubk7jmj7qh
+    Jy5YRuAViWke6dnJ6CbE6W2ErUXwlqbpWwFRaeLof/4Hb+PhwpXYBzBBERAk8rrC
+    /yN8kYqvMUBd1mi6w+8StLkqvg5MRnx/g5/yF+lvGOeHfRMox2MtUD7IM6Z5Z4ym
+    axNe3faOCl8oBTKypLezlM+phQ0Uk4uMejA6YoSFv+f5pf4JJnx6DMzSWSvo4GPX
+    /OYKTfmSn8XNT5eCYmhwzF3vRTw+AffR4JHLTk23ER4uJpaw99Iiqo4yDbJNYgro
+    dXMvGhYh6OoFDovFXUbcFzP52dg5hmoMYn9eZLwBKIAMcSMPNxJks38kZmr/hHCc
+    9NLZbHRkoJ9dn2nRwD4YxRuV03cIsL+KDbn0u3uTH9aExkxEQ44IHsAnHlV5NxDb
+    JHF0xMcFYoJOouKDFaD4FUcYtdQ2VheuFOEfM9aVutOKnTacmLHnkHmg6wH/5GhP
+    zAWYWD376SyKKPqNcKFomvONIkNKiCX9HBtIUZl68skpihdocPWEkOPCwcAhZNmp
+    P6YsepN15X/tAf67x/ssZ7ktACa2Kc9rSVA4NxWBvmxrnQ5UlVPzfSqWlcDtVVnP
+    +xZeGuS3KJx307sqM0lCYf0CAwEAAQ==
+    -----END PUBLIC KEY-----
+    """
+    And the address prefix [1, 0]
+    When calculating the address
+    Then I have to compute SHA256 hash of pubkey
+    And I have to compute RIPEMD160 of resulting SHA256
+    And I have to prefix resulting RIPEMD160 with the given prefix to generate the base address
+    And I have to apply SHA256 two times over resulting RIPEMD160 to generate the checksum
+    And I have to append last 4 bytes of resulting checksum at the end of base address to generate the address
+
   Scenario: Belen address generation
     Given the following pubkey
     """
@@ -18,6 +94,7 @@ Feature: Identity module
     1wnksTgY+w+0wgnd0Usf5gcCAwEAAQ==
     -----END PUBLIC KEY-----
     """
+    And the address prefix [1, 0]
     When compute SHA256 hash of pubkey
     And compute RIPEMD160 of resulting SHA256
     And prefix resulting RIPEMD160 with [1, 0] bytes to generate the base address
@@ -43,6 +120,7 @@ Feature: Identity module
     MZ6h+JLBGkDwIQ+UEahV91kCAwEAAQ==
     -----END PUBLIC KEY-----
     """
+    And the address prefix [1, 0]
     When compute SHA256 hash of pubkey
     And compute RIPEMD160 of resulting SHA256
     And prefix resulting RIPEMD160 with [1, 0] bytes to generate the base address
@@ -68,6 +146,7 @@ Feature: Identity module
     WhfC8YAnJ9axJ0QfEPvSeU0CAwEAAQ==
     -----END PUBLIC KEY-----
     """
+    And the address prefix [1, 0]
     When compute SHA256 hash of pubkey
     And compute RIPEMD160 of resulting SHA256
     And prefix resulting RIPEMD160 with [1, 0] bytes to generate the base address

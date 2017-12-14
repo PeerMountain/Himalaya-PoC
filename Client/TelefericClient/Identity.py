@@ -14,7 +14,7 @@ ADDRESS_PREFIX = [1, 0]
 
 class Identity():
 
-    def __init__(self, key=None):
+    def __init__(self, key=None, prefix=ADDRESS_PREFIX):
         if key is None:
             rng = Random.new().read
             self.key = Key.generate(4096, rng)
@@ -26,6 +26,18 @@ class Identity():
                 self.key = key
             else:
                 raise Exception('Invalid key format.')
+        
+        if self.key.size() < 4095:
+            raise Exception('4096 is the minimun key size')
+        
+        if not len(prefix) is len(ADDRESS_PREFIX):
+            raise Exception('Invalid address prefix')
+
+        for index, value in enumerate(prefix):
+            if not value is ADDRESS_PREFIX[index]:
+                raise Exception('Invalid address prefix')
+
+        self.prefix = prefix
         self.rsa = RSA(self.key)
 
     @property
@@ -36,7 +48,7 @@ class Identity():
         step_2 = RIPEMD.new(step_1).digest()
         # Two bytes are prefixed to the resulting RIPEMD-160 hash in order to
         # identify the deployment system.
-        step_3 = bytes(ADDRESS_PREFIX) + step_2
+        step_3 = bytes(self.prefix) + step_2
         # A checksum is calculated by SHA-256 hashing the extended RIPEMD-160 hash, then hashing
         # the resulting hash once more.
         step_4_checksum = SHA256.new(SHA256.new(step_3).digest()).digest()

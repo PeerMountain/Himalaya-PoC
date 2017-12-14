@@ -17,23 +17,28 @@ class AES():
             raise Exception(
                 'Key length must be lower or equal to {0}.'.format(self.KEY_SIZE))
         elif key_length < self.KEY_SIZE:
-            self.key = self.__pad(key,self.KEY_SIZE)
+            self.key = self.pad(key,self.KEY_SIZE)
         else:
             self.key = key
         self.cipher = Base_AES.new(self.key, self.MODE)
 
-    def __pad(self, s, l=BLOCK_SIZE):
-        return s + (l - len(s) % l) * chr(l - len(s) % l).encode()
+    @classmethod
+    def pad(self, s, l=BLOCK_SIZE):
+        if len(s) % l is 0:
+            return s
+        diff = l - len(s) % l
+        return s + (diff) * chr(diff).encode()
 
-    def __unpad(self, s):
+    @classmethod
+    def unpad(self, s):
         return s[:-ord(s[len(s) - 1:])]
 
     def encrypt(self, content):
-        local_content = self.__pad(content)
+        local_content = self.pad(content)
         ciphed_content = self.cipher.encrypt(local_content)
         return base64.b64encode(ciphed_content)
 
     def decrypt(self, b64_ciphed_content):
         ciphed_content = base64.b64decode(b64_ciphed_content)
         content = self.cipher.decrypt(ciphed_content)
-        return self.__unpad(content)
+        return self.unpad(content)
