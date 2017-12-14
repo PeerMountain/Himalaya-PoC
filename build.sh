@@ -1,7 +1,9 @@
 #!/bin/sh
 
-docker-compose build
+echo "##teamcity[compilationStarted compiler='image_builder']"
+docker-compose -f docker-compose.prod.yml build
+echo "##teamcity[compilationFinished compiler='image_builder']"
 
-docker push meteoro.dxmarkets.com:5000/himalaya_gateway:latest
-
-docker push meteoro.dxmarkets.com:5000/himalaya_teleferic:latest
+echo "##teamcity[blockOpened name='image_push']"
+docker-compose -f docker-compose.prod.yml push
+echo "##teamcity[blockClosed name='image_push']"
