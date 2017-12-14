@@ -175,7 +175,7 @@ Feature: Invitation message
       timestamp: <telefericSignedTimestamp>
     }
     """
-    And format signable object with Message Pack
+    And format signature object with Message Pack
     And encode resulted signature with Base64 
     Then resulting <messageSig> should be <result>
 

@@ -9,19 +9,20 @@ import msgpack
 
 
 def validate_timestamped_signature(sender_pubkey, message_hash, signature):
-  identity = Identity(sender_pubkey)
-  
-  sign = signature[b'signature']
-  timestamp = signature[b'timestamp']
-  
-  validator_map = OrderedDict()
-  validator_map['messageHash'] = base64.b64encode(message_hash)
-  validator_map['timestamp'] = timestamp
-  
-  validator = msgpack.packb(validator_map)
+    identity = Identity(sender_pubkey)
 
-  if not identity.verify(validator,sign):
-    raise Exception("Invalid sign")
+    sign = signature[b'signature']
+    timestamp = signature[b'timestamp']
+
+    validator_map = OrderedDict()
+    validator_map['messageHash'] = base64.b64encode(message_hash)
+    validator_map['timestamp'] = timestamp
+
+    validator = msgpack.packb(validator_map)
+
+    if not identity.verify(validator, sign):
+        raise Exception("Invalid sign")
+
 
 def authorize_message(envelope):
     check_sender = True
@@ -40,10 +41,12 @@ def authorize_message(envelope):
             message_content = msgpack.unpackb(message_content_raw)
             if message_content.get(b'bodyType') == 1:
                 check_sender = False
-                message_body = msgpack.unpackb(base64.b64decode(message_content.get(b'messageBody')))
-                sender_pubkey = message_body.get(b'publicKey')
+                message_body = msgpack.unpackb(
+                    base64.b64decode(message_content.get(b'messageBody')))
+                sender_pubkey = message_body.get(b'publicKey').decode()
         except Exception as e:
-            pass
+            raise Exception(
+                'Invalid public message content passphrase, should be "Peer Mountain"')
 
     if check_sender:
         # Validate Sender

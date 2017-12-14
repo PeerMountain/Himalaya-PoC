@@ -10,6 +10,8 @@ class AES():
     MODE = Base_AES.MODE_ECB
 
     def __init__(self, key):
+        if type(key) is str:
+            key = key.encode()
         key_length = len(key)
         if key_length > self.KEY_SIZE:
             raise Exception(

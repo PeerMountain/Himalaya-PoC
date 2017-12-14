@@ -4,6 +4,6 @@ from .key import RSAKey
 from .sign import Sign
 from .invitation import Invitation
 from .address import Address
-from .sh256 import SHA256
+from .sha256 import SHA256
 from .persona import Persona
 from .txid import TXID

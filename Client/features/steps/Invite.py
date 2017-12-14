@@ -238,7 +238,7 @@ def step_impl(context):
     context.signature_object['timestamp'] = context.telefericSignedTimestamp
 
 
-@when(u'format signable object with Message Pack')
+@when(u'format signature object with Message Pack')
 def step_impl(context):
     context.format_signature_object = msgpack.packb(
         context.signature_object)

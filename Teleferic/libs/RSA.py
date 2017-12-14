@@ -9,9 +9,13 @@ import base64
 
 class RSA():
 
+    @staticmethod
+    def from_b64(encoded):
+        return RSA(base64.b64decode(encoded))
+
     def __init__(self, key):
         key_type = type(key)
-        if key_type == str:
+        if key_type == str or key_type == bytes:
             self.key = Key.importKey(key)
         elif key_type == _RSAobj:
             self.key = key

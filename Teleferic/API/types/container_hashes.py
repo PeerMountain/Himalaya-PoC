@@ -1,6 +1,6 @@
 import graphene
 
-from .sh256 import SHA256
+from .sha256 import SHA256
 from .hmac_sha256 import HMACSHA256
 
 class ContainerHashes():
