@@ -1,11 +1,13 @@
 #!/bin/sh
 
-echo "##teamcity[<Build Images> status='starting']"
+echo "##teamcity[compilationStarted compiler='image_builder']"
 docker-compose build
-echo "##teamcity[<Build Images> status='end']"
-echo "##teamcity[<Push Image> image='himalaya_gateway' status='starting']"
+echo "##teamcity[compilationFinished compiler='image_builder']"
+
+echo "##teamcity[blockOpened name='push-himalaya_gateway']"
 docker push meteoro.dxmarkets.com:5000/himalaya_gateway:latest
-echo "##teamcity[<Push Image> image='himalaya_gateway' status='end']"
-echo "##teamcity[<Push Image> image='himalaya_teleferic' status='starting']"
+echo "##teamcity[blockClosed name='push-himalaya_gateway']"
+
+echo "##teamcity[blockOpened name='push-himalaya_teleferic']"
 docker push meteoro.dxmarkets.com:5000/himalaya_teleferic:latest
-echo "##teamcity[<Push Image> image='himalaya_teleferic' status='end']"
+echo "##teamcity[blockClosed name='push-himalaya_teleferic']"
