@@ -15,7 +15,6 @@ services:
   teleferic:
     build: 'Teleferic'
     image: 'meteoro.dxmarkets.com:5000/himalaya_teleferic:latest'
-    command: 'python manage.py collectstatic --no-input -c'
     volumes:
       - messages_content:/code/API/Mock/messages
       - ./Teleferic/static:/code/static
