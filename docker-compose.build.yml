@@ -15,19 +15,32 @@ services:
   teleferic:
     build: 'Teleferic'
     image: 'meteoro.dxmarkets.com:5000/himalaya_teleferic:latest'
+    command: 'python manage.py collectstatic --no-input -c'
     volumes:
       - messages_content:/code/API/Mock/messages
       - ./Teleferic/static:/code/static
       - ./Teleferic/coverage:/code/coverage
     networks:
       - pgdb
+      - teleferic
     depends_on:
       - pgdb
     environment:
       - PRODUCTION=0
 
+  docs:
+    build: 'Docs'
+    image: 'meteoro.dxmarkets.com:5000/himalaya_docs:latest'
+    volumes:
+      - ./Docs:/code
+    depends_on:
+      - teleferic
+    networks:
+      - teleferic
+
 networks:
   pgdb:
+  teleferic:
 volumes:
   pgdb:
   messages_content:
