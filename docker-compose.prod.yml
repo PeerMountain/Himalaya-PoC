@@ -33,7 +33,7 @@ services:
     environment:
       - PRODUCTION=1
     deploy:
-      replicas: 10
+      replicas: 1
       resources:
         limits:
           cpus: '0.2'
@@ -54,7 +54,7 @@ services:
     volumes:
       - /etc/ssl/wildcard:/etc/ssl/wildcard
     deploy:
-      replicas: 5
+      replicas: 1
       resources:
         limits:
           cpus: '0.1'
