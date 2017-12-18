@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  pgdb:
+    image: postgres:alpine
+    environment:
+      POSTGRES_PASSWORD: pm_dev
+      POSTGRES_USER: pm_dev
+      POSTGRES_DB: pm_dev
+    networks:
+      - pgdb
+    volumes:
+      - pgdb:/var/lib/postgresql/data
+
+  teleferic:
+    build: 'Teleferic'
+    image: 'meteoro.dxmarkets.com:5000/himalaya_teleferic:latest'
+    volumes:
+      - messages_content:/code/API/Mock/messages
+      - ./Teleferic/static:/code/static
+      - ./Teleferic/coverage:/code/coverage
+    networks:
+      - pgdb
+      - teleferic
+    depends_on:
+      - pgdb
+    environment:
+      - PRODUCTION=0
+
+  docs:
+    build: 'Docs'
+    image: 'meteoro.dxmarkets.com:5000/himalaya_docs:latest'
+    volumes:
+      - ./Docs:/code
+    depends_on:
+      - teleferic
+    networks:
+      - teleferic
+
+networks:
+  pgdb:
+  teleferic:
+volumes:
+  pgdb:
+  messages_content:
