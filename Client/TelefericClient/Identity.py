@@ -13,8 +13,20 @@ ADDRESS_PREFIX = [1, 0]
 
 
 class Identity():
+    """Identity
+
+    Helper class for encrypting and signing messages.
+    """
 
     def __init__(self, key=None, prefix=ADDRESS_PREFIX):
+        """__init__
+
+        Create a new Identity using a given key,
+        or generate a key in the spot.
+
+        :param key: RSA key.
+        :param prefix:
+        """
         if key is None:
             rng = Random.new().read
             self.key = Key.generate(4096, rng)
@@ -42,6 +54,10 @@ class Identity():
 
     @property
     def address(self):
+        """address
+        
+        Property which returns this Identity's platform address.
+        """
         # The public key of the pair is hashed SHA-256.
         step_1 = SHA256.new(self.key.publickey().exportKey()).digest()
         # The resulting Hash is further hashed with RIPEMD-160.
@@ -95,6 +111,15 @@ class Identity():
             return False
 
     def sign_message(self, message_hash, client):
+        """sign_message
+
+        Sign a message to be sent to Teleferic.
+
+        This requires using a timestamp signed by Teleferic, so the API is called.
+
+        :param message_hash: Hash of the message content.
+        :param client: Teleferic API client.
+        """
         if type(message_hash) is str:
             message_hash = message_hash.encode()
 

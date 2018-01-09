@@ -7,11 +7,28 @@ from TelefericClient import Client
 
 
 class Invite(MessageEnvelope):
+    """Invite
+    
+    Message sent by registered entities, in order to invite people
+    to join the system.
+    """
 
     MESSAGE_TYPE = 'REGISTRATION'
     MESSAGE_BODY_TYPE = 0
 
     def compose(self, bootstrapAddr, bootstrapNode, inviteName, offeringAddr, serviceAnnouncementMessage, serviceOfferingID, inviteKey=None):
+        """compose
+
+        Compose an Invite message.
+
+        :param bootstrapAddr: Teleferic endpoint address.
+        :param bootstrapNode: Teleferic endpoint node URI.
+        :param inviteName: string: Shared secret between inviter and invitee.
+        :param offeringAddr: Inviter's address.
+        :param serviceAnnouncementMessage: 
+        :param serviceOfferingID: 
+        :param inviteKey: string: Shared secret between inviter and invitee.
+        """
         if inviteKey is None:
             self.inviteKey = self.generate_random_passphrase()
         else:
@@ -20,6 +37,7 @@ class Invite(MessageEnvelope):
         cipher = AES(self.inviteKey)
         encryptedInviteName = cipher.encrypt(inviteName.encode())
 
+        # Create the message's body, which is then placed inside the message.
         message_body = MessageBody(
             self.MESSAGE_BODY_TYPE,
             bootstrapAddr=bootstrapAddr,
