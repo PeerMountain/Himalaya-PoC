@@ -1,4 +1,5 @@
 import base64
+import logging
 from Crypto.Hash import SHA256, HMAC
 
 from libs.tools import Identity, AES
@@ -43,7 +44,8 @@ def authorize_message(envelope):
             message_content_raw = public_cipher.decrypt(message)
             # Parse message
             message_content = msgpack.unpackb(message_content_raw)
-            if message_content.get(b'bodyType') == BodyTypes.REGISTRATION:
+            logging.warning(repr(message_content.get(b'bodyType')))
+            if message_content.get(b'bodyType') == BodyTypes.Registration.REGISTRATION:
                 check_sender = False
                 message_body = msgpack.unpackb(
                     base64.b64decode(message_content.get(b'messageBody')))
@@ -124,6 +126,8 @@ def validate_registration(message_body):
     nickname = message_body.get(b'publicNickname')
     if nickname in (None, ''):
         raise Exception('Invalid nickname.')
+
+    logging.info("AES KEY: %s", PUBLIC_AES_KEY)
 
     # Try deciphering the message using the public aes key.
     invite_message = Reader.get_message_content(invite_message_hash)
