@@ -67,3 +67,7 @@ def sign_current_timestamp():
 def decrypt_content(content):
   teleferic_identity = Identity(TELEFERIC_KEY)
   return teleferic_identity.decrypt(content)
+
+def verify_signature(content,sign):
+  teleferic_identity = Identity(TELEFERIC_KEY)
+  return teleferic_identity.verify(content,sign)

@@ -1,3 +1,6 @@
+class Parameters(object):
+    TOLERABLE_TIME_DIFFERENCE_IN_SECONDS = 5
+
 class MessageTypes(object):
     SYSTEM = 0
     REGISTRATION = 1
