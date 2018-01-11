@@ -7,7 +7,7 @@ class MessageEnvelope():
     Helper class for Teleferic API connection.
     """
 
-    def __init__(self, identity, node):
+    def __init__(self, identity, node, containers=tuple()):
         self.identity = identity
         self.client = Client(node)
 
@@ -26,6 +26,7 @@ class MessageEnvelope():
                 $messageSig: Sign!
                 $message: AESEncryptedBlob!
                 $dossierHash: HMACSHA256!
+                $containers: List!
                 ){
                 sendMessage(
                     envelope: {
@@ -36,6 +37,7 @@ class MessageEnvelope():
                     messageSig: $messageSig
                     message: $message
                     dossierHash: $dossierHash
+                    containers: $containers
                     }
                 ) {
                     messageHash
