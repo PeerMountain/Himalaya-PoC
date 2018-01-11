@@ -2,16 +2,16 @@ Feature: Assertion Message
     Scenario Outline: Generate object container requirements
         Given user attaches base64 encoded object <object>
         
-        When we calculate SHA256 hash of <object> as <object_SHA256>
-        Then we check <object_SHA256> and <expected_object_SHA256> are equal
+        When we calculate SHA256 hash of <object>
+        Then we check hash and <expected_object_SHA256> are equal
 
-        When we encrypt <object> using AES with key <container_key> as <encrypted_object>
-        Then we check <encrypted_object> and <expected_encrypted_object> are equal
+        When we encrypt <object> using AES with key <container_key>
+        Then we check encrypted object and <expected_encrypted_object> are equal
 
-        When we calculate SHA256 hash of <encrypted_object> as <encrypted_object_SHA256>
-        Then we check <encrypted_object_SHA256> and <expected_encrypted_object_SHA256> are equal
+        When we calculate SHA256 hash of encrypted object
+        Then we check [encrypted_object_SHA256] and <expected_encrypted_object_SHA256> are equal
 
-        Given following private key <private_key>
+        Given following private key [private_key]
         """
         -----BEGIN RSA PRIVATE KEY-----
         MIIJKQIBAAKCAgEAz614m40n+FfHIzLNFKaR14ownMR6JAmtZ2UV5XUCfhrQxStG
@@ -109,4 +109,8 @@ Feature: Assertion Message
         | 0WqSAQAAAQmS | 0MUuYJ4X2qLrEmzYMTcg3TrBoIbR/MEZiQqBnk/reTk= | sarasa3 | 6HlIZ3oDyBkWVjuU/9uFvw== | fjcK0da8qwdIgfLiJqihQ7PlUc4SH1nDt2GWV9pkHdk= |
         | 0WqSAQAAAQmS/hGe | VZIM0Ny3VGaAeJ9jro5ql/9ccTNGMKFLbdICeFe4Z5M= | sarasa4 | G4QvaTvqRfSzui4bQ7XlXg== | jYeVTtpgqJscV7EIsDDnmRFbViGQOcai1qaPHQuMc9w= |
 
-    
+    Scenario Outline: Test
+        @wip
+
+        Given we print asd
+            And we print [asd]
