@@ -2,12 +2,20 @@ from TelefericClient import Client
 
 
 class MessageEnvelope():
+    """MessageEnvelope
+
+    Helper class for Teleferic API connection.
+    """
 
     def __init__(self, identity, node):
         self.identity = identity
         self.client = Client(node)
 
     def send(self):
+        """send
+
+        Send the message to Teleferic's API.
+        """
         return self.client.request(
             query='''
             mutation (
