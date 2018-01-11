@@ -21,7 +21,7 @@ class Assertion(MessageEnvelope):
             self.build_meta_hash_list(assertions)
         )
         containers = list(
-            self.build_container_list(assertions, meta_hashes)
+            self.build_container_list(assertions, metahashes)
         )
 
         message_body = MessageBody(
