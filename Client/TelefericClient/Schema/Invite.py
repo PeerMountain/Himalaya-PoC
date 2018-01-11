@@ -30,7 +30,7 @@ class Invite(MessageEnvelope):
         :param inviteKey: string: Shared secret between inviter and invitee.
         """
         if inviteKey is None:
-            self.inviteKey = self.generate_random_passphrase()
+            self.inviteKey = self.generate_random_bytes()
         else:
             self.inviteKey = inviteKey
 
@@ -55,8 +55,3 @@ class Invite(MessageEnvelope):
 
         self.message = Message(message_content)
 
-    def generate_random_passphrase(self):
-        key_accumulator = b''
-        for i in range(40):
-            key_accumulator += chr(random.randint(0, 255))
-        return key_accumulator
