@@ -31,7 +31,7 @@ services:
     depends_on:
       - pgdb
     environment:
-      - PRODUCTION=1
+      - DEBUG=0
     deploy:
       replicas: 1
       resources:
