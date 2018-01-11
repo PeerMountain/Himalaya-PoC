@@ -1,4 +1,19 @@
 # Himalaya
+## Add Registry server
+```bash
+docker run -d \
+  -p 5000:5000 \
+  --restart=always \
+  --name registry \
+  -v /opt/registry/auth:/auth \
+  -e "REGISTRY_AUTH=htpasswd" \
+  -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
+  -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+  -v /etc/ssl/wildcard/:/certs \
+  -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/server.crt \
+  -e REGISTRY_HTTP_TLS_KEY=/certs/server.key \
+  registry:2
+```
 ## Add user to registry
 ```bash
 root@peer-mountain01 ~ # docker run --entrypoint htpasswd registry:2 -Bbn user pass >> /opt/registry/auth/htpasswd
