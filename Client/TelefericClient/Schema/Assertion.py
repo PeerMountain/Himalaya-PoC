@@ -7,6 +7,7 @@ from Cryptography import AES, RSA
 from .MessageBody import MessageBody
 from .MessageEnvelope import MessageEnvelope
 from .MessageContent import MessageContent
+from .Message import Message
 
 class Assertion(MessageEnvelope):
     subject_address = None
@@ -16,11 +17,11 @@ class Assertion(MessageEnvelope):
         assertions = list(
             self.build_assertion_list(assertions, container_key)
         )
-        containers = list(
-            self.build_container_list(assertions)
-        )
         metahashes = list(
             self.build_meta_hash_list(assertions)
+        )
+        containers = list(
+            self.build_container_list(assertions, meta_hashes)
         )
 
         message_body = MessageBody(
@@ -31,6 +32,11 @@ class Assertion(MessageEnvelope):
         message_content = MessageContent(
             message_type=0, # BodyTypes.Assertion.ANY,
             message_body=message_body,
+        )
+
+        self.message = Message(
+            message_content,
+            containers,
         )
 
     def build_assertion_list(self, assertions, container_key):
