@@ -6,7 +6,7 @@ from Crypto.Hash import HMAC, SHA256
 
 from collections import OrderedDict
 
-from TelefericClient.Cryptography import AES
+from Cryptography import AES
 
 AVAILABLE_TYPES = [
     'REGISTRATION'
@@ -33,9 +33,9 @@ class MessageContent():
         :param signature:
         """
 
-        if not message_type in AVAILABLE_TYPES:
-            raise Exception(
-                'Message type should be [%s].' % '|'.join(AVAILABLE_TYPES))
+        # if not message_type in AVAILABLE_TYPES:
+        #     raise Exception(
+        #         'Message type should be [%s].' % '|'.join(AVAILABLE_TYPES))
 
         self.type = message_type
         self.body = message_body

@@ -1,56 +1,64 @@
 import base64
 import msgpack
-from collections import OrderedDict
 from Crypto.Hash import SHA256, HMAC
 
 from Cryptography import AES, RSA
-from .MessageBody import MessageBody
-from .MessageEnvelope import MessageEnvelope
-from .MessageContent import MessageContent
-from .Message import Message
+from .Base.MessageBody import MessageBody
+from .Base.MessageEnvelope import MessageEnvelope
+from .Base.MessageContent import MessageContent
+from .Base.Message import Message
 
 class Assertion(MessageEnvelope):
     subject_address = None
     assertions = None
 
-    def __init__(self, subject_address, assertions, container_key=None):
+    def __init__(self, identity, client, assertions, readers, container_key=None):
+        self.identity = identity
+        self.client = client
+
         assertions = list(
             self.build_assertion_list(assertions, container_key)
         )
-        metahashes = list(
+        meta_hashes = list(
             self.build_meta_hash_list(assertions)
         )
         containers = list(
-            self.build_container_list(assertions, metahashes)
+            self.build_container_list(assertions, meta_hashes)
         )
 
         message_body = MessageBody(
-            subjectAddr=subject_address,
-            assertions=assertions
+            subjectAddr=self.identity.address,
+            assertions=assertions,
+            body_type=0
         )
 
+
         message_content = MessageContent(
-            message_type=0, # BodyTypes.Assertion.ANY,
+            message_type=0,
             message_body=message_body,
         )
 
+        passphrase = self.generate_random_bytes(length=32)
+
         self.message = Message(
             message_content,
+            passphrase,
+            readers,
             containers,
         )
 
     def build_assertion_list(self, assertions, container_key):
         for assertion in assertions:
             if not container_key:
-                container_key = self.generate_random_bytes()
+                container_key = self.generate_random_bytes(length=32)
             cipher = AES(container_key)
-            container = cipher.encrypt(assertion.object)
+            container = cipher.encrypt(assertion.get('object')).decode()
 
             object_hash = base64.b64encode(
-                SHA256.new(assertion.object).digest()
-            )
+                SHA256.new(assertion.get('object')).digest()
+            ).decode()
             container_hash = base64.b64encode(
-                SHA256.new(container).digest()
+                SHA256.new(container.encode()).digest()
             )
 
             object_signature = self.identity.sign_message(
@@ -62,13 +70,13 @@ class Assertion(MessageEnvelope):
             )
 
             yield {
-                'validUntil': assertion.valid_until,
-                'retainUntil': assertion.retain_until,
-                'containerHash': container_hash,
+                'validUntil': assertion.get('valid_until'),
+                'retainUntil': assertion.get('retain_until'),
+                'containerHash': container_hash.decode(),
                 'containerKey': container_key,
                 'objectHash': object_hash,
                 'objectSign': object_signature, 
-                'metas': assertion.metas,
+                'metas': assertion.get('metas'),
                 'container': container,
                 'containerSignature': container_signature,
             }
@@ -76,12 +84,12 @@ class Assertion(MessageEnvelope):
     def build_meta_hash_list(self, assertions):
         for assertion in assertions:
             metahashes = []
-            for meta in assertion.metas:
+            for meta in assertion.get('metas'):
                 salt = self.generate_random_bytes()
-                pack = msgpack.pack(meta)
+                pack = msgpack.packb(meta)
                 salted_meta_hash = base64.b64encode(
                     HMAC.new(
-                        salt, pack, "SHA256"
+                        salt, pack, SHA256
                     ).digest()
                 )
 
@@ -90,7 +98,7 @@ class Assertion(MessageEnvelope):
                     'metaSalt': salt,
                 })
 
-                metahashes.append(salted_meta_hash)
+                metahashes.append(salted_meta_hash.decode())
             yield metahashes
  
     def build_container_list(self, assertions, meta_hashes):
@@ -101,11 +109,11 @@ class Assertion(MessageEnvelope):
                 'objectHash': assertion.get('objectHash'),
                 'containerSig': assertion.pop('containerSignature'),
                 'metaHashes': meta_hashes[i],
-                'retainUntil': RSA(teleferic_pubkey).encrypt(
-                    assertion.get('retainUntil'), None
-                ),
-                'validUntil': RSA(teleferic_pubkey).encrypt(
-                    assertion.get('validUntil'), None
-                ),
+                'dateLimits': RSA(teleferic_pubkey).encrypt(
+                    msgpack.packb({
+                        'retainUntil': assertion.get('retainUntil'),
+                        'validUntil': assertion.get('validUntil'),
+                    })
+                ).decode(),
                 'objectContainer': assertion.pop('container')
             }

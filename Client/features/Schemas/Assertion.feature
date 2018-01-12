@@ -1,17 +1,25 @@
 Feature: Assertion Message
     Scenario Outline: Generate object container requirements
+    Scenario:
         Given user attaches base64 encoded object <object>
         
-        When we calculate SHA256 hash of <object>
-        Then we check hash and <expected_object_SHA256> are equal
+        When we calculate SHA256 hash of <object> as object_SHA256
+        Then we check [object_SHA256] and <expected_object_SHA256> are equal
 
-        When we encrypt <object> using AES with key <container_key>
-        Then we check encrypted object and <expected_encrypted_object> are equal
+        When we encrypt <object> using AES with key <container_key> as encrypted_object
+        Then we check [encrypted_object] and <expected_encrypted_object> are equal
 
-        When we calculate SHA256 hash of encrypted object
-        Then we check [encrypted_object_SHA256] and <expected_encrypted_object_SHA256> are equal
+        When we calculate SHA256 hash of [encrypted_object] as encrypted_object_SHA256
+        Then we check [encrypted_object_SHA256] and <expecttion.valid_until,
+                'retainUntil': assertion.retain_until,
+                'containerHash': container_hash,
+                'containerKey': container_key,
+                'objectHash': object_hash,
+                'objectSign': object_signature,
+                'metas': assertion.metas
+            }ed_encrypted_object_SHA256> are equal
 
-        Given following private key [private_key]
+        Given following private key as private_key
         """
         -----BEGIN RSA PRIVATE KEY-----
         MIIJKQIBAAKCAgEAz614m40n+FfHIzLNFKaR14ownMR6JAmtZ2UV5XUCfhrQxStG
@@ -65,35 +73,35 @@ Feature: Assertion Message
         884tMQf4Ah7UQtcLiiazGMIUY+LZZmUQv7g90rjvtxha8rD19wQ0qPJ4s1Te
         -----END RSA PRIVATE KEY-----
         """
-            And teleferic signed timestamp <teleferic_signed_timestamp>
-            And compose <object_signature_dict>
+            And teleferic bootstrap node URI https://teleferic-dev.dxmarkets.com/teleferic/
+            And teleferic signed timestamp as teleferic_signed_timestamp
+            And compose object_signature_dict as
             """
             {
-            objectHash: <object_SHA256>,
-            timestamp: <teleferic_signed_timestamp>
+            objectHash: {object_SHA256},
+            timestamp: {teleferic_signed_timestamp},
             }
             """
-        When I format <object_signature_dict> with Message Pack as <packed_object_signature_dict>
-            And generate RSA signature <object_signature> using <private_key> of formated signable object <packed_object_signature_dict>
+        When I format [object_signature_dict] with Message Pack as packed_object_signature_dict
+            And I base64 encode [packed_object_signature_dict] as packed_object_signature_dict
+            And generate RSA signature object_signature using private_key [private_key] of formated signable object [packed_object_signature_dict]
 
-        Then we check <object_signature> and <expected_object_signature> are equal
+        Then we check [object_signature] and <expected_object_signature> are equal
 
-        Given compose <meta_list>
+        Given compose meta_list as
         """
         [
             {
-                2: {
-                    "metaValue": "Pepe Sarasa",
-                },
+                'metaKey': 1,
+                'metaValue': "Pepe"
             },
             {
-                3: {
-                    "metaValue": "\x12\x23\x41\xfe\x11\x9e"
-                }
-            }
+                'metaKey': 2,
+                'metaValue': "Sarasa"
+            },
         ]
         """
-            And we calculate salt for each meta
+            And we calculate salt for each meta in [meta_list]
             And we calculate salted hash for each meta as salted_meta_hashes
 
         Given <valid_until> is unix timestamp for 2018-05-10
@@ -102,15 +110,9 @@ Feature: Assertion Message
         Given we compose assertion message body <assertion_message_body> with <valid_until>, <retain_until>, <encrypted_object_SHA256>, <container_key>, <encrypted_object_SHA256>, <object_signature>, <meta_list>
 
 
-   Examples:
+    Examples:
         | object | expectedObjectSHA256 | containerKey | expectedEncryptedObject | expectedEncryptedObjectSHA256 |
         | utvu8A== | RbUuANM6CTG3WUNkNPsc7ia9iY87HKc0LoQZsT/KEvs= | sarasa1 | IgzAp08p7dHnaccZ9wbwXg== | li9ozDxnPexSW4vQK1fcGCMx9Fp4TMXu0pCwd5sRJ0= |
         | 0WqSAQ== | InccYmBaAj+sTJJ3VWOPqqoJ6xcu9wa78Sm1Atg0V4Q= | sarasa0 | RRqInN+GYjl7hHl4iKW7hg== | QHJ87QgHpkyxweV9ctRu2fl9ih0jxwtya9viIKrr1Eg= |
         | 0WqSAQAAAQmS | 0MUuYJ4X2qLrEmzYMTcg3TrBoIbR/MEZiQqBnk/reTk= | sarasa3 | 6HlIZ3oDyBkWVjuU/9uFvw== | fjcK0da8qwdIgfLiJqihQ7PlUc4SH1nDt2GWV9pkHdk= |
         | 0WqSAQAAAQmS/hGe | VZIM0Ny3VGaAeJ9jro5ql/9ccTNGMKFLbdICeFe4Z5M= | sarasa4 | G4QvaTvqRfSzui4bQ7XlXg== | jYeVTtpgqJscV7EIsDDnmRFbViGQOcai1qaPHQuMc9w= |
-
-    Scenario Outline: Test
-        @wip
-
-        Given we print asd
-            And we print [asd]

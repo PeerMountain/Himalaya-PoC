@@ -1,4 +1,5 @@
-from TelefericClient import Client
+import random
+import Client
 
 
 class MessageEnvelope():
@@ -16,6 +17,7 @@ class MessageEnvelope():
 
         Send the message to Teleferic's API.
         """
+        # return self.message.build(self.identity, self.client)
         return self.client.request(
             query='''
             mutation (
@@ -26,7 +28,7 @@ class MessageEnvelope():
                 $messageSig: Sign!
                 $message: AESEncryptedBlob!
                 $dossierHash: HMACSHA256!
-                $containers: List!
+                $containers: [ContainerHashesInput]
                 ){
                 sendMessage(
                     envelope: {
@@ -46,3 +48,6 @@ class MessageEnvelope():
             ''',
             variables=self.message.build(self.identity, self.client)
         )
+
+    def generate_random_bytes(self, length=40):
+        return bytes(random.randint(0,255) for _ in range(length))

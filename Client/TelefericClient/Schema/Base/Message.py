@@ -3,7 +3,7 @@ import base64
 
 from collections import OrderedDict
 
-from TelefericClient.Cryptography import RSA
+from Cryptography import RSA
 
 from Crypto.Hash import SHA256
 
@@ -45,5 +45,11 @@ class Message():
             'bodyHash': self.message_content.body.hash,
             'message': build_content,
             'containers': self.containers,
+            'ACL': [
+                {
+                    'reader': reader.address,
+                    'key': RSA(reader.pubkey).encrypt(self.passphrase).decode()
+                } for reader in self.readers
+            ],
         }
         return content
