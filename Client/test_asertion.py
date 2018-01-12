@@ -6,7 +6,7 @@ from TelefericClient.Identity import Identity
 from TelefericClient.Client import Client
 from TelefericClient.Schema.Assertion import Assertion
 
-now = datetime.datetime.now()
+now = datetime.datetime.now(datetime.timezone.utc)
 tomorrow = now + datetime.timedelta(days=1)
 
 idn = Identity(open("/home/mori/dev_sk").read())
