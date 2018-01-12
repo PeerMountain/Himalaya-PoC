@@ -29,12 +29,14 @@ class Assertion(MessageEnvelope):
         message_body = MessageBody(
             subjectAddr=self.identity.address,
             assertions=assertions,
+            # TODO(felipe) check this body type constant
+            # is it always 0 for assertions?
             body_type=0
         )
 
 
         message_content = MessageContent(
-            message_type=0,
+            message_type=2, # Assertion
             message_body=message_body,
         )
 
@@ -109,11 +111,11 @@ class Assertion(MessageEnvelope):
                 'objectHash': assertion.get('objectHash'),
                 'containerSig': assertion.pop('containerSignature'),
                 'metaHashes': meta_hashes[i],
-                'dateLimits': RSA(teleferic_pubkey).encrypt(
-                    msgpack.packb({
-                        'retainUntil': assertion.get('retainUntil'),
-                        'validUntil': assertion.get('validUntil'),
-                    })
+                'retainUntil': RSA(teleferic_pubkey).encrypt(
+                    assertion.get('retainUntil'),
+                ).decode(),
+                'validUntil': RSA(teleferic_pubkey).encrypt(
+                    assertion.get('validUntil'),
                 ).decode(),
                 'objectContainer': assertion.pop('container')
             }
