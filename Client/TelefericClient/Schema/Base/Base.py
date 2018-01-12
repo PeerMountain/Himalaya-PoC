@@ -13,3 +13,9 @@ class Base():
         return self.content.get(key)
       else:
         raise Exception('Key "%s" not exist.' % key)
+
+    def generate_random_bytes(self, length=40):
+        key_accumulator = b''
+        for i in range(length):
+            key_accumulator += chr(random.randint(0, 255))
+        return key_accumulator

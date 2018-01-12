@@ -8,13 +8,32 @@ from TelefericClient.Cryptography import RSA
 from Crypto.Hash import SHA256
 
 class Message():
+    """Message
+
+    A Teleferic Message.
+    """
 
     def __init__(self, message_content, passphrase='Peer Mountain', readers=None):
+        """__init__
+
+        Create a message envelope.
+
+        :param message_content: MessageContent: message content data.
+        :param passphrase: string: Passphrase used to encrypt message_content.
+        :param readers: array: Identities allowed to read the message.
+        """
         self.message_content = message_content
         self.passphrase = passphrase
         self.readers = readers
 
     def build(self, identity, client):
+        """build
+
+        Generate a dictionary containing the data to be sent to Teleferic
+
+        :param identity: Identity: identity of the sender.
+        :param client: Teleferic API client.
+        """
         build_content = self.message_content.build(self.passphrase)
         content = {
             'sender': identity.address,

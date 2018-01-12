@@ -1,12 +1,17 @@
 import base64
+import logging
 from Crypto.Hash import SHA256, HMAC
 
 from libs.tools import Identity, AES
-from . import Reader, Teleferic_Identity, Writer
+from .. import Reader, Teleferic_Identity, Writer
+from .constants import (
+    MessageTypes,
+    BodyTypes,
+    PUBLIC_AES_KEY,
+)
 
 from collections import OrderedDict
 import msgpack
-
 
 def validate_timestamped_signature(sender_pubkey, message_hash, signature):
     identity = Identity(sender_pubkey)
@@ -32,21 +37,23 @@ def authorize_message(envelope):
     the sender should be new and his
     pubkey should not be present
   '''
-    if envelope.get('messageType') is '1':
+    if envelope.get('messageType') == MessageTypes.REGISTRATION:
         try:
-            public_cipher = AES(b'Peer Mountain')
+            public_cipher = AES(PUBLIC_AES_KEY)
             message = envelope.get('message')
             message_content_raw = public_cipher.decrypt(message)
             # Parse message
             message_content = msgpack.unpackb(message_content_raw)
-            if message_content.get(b'bodyType') == 1:
+            logging.warning(repr(message_content.get(b'bodyType')))
+            if message_content.get(b'bodyType') == BodyTypes.Registration.REGISTRATION:
                 check_sender = False
                 message_body = msgpack.unpackb(
                     base64.b64decode(message_content.get(b'messageBody')))
                 sender_pubkey = message_body.get(b'publicKey').decode()
         except Exception as e:
             raise Exception(
-                'Invalid public message content passphrase, should be "Peer Mountain"')
+                'Invalid public message content passphrase, should be {}'.format(PUBLIC_AES_KEY)
+            )
 
     if check_sender:
         # Validate Sender
@@ -70,7 +77,7 @@ def authorize_message(envelope):
     else:
         # Validate Pulic Message
         # Decrypt
-        public_cipher = AES(b'Peer Mountain')
+        public_cipher = AES(PUBLIC_AES_KEY)
         try:
             message_content_raw = public_cipher.decrypt(message)
             # Parse message
@@ -120,8 +127,11 @@ def validate_registration(message_body):
     if nickname in (None, ''):
         raise Exception('Invalid nickname.')
 
+    logging.info("AES KEY: %s", PUBLIC_AES_KEY)
+
+    # Try deciphering the message using the public aes key.
     invite_message = Reader.get_message_content(invite_message_hash)
-    public_cipher = AES(b'Peer Mountain')
+    public_cipher = AES(PUBLIC_AES_KEY)
     try:
         invite_message_content_raw = public_cipher.decrypt(invite_message)
         # Parse message
@@ -132,6 +142,7 @@ def validate_registration(message_body):
     except Exception as e:
         raise Exception('Invalid invite message content.')
 
+    # Extract the keyProof from the registration message
     key_proof_raw = message_body.get(b'keyProof')
     try:
         key_proof = Teleferic_Identity.decrypt_content(key_proof_raw)
@@ -140,6 +151,7 @@ def validate_registration(message_body):
     if key_proof == None:
         raise Exception('Invalid keyProof.2')
 
+    # Try decoding the original inviteName from the invite message.
     decoder = AES(key_proof)
 
     original_invite_name_raw = invite_message_body_content.get(b'inviteName')
@@ -149,9 +161,11 @@ def validate_registration(message_body):
     given_invitite_name = Teleferic_Identity.decrypt_content(
         given_invitite_name_raw)
 
+    # Check the registration invite name against the original invite name.
     if original_invite_name != given_invitite_name:
         raise Exception('Invalid inviteKey.')
 
+    # If these validations pass, register the persona into our database.
     public_key = message_body.get(b'publicKey')
 
     Reader.check_persona_not_registred(public_key, nickname)
