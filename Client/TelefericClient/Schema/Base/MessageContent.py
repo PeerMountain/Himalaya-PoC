@@ -6,7 +6,7 @@ from Crypto.Hash import HMAC, SHA256
 
 from collections import OrderedDict
 
-from Cryptography import AES
+from TelefericClient.Cryptography import AES
 
 AVAILABLE_TYPES = [
     'REGISTRATION'

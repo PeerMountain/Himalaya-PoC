@@ -2,7 +2,7 @@ import base64
 import msgpack
 from Crypto.Hash import SHA256, HMAC
 
-from Cryptography import AES, RSA
+from ..Cryptography import AES, RSA
 from .Base.MessageBody import MessageBody
 from .Base.MessageEnvelope import MessageEnvelope
 from .Base.MessageContent import MessageContent

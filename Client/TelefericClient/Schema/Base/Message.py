@@ -3,7 +3,7 @@ import base64
 
 from collections import OrderedDict
 
-from Cryptography import RSA
+from TelefericClient.Cryptography import RSA
 
 from Crypto.Hash import SHA256
 

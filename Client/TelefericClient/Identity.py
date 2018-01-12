@@ -8,7 +8,7 @@ import msgpack
 
 from collections import OrderedDict
 
-from Cryptography import RSA
+from .Cryptography import RSA
 ADDRESS_PREFIX = [1, 0]
 
 

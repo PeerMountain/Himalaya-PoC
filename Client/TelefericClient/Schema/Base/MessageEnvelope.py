@@ -1,5 +1,5 @@
 import random
-import Client
+from TelefericClient import Client
 
 
 class MessageEnvelope():
