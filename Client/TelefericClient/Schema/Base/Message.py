@@ -13,7 +13,7 @@ class Message():
     A Teleferic Message.
     """
 
-    def __init__(self, message_content, passphrase='Peer Mountain', readers=None):
+    def __init__(self, message_content, passphrase='Peer Mountain', readers=None, containers=tuple()):
         """__init__
 
         Create a message envelope.
@@ -25,6 +25,7 @@ class Message():
         self.message_content = message_content
         self.passphrase = passphrase
         self.readers = readers
+        self.containers = containers
 
     def build(self, identity, client):
         """build
@@ -42,6 +43,13 @@ class Message():
             'messageHash': self.message_content.hash,
             'dossierHash': self.message_content.hmac,
             'bodyHash': self.message_content.body.hash,
-            'message': build_content
+            'message': build_content,
+            'containers': self.containers,
+            'ACL': [
+                {
+                    'reader': reader.address,
+                    'key': RSA(reader.pubkey).encrypt(self.passphrase).decode()
+                } for reader in self.readers
+            ],
         }
         return content
