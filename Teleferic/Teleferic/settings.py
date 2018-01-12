@@ -31,7 +31,8 @@ ALLOWED_HOSTS = [
     'localhost',
     'teleferic',
     'teleferic.local',
-    'teleferic-dev.dxmarkets.com'
+    'teleferic-dev.dxmarkets.com',
+    '192.168.252.14'
 ]
 
 
