@@ -10,14 +10,7 @@ Feature: Assertion Message
         Then we check [encrypted_object] and <expected_encrypted_object> are equal
 
         When we calculate SHA256 hash of [encrypted_object] as encrypted_object_SHA256
-        Then we check [encrypted_object_SHA256] and <expecttion.valid_until,
-                'retainUntil': assertion.retain_until,
-                'containerHash': container_hash,
-                'containerKey': container_key,
-                'objectHash': object_hash,
-                'objectSign': object_signature,
-                'metas': assertion.metas
-            }ed_encrypted_object_SHA256> are equal
+        Then we check [encrypted_object_SHA256] and <expected_encrypted_object_SHA256> are equal
 
         Given following private key as private_key
         """
@@ -75,16 +68,9 @@ Feature: Assertion Message
         """
             And teleferic bootstrap node URI https://teleferic-dev.dxmarkets.com/teleferic/
             And teleferic signed timestamp as teleferic_signed_timestamp
-            And compose object_signature_dict as
-            """
-            {
-            objectHash: {object_SHA256},
-            timestamp: {teleferic_signed_timestamp},
-            }
-            """
-        When I format [object_signature_dict] with Message Pack as packed_object_signature_dict
-            And I base64 encode [packed_object_signature_dict] as packed_object_signature_dict
-            And generate RSA signature object_signature using private_key [private_key] of formated signable object [packed_object_signature_dict]
+            And we set our identity with private key [private_key]
+        When we XAdES-T sign [object_SHA256] as object_SHA256_signature
+            And we XAdES-T sign [encrypted_object_SHA256] as encrypted_object_SHA256_signature
 
         Then we check [object_signature] and <expected_object_signature> are equal
 
@@ -101,13 +87,24 @@ Feature: Assertion Message
             },
         ]
         """
-            And we calculate salt for each meta in [meta_list]
-            And we calculate salted hash for each meta as salted_meta_hashes
+            And we calculate salt for each element in [meta_list] as meta_salts
+            And we calculate salted hash for each element in [meta_list] with salts [meta_salts] as salted_meta_hashes
+            And we include salts [meta_salts] in meta list [meta_list] as meta_list
 
-        Given <valid_until> is unix timestamp for 2018-05-10
-            And <retain_until> is unix timestamp for 2018-05-20
+        Given valid_until is datetime 2018-05-10
+            And retain_until is datetime 2018-05-20
 
-        Given we compose assertion message body <assertion_message_body> with <valid_until>, <retain_until>, <encrypted_object_SHA256>, <container_key>, <encrypted_object_SHA256>, <object_signature>, <meta_list>
+        Then we compose assertion message body assertion_message_body with
+        """
+        {
+            'valid_until': {valid_until},
+            'retain_until': {retain_until},
+            'encrypted_object_SHA256': {encrypted_object_SHA256},
+            'container_key': {container_key},
+            'encrypted_object_signature' {encrypted_object_signature},
+
+        }
+        """ with <valid_until>, <retain_until>, <encrypted_object_SHA256>, <container_key>, <object_signature>, <meta_list>
 
 
     Examples:
@@ -116,3 +113,10 @@ Feature: Assertion Message
         | 0WqSAQ== | InccYmBaAj+sTJJ3VWOPqqoJ6xcu9wa78Sm1Atg0V4Q= | sarasa0 | RRqInN+GYjl7hHl4iKW7hg== | QHJ87QgHpkyxweV9ctRu2fl9ih0jxwtya9viIKrr1Eg= |
         | 0WqSAQAAAQmS | 0MUuYJ4X2qLrEmzYMTcg3TrBoIbR/MEZiQqBnk/reTk= | sarasa3 | 6HlIZ3oDyBkWVjuU/9uFvw== | fjcK0da8qwdIgfLiJqihQ7PlUc4SH1nDt2GWV9pkHdk= |
         | 0WqSAQAAAQmS/hGe | VZIM0Ny3VGaAeJ9jro5ql/9ccTNGMKFLbdICeFe4Z5M= | sarasa4 | G4QvaTvqRfSzui4bQ7XlXg== | jYeVTtpgqJscV7EIsDDnmRFbViGQOcai1qaPHQuMc9w= |
+
+    Scenario: Use the Assertion Message api    
+
+        @wip
+        Given we pass
+        When we pass
+        Then we pass

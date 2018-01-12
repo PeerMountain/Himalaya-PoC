@@ -4,7 +4,10 @@ from behave import (
     when,
     then,
 )
-from Crypto.Hash import SHA256
+from Crypto.Hash import (
+    SHA256,
+    HMAC,
+)
 from base64 import (
     b64encode,
     b64decode,
@@ -48,13 +51,13 @@ def step(context, a, b):
 @ghernik_vars
 def step(context, to_encrypt, key, save_as):
     aes = AES(key)
-    setattr(context, save_as, aes.encrypt(to_encrypt))
+    setattr(context, save_as, aes.encrypt(to_encrypt)
 
 
-@given('following private key as {} """{}"""')
+@given('following private key as {}')
 @ghernik_vars
-def step(context, save_as, sk_string):
-    setattr(context, save_as, sk_string)
+def step(context, save_as):
+    setattr(context, save_as, context.text.strip())
 
 
 @given('teleferic bootstrap node URI {}')
@@ -104,11 +107,79 @@ def step(context, save_as, sk_string, to_sign):
     setattr(
         context,
         save_as,
-        RSA(sk_string).sign(to_sign)
+        RSA(sk_string).sign(to_sign).decode()
     )
 
 
-@when()
+@when("we set our identity with private key {}")
 @ghernik_vars
+def step(context, private_key):
+    context.identity = Identity(private_key)
+
+
+@when("we calculate {} byte salt for each meta in {} as {}")
+@ghernik_vars
+def step(context, salt_length, object_list, save_as):
+    setattr(
+        context,
+        save_as,
+        [
+            "".join(chr(random.randint(0, 255) for _ in range(int(length))))
+            for _ in range(len(meta_list))
+        ]
+    )
+
+@when("we calculate salted hash for each element in {} with salts {} as {}")
+@ghernik_vars
+def step(context, object_list, salt_list, save_as):
+    setattr(
+        context,
+        save_as,
+        [
+            HMAC.new(
+                salt_list[i],
+                object_list[i],
+                SHA256
+            ).digest().decode()
+            for i in range(len(object_list))
+        ]
+    )
+
+@when('we include salts {} in meta list {} as {}')
+@ghernik_vars
+def step(context, salt_list, meta_list, save_as):
+    for i, salt in enumerate(salt_list):
+        meta_list[i].update({
+            'metaSalt': salt
+        })
+    setattr(
+        context,
+        save_as,
+        meta_list
+    )
+
+@given("{} is datetime {}")
+@ghernik_vars
+def step(context, save_as, date_string):
+    setattr(
+        context,
+        save_as,
+        datetime.strptime(date_string).replace(tzinfo=datetime.timezone.utc)
+    )
+
+
+@when('we XAdES-T sign {} as {}')
+@ghernik_vars
+def step(context, to_sign, save_as):
+    signature = context.identity.sign_message(
+        to_sign, context.client
+    )
+    setattr(
+        context,
+        save_as,
+        signature
+    )
+
+@given('we pass')
 def step(context):
     pass
