@@ -190,7 +190,6 @@ def step_impl(context):
   if context.messageHash != b'valid':
     messageHash = SHA256.new(context.encryptedMessage+b' ')
   else:
-    print('aca')
     messageHash = SHA256.new(context.encryptedMessage)
 
   if context.bodyHash != b'valid':
@@ -216,7 +215,6 @@ def step_impl(context):
 
 @then('the query response should be "{result}"')
 def step_impl(context,result):
-  print(json.dumps(context.variables))
   if result == 'success':
     assert context.executed.get('errors') == None
     assert {

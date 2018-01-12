@@ -8,16 +8,29 @@ from .constants import (
     MessageTypes,
     BodyTypes,
     PUBLIC_AES_KEY,
+    Parameters
 )
 
 from collections import OrderedDict
 import msgpack
+import time
 
 def validate_timestamped_signature(sender_pubkey, message_hash, signature):
     identity = Identity(sender_pubkey)
 
     sign = signature[b'signature']
     timestamp = signature[b'timestamp']
+
+    teleferic_signature = msgpack.unpackb(base64.b64decode(timestamp))
+    
+    #Validate if timestamp is signed by Teleferic
+    if not Teleferic_Identity.verify_signature(teleferic_signature[b'timestamp'],teleferic_signature[b'signature']):
+        raise Exception("Invalid sign")
+
+    #Validate tolerance
+    message_timestap = float(teleferic_signature[b'timestamp'])
+    if time.time() - message_timestap > Parameters.TOLERABLE_TIME_DIFFERENCE_IN_SECONDS:
+        raise Exception("Invalid sign")
 
     validator_map = OrderedDict()
     validator_map['messageHash'] = base64.b64encode(message_hash)
@@ -32,11 +45,11 @@ def validate_timestamped_signature(sender_pubkey, message_hash, signature):
 def authorize_message(envelope):
     check_sender = True
     '''
-    If message type is REGISTRATION
-    and bodyType is REGISTRATION
-    the sender should be new and his
-    pubkey should not be present
-  '''
+        If message type is REGISTRATION
+        and bodyType is REGISTRATION
+        the sender should be new and his
+        pubkey should not be present
+    '''
     if envelope.get('messageType') == MessageTypes.REGISTRATION:
         try:
             public_cipher = AES(PUBLIC_AES_KEY)
