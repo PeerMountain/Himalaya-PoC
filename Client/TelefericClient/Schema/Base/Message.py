@@ -45,11 +45,12 @@ class Message():
             'bodyHash': self.message_content.body.hash,
             'message': build_content,
             'containers': self.containers,
-            'ACL': [
+        }
+        if not self.readers is None:
+            content['ACL'] = [
                 {
                     'reader': reader.address,
                     'key': RSA(reader.pubkey).encrypt(self.passphrase).decode()
                 } for reader in self.readers
-            ],
-        }
+            ]
         return content
