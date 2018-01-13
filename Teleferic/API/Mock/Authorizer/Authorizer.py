@@ -16,6 +16,7 @@ from .validators import validate_containers
 from collections import OrderedDict
 import msgpack
 from API.Mock.utils import decode_hash
+import time
 
 def validate_timestamped_signature(sender_pubkey, message_hash, signature):
     identity = Identity(sender_pubkey)
