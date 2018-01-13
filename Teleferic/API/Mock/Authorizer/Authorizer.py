@@ -14,6 +14,7 @@ from .validators import validate_containers
 
 from collections import OrderedDict
 import msgpack
+from API.Mock.utils import decode_hash
 
 def validate_timestamped_signature(sender_pubkey, message_hash, signature):
     identity = Identity(sender_pubkey)
@@ -39,7 +40,7 @@ def authorize_message(envelope):
         the sender should be new and his
         pubkey should not be present
     '''
-    if Reader.get_message_existance(envelope.get('messageHash')):
+    if False and Reader.get_message_existance(envelope.get('messageHash')):
         raise Exception('Message already registred')
     if envelope.get('messageType') == MessageTypes.REGISTRATION:
         try:
@@ -145,7 +146,7 @@ def validate_registration(message_body):
     logging.info("AES KEY: %s", PUBLIC_AES_KEY)
 
     # Try deciphering the message using the public aes key.
-    invite_message = Reader.get_message_content(invite_message_hash)
+    invite_message = Reader.get_message_content(decode_hash(invite_message_hash))
     public_cipher = AES(PUBLIC_AES_KEY)
     try:
         invite_message_content_raw = public_cipher.decrypt(invite_message)
