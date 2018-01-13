@@ -10,6 +10,8 @@ from .constants import (
     PUBLIC_AES_KEY,
 )
 
+from .validators import validate_containers
+
 from collections import OrderedDict
 import msgpack
 
@@ -37,6 +39,8 @@ def authorize_message(envelope):
         the sender should be new and his
         pubkey should not be present
     '''
+    if Reader.get_message_existance(envelope.get('messageHash')):
+        raise Exception('Message already registred')
     if envelope.get('messageType') == MessageTypes.REGISTRATION:
         try:
             public_cipher = AES(PUBLIC_AES_KEY)
@@ -74,13 +78,16 @@ def authorize_message(envelope):
     if envelope.get('messageType') != MessageTypes.REGISTRATION:
         # Validate ACL readers
         ACL = envelope.get('ACL')
+        from pprint import pprint
         if ACL:
             for ACL_rule in ACL:
+                reader = ACL_rule.get('reader')
                 # Rise an exception if some address be not registred
-                Reader.get_pubkey(ACL_rule.get('reader'))
-            
+                Reader.get_persona(address=reader)
         else:
             raise Exception('Invalid ACL')
+        
+        validate_containers(sender_pubkey,envelope.get('containers'))
     else:
         
         # Validate Pulic Message
