@@ -1,12 +1,9 @@
 import graphene
 
-from ..types import Address, RSAKey, Persona as PersonaAbstract
+from ..types import Address, RSAKey, Persona
 from graphene_django.types import DjangoObjectType
 from ..Mock import Reader
 
-class Persona(graphene.ObjectType, PersonaAbstract):
-  pass
-    
 class Query():
   persona = graphene.Field(Persona,
     address=graphene.String(default_value=None),
