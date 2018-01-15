@@ -25,10 +25,11 @@ class MessageEnvelope():
                 $messageType: MessageType!
                 $messageHash: SHA256!
                 $bodyHash: SHA256!
+                $ACL: [ACLRule]
                 $messageSig: Sign!
                 $message: AESEncryptedBlob!
                 $dossierHash: HMACSHA256!
-                $containers: [ContainerHashesInput]
+                $containers: [ContainerInput]
                 ){
                 sendMessage(
                     envelope: {
@@ -40,6 +41,7 @@ class MessageEnvelope():
                     message: $message
                     dossierHash: $dossierHash
                     containers: $containers
+                    ACL: $ACL
                     }
                 ) {
                     messageHash

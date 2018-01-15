@@ -261,7 +261,7 @@ def step(context, save_as):
                 val if not isinstance(val, bytes) else val.decode()
                 for val in value
             ]
-        obj[k.strip('"')] = value
+        obj[k.strip().strip('"').strip("'")] = value
     setattr(
         context,
         save_as,
@@ -297,7 +297,7 @@ def step(context, save_as, message_body, message_type):
         context,
         save_as,
         MessageContent(
-            message_type=int(message_type),
+            message_type=message_type,
             message_body=message_body
         )
     )
