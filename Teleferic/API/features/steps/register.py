@@ -228,8 +228,6 @@ def step_imp(context,attribute,value):
 
 @when('I send registration message')
 def step_imp(context):
-  print(context.query)
-  print(json.dumps(context.variables))
   context.executed = context.client.execute(context.query,variable_values=context.variables)
 
 @then('response should be {result}')

@@ -9,7 +9,7 @@ from .sign import Sign
 from .blob import AESEncryptedBlob, RSAEncryptedBlob
 
 from .acl_rule import ACLRule
-from .container_hashes import ContainerHashesInput as ContainerHashes
+from .container import ContainerInput as Container
 
 class MessageEnvelopeAbstract():
   sender = Address(description='''
@@ -35,7 +35,7 @@ class MessageEnvelopeAbstract():
   If is empty, message will be public and content
   needs to be encrypted with 'Peer Mountain' passphrase
   ''')
-  containers = graphene.List(ContainerHashes,description='''
+  containers = graphene.List(Container,description='''
   Contains hash of all containers present on message
   ''')
   message = AESEncryptedBlob(description='''

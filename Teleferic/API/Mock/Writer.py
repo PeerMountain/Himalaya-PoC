@@ -2,63 +2,89 @@ import base58
 from Crypto.Hash import RIPEMD, SHA256
 from Crypto.PublicKey import RSA
 from API.models import Message, Persona, ACLRule
-from . import Reader 
+from . import Reader
 from libs.tools import Identity
 import time
 import os
 import base64
 import base58
 
+from .utils import get_container_path, get_message_path, encode_hash, encode_dict
 
-MESSAGES_STORAGE = os.path.join(os.path.dirname(os.path.abspath(__file__)),'messages')
 
-def add_persona(pubkey,nickname):
-  identity = Identity(pubkey)
+def add_persona(pubkey, nickname):
+    identity = Identity(pubkey)
 
-  persona = Persona(
-    address= identity.address,
-    pubkey= identity.pubkey,
-    nickname= nickname
-  )
+    persona = Persona(
+        address=identity.address,
+        pubkey=identity.pubkey,
+        nickname=nickname
+    )
 
-  persona.save()
+    persona.save()
 
-  return persona
+    return persona
+
 
 def write_message(envelope):
-  content= envelope.get('message')
-  acl_rules= []
+    message = Message(
+        messageSig=encode_dict(envelope.get('messageSig')),
+        messageHash=encode_hash(envelope.get('messageHash')),
+        messageType=envelope.get('messageType'),
+        dossierHash=encode_hash(envelope.get('dossierHash')),
+        bodyHash=encode_hash(envelope.get('bodyHash')),
+        sender=Persona.objects.get(pk=envelope.get('sender')),
+        messagePath=store_message(envelope.get(
+            'message'), envelope.get('messageHash'))
+    )
+    message.save()
 
-  acl = envelope.get('ACL')
-  if not acl == None:
-    for acl_rule in envelope.get('ACL'):
-      acl_rule['reader'] = Persona.objects.get(pk=acl_rule.get('reader'))
-      if not acl_rule['reader']:
-        raise Exception('Invalid reader address')  
-      acl_rules.append(ACLRule.objects.create(**acl_rule))
+    acls = envelope.get('ACL')
+    if not acls is None:
+        for acl in acls:
+            acl_rule = ACLRule.objects.create(**{
+                'reader': Reader.get_persona(address=acl.get('reader')),
+                'key': acl.get('key'),
+                'message': message
+            })
+            acl_rule.save()
 
-  message = Message(
-    messageHash= base64.b64encode(envelope.get('messageHash')),
-    messageType= envelope.get('messageType'),
-    dossierHash= base64.b64encode(envelope.get('dossierHash')),
-    bodyHash= base64.b64encode(envelope.get('bodyHash')),
-    sender= Persona.objects.get(pk=envelope.get('sender')),
-  )
+    containers = envelope.get('containers')
+    if not containers is None:
+        for _container in containers:
+            saltedMetaHashes = _container.pop('saltedMetaHashes')
+            _container['objectContainerPath'] = store_container(
+                _container.pop('objectContainer'), _container.get('containerHash'))
+            _container['containerHash'] = encode_hash(
+                _container.get('containerHash'))
+            _container['objectHash'] = encode_hash(
+                _container.get('objectHash'))
+            _container['containerSig'] = encode_dict(
+                _container.get('containerSig'))
+            container = message.containers.create(**_container)
+            for _saltedMetaHash in saltedMetaHashes:
+                container.saltedMetaHashes.create(**{
+                    'metaHash': encode_hash(_saltedMetaHash)
+                })
 
-  for acl_rule in acl_rules:
-    message.acl.add(acl_rule)
-  
-  message.save()
+    return {
+        "envelopeID": message.pk.decode('utf-8'),
+        "cacheTXID": message.pk.decode('utf-8'),
+        "cacheTimestamp": time.time(),
+        "messageHash": SHA256.new(envelope.get('message').encode()).digest()
+    }
 
-  file_name = base58.b58encode(envelope.get('messageHash'))
 
-  container_path = os.path.join(MESSAGES_STORAGE,file_name)
-  file = open(container_path, 'w+')
-  file.write(content)
+def store(content, path):
+    _file = open(path, 'w+')
+    _file.write(content)
+    _file.close()
+    return path
 
-  return {
-    "envelopeID": message.pk.decode('utf-8'),
-    "cacheTXID": message.pk.decode('utf-8'),
-    "cacheTimestamp": time.time(),
-    "messageHash": SHA256.new(envelope.get('message').encode()).digest()
-  }
+
+def store_message(message, messageHash):
+    return store(message, get_message_path(messageHash))
+
+
+def store_container(container, containerHash):
+    return store(container, get_container_path(containerHash))

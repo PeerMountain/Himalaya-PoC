@@ -8,16 +8,32 @@ from .constants import (
     MessageTypes,
     BodyTypes,
     PUBLIC_AES_KEY,
+    Parameters
 )
+
+from .validators import validate_containers
 
 from collections import OrderedDict
 import msgpack
+from API.Mock.utils import decode_hash
+import time
 
 def validate_timestamped_signature(sender_pubkey, message_hash, signature):
     identity = Identity(sender_pubkey)
 
     sign = signature[b'signature']
     timestamp = signature[b'timestamp']
+
+    teleferic_signature = msgpack.unpackb(base64.b64decode(timestamp))
+    
+    #Validate if timestamp is signed by Teleferic
+    if not Teleferic_Identity.verify_signature(teleferic_signature[b'timestamp'],teleferic_signature[b'signature']):
+        raise Exception("Invalid sign")
+
+    #Validate tolerance
+    message_timestap = float(teleferic_signature[b'timestamp'])
+    if time.time() - message_timestap > Parameters.TOLERABLE_TIME_DIFFERENCE_IN_SECONDS:
+        raise Exception("Invalid sign")
 
     validator_map = OrderedDict()
     validator_map['messageHash'] = base64.b64encode(message_hash)
@@ -37,6 +53,8 @@ def authorize_message(envelope):
         the sender should be new and his
         pubkey should not be present
     '''
+    if False and Reader.get_message_existance(envelope.get('messageHash')):
+        raise Exception('Message already registred')
     if envelope.get('messageType') == MessageTypes.REGISTRATION:
         try:
             public_cipher = AES(PUBLIC_AES_KEY)
@@ -74,13 +92,16 @@ def authorize_message(envelope):
     if envelope.get('messageType') != MessageTypes.REGISTRATION:
         # Validate ACL readers
         ACL = envelope.get('ACL')
+        from pprint import pprint
         if ACL:
             for ACL_rule in ACL:
+                reader = ACL_rule.get('reader')
                 # Rise an exception if some address be not registred
-                Reader.get_pubkey(ACL_rule.get('reader'))
-            
+                Reader.get_persona(address=reader)
         else:
             raise Exception('Invalid ACL')
+        
+        validate_containers(sender_pubkey,envelope.get('containers'))
     else:
         
         # Validate Pulic Message
@@ -138,7 +159,7 @@ def validate_registration(message_body):
     logging.info("AES KEY: %s", PUBLIC_AES_KEY)
 
     # Try deciphering the message using the public aes key.
-    invite_message = Reader.get_message_content(invite_message_hash)
+    invite_message = Reader.get_message_content(decode_hash(invite_message_hash))
     public_cipher = AES(PUBLIC_AES_KEY)
     try:
         invite_message_content_raw = public_cipher.decrypt(invite_message)
