@@ -5,14 +5,19 @@ import base64
 
 class Client():
 
-    def __init__(self, node='https://teleferic-dev.dxmarkets.com/teleferic/'):
+    def __init__(self, node='https://teleferic-dev.dxmarkets.com/teleferic/', debug=False):
+        self.debug = debug
         self.node = node
 
     def request(self, query, variables=None):
+        variables =  json.dumps(variables)
         r = requests.post(self.node, data={
             'query': query,
-            'variables': json.dumps(variables)
+            'variables': variables
         })
+        if self.debug:
+            print('Query:\n%s' % query)
+            print('variables:\n%s' % variables)
         return r.json()
 
     def get_persona_pubkey(self, address):
