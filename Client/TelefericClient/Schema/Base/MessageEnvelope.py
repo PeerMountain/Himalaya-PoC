@@ -1,4 +1,5 @@
 import random
+import json
 from TelefericClient import Client
 
 
@@ -12,14 +13,12 @@ class MessageEnvelope():
         self.identity = identity
         self.client = Client(node)
 
-    def send(self):
+    def send(self, debug=False):
         """send
 
         Send the message to Teleferic's API.
         """
-        # return self.message.build(self.identity, self.client)
-        return self.client.request(
-            query='''
+        query = '''
             mutation (
                 $sender: Address!
                 $messageType: MessageType!
@@ -28,25 +27,35 @@ class MessageEnvelope():
                 $messageSig: Sign!
                 $message: AESEncryptedBlob!
                 $dossierHash: HMACSHA256!
-                $containers: [ContainerHashesInput]
+                $ACL: [ACLRule]
+                $containers: [ContainerInput]
                 ){
                 sendMessage(
                     envelope: {
-                    sender: $sender
-                    messageType: $messageType
-                    messageHash: $messageHash
-                    bodyHash: $bodyHash
-                    messageSig: $messageSig
-                    message: $message
-                    dossierHash: $dossierHash
-                    containers: $containers
+                        sender: $sender
+                        messageType: $messageType
+                        messageHash: $messageHash
+                        bodyHash: $bodyHash
+                        messageSig: $messageSig
+                        message: $message
+                        dossierHash: $dossierHash
+                        containers: $containers
+                        ACL: $ACL    
                     }
                 ) {
                     messageHash
                 }
             }
-            ''',
-            variables=self.message.build(self.identity, self.client)
+        '''
+        variables = self.message.build(self.identity, self.client)
+
+        if debug:
+            print('Query', query)
+            print('Variables', json.dumps(variables))
+        # return self.message.build(self.identity, self.client)
+        return self.client.request(
+            query=query,
+            variables=variables
         )
 
     def generate_random_bytes(self, length=40):
