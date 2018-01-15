@@ -4,7 +4,8 @@
     "pk": "iZUTgbvR4iaNYzPgJFodTtT7xJxhyusyoyChCvsbXLH4rRgv3sgm2R2ksh8yRPnhumH",
     "fields": {
       "pubkey": "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAvibs6QJ23DtU01mLVo6F\nB9eyj12FpPHvgFvQ39zdRFnZ3jxqvFxENWBFrBV4x11enh4U3djBg2QhYuiEVYlf\nTto9NEGQtRz5g5kaM3yiZMVXIkyVmdXvU0cSsQqQP00lt2tm4zdClxVvwt3oN2Kn\nxLH6aO/ENw64fp4rqSq8zJcjYNBGdVjFSNkWj7wxeOrGgUockIDxGmlfcbF/YRxL\nPrJbEerx6ClkRwPVlgof8Lvs2uaEcPuO0POC3R3+sMVE4d627tAl6KR2eW/98Rdn\nI2bQYcUzK9L9/X3lU28L5sUJQBqtsoEcEbOYxylAEkBm9jPn71fV2245oKbs6YBm\nhRNx+lnw9DugLrB4T2Yzu+3JNR5FNXD+SkW8Ay1vcPmAeMEAsvHoXNUxVJzd5hwD\nFIMrDuUuiP7jF+PNh4SGaUgUIgbk36rrgMP8z0xrnbENh9/uHhBSahRHb7a3DAwY\ndwMdk5AZm3lGWL9+I+YPFEHpSY6zy3y9ZNxcpq2LDvERMMW6NqHue8tPII6utT6N\n1ExGn2O6pi7RQEs7ZvK4Mpeys5ZSsfcnFbRMrNVbYBq+btUYw1/FP/P/YGJ7CQHl\nID6ytYdrODPBftAv4e1avmqCit+7MZyJME2zxG71kBJa59qcvQXf3AoZxfj0tnHG\nonmwCjRva9XmguDORNL460sCAwEAAQ==\n-----END PUBLIC KEY-----",
-      "nickname": "Teleferic"
+      "nickname": "Teleferic",
+      "createdAt": "2018-01-15T19:39:51.646Z"
     }
   },
   {
@@ -12,7 +13,8 @@
     "pk": "iZn2hyWChp6hkHEobZNdE9vmruR3MNVQZVFoBMc6PHEvKmaQM1jKoEC1uDF5Qf7deXN",
     "fields": {
       "pubkey": "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAz614m40n+FfHIzLNFKaR\n14ownMR6JAmtZ2UV5XUCfhrQxStGnVkwIKxOsg3ZgCsjbHRfMx2NDlubk7jmj7qh\nJy5YRuAViWke6dnJ6CbE6W2ErUXwlqbpWwFRaeLof/4Hb+PhwpXYBzBBERAk8rrC\n/yN8kYqvMUBd1mi6w+8StLkqvg5MRnx/g5/yF+lvGOeHfRMox2MtUD7IM6Z5Z4ym\naxNe3faOCl8oBTKypLezlM+phQ0Uk4uMejA6YoSFv+f5pf4JJnx6DMzSWSvo4GPX\n/OYKTfmSn8XNT5eCYmhwzF3vRTw+AffR4JHLTk23ER4uJpaw99Iiqo4yDbJNYgro\ndXMvGhYh6OoFDovFXUbcFzP52dg5hmoMYn9eZLwBKIAMcSMPNxJks38kZmr/hHCc\n9NLZbHRkoJ9dn2nRwD4YxRuV03cIsL+KDbn0u3uTH9aExkxEQ44IHsAnHlV5NxDb\nJHF0xMcFYoJOouKDFaD4FUcYtdQ2VheuFOEfM9aVutOKnTacmLHnkHmg6wH/5GhP\nzAWYWD376SyKKPqNcKFomvONIkNKiCX9HBtIUZl68skpihdocPWEkOPCwcAhZNmp\nP6YsepN15X/tAf67x/ssZ7ktACa2Kc9rSVA4NxWBvmxrnQ5UlVPzfSqWlcDtVVnP\n+xZeGuS3KJx307sqM0lCYf0CAwEAAQ==\n-----END PUBLIC KEY-----",
-      "nickname": "Test Identity"
+      "nickname": "Test Identity",
+      "createdAt": "2018-01-15T19:39:51.646Z"
     }
   }
 ]

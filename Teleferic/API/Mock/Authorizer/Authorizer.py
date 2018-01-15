@@ -92,7 +92,6 @@ def authorize_message(envelope):
     if envelope.get('messageType') != MessageTypes.REGISTRATION:
         # Validate ACL readers
         ACL = envelope.get('ACL')
-        from pprint import pprint
         if ACL:
             for ACL_rule in ACL:
                 reader = ACL_rule.get('reader')

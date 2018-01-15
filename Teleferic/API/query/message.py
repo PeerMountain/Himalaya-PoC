@@ -1,6 +1,6 @@
 import graphene
 
-from API.types import Sign, HMACSHA256, MessageType, SHA256, Persona, AESEncryptedBlob, ACLRuleAbstract, ContainerAbstract
+from API.types import Sign, HMACSHA256, MessageType, SHA256, Persona, AESEncryptedBlob, ACLRuleAbstract, ContainerAbstract, DateTime, Address
 from graphene_django.types import DjangoObjectType
 from API.Mock import Reader
 from API.Mock.utils import decode_hash, decode_dict
@@ -26,13 +26,13 @@ class ACLRuleOutput(graphene.ObjectType, ACLRuleAbstract):
         return self.data.key
 
 
-class ContainerOutput(graphene.ObjectType, ContainerAbstract):
+class ContainerEnvelopeOutput(graphene.ObjectType, ContainerAbstract):
 
     saltedMetaHashes = graphene.List(HMACSHA256)
 
     def __init__(self, data, *args, **kwargs):
         self.data = data
-        super(ContainerOutput, self).__init__(*args, **kwargs)
+        super(ContainerEnvelopeOutput, self).__init__(*args, **kwargs)
 
     def resolve_containerHash(self, info):
         return decode_hash(self.data.containerHash)
@@ -45,12 +45,6 @@ class ContainerOutput(graphene.ObjectType, ContainerAbstract):
 
     def resolve_objectContainer(self, info):
         return Reader.get_container_content(decode_hash(self.data.containerHash))
-
-    def resolve_retainUntil(self, info):
-        return self.data.retainUntil
-
-    def resolve_validUntil(self, info):
-        return self.data.validUntil
 
     def resolve_saltedMetaHashes(self, info):
         saltedMetaHashes = []
@@ -88,11 +82,14 @@ class MessageEnvelopeOutput(graphene.ObjectType):
     If is empty, message will be public and content
     needs to be encrypted with 'Peer Mountain' passphrase
     ''')
-    containers = graphene.List(ContainerOutput, description='''
+    containers = graphene.List(ContainerEnvelopeOutput, description='''
     Contains hash of all containers present on message
     ''')
     message = AESEncryptedBlob(description='''
     AES Encrypted message
+    ''')
+    created_at = DateTime(description='''
+    DateTime when message be created in iso format.
     ''')
     
     def resolve_sender(self, info):
@@ -126,16 +123,33 @@ class MessageEnvelopeOutput(graphene.ObjectType):
     def resolve_containers(self, info):
         containers = []
         for container in self.data.containers.all():
-            containers.append(ContainerOutput(container))
+            containers.append(ContainerEnvelopeOutput(container))
         return containers
 
     def resolve_message(self, info):
         return Reader.get_message_content(decode_hash(self.data.messageHash))
 
+    def resolve_created_at(self, info):
+        return self.data.createdAt
+
 class Query():
-    message = graphene.Field(MessageEnvelopeOutput,
+    message_by_hash = graphene.Field(MessageEnvelopeOutput,
                              messageHash=SHA256(required=True))
 
-    def resolve_message(self, info, messageHash):
+    def resolve_message_by_hash(self, info, messageHash):
         message = Reader.get_message(messageHash)
         return MessageEnvelopeOutput(message)
+
+    message_by_date = graphene.List(MessageEnvelopeOutput,
+                             messageDate=SHA256(required=True))
+    def resolve_message_by_date(self, info, messageDate):
+        messages = Reader.get_message_by_date(messageDate)
+        return [MessageEnvelopeOutput(message) for message in messages]
+
+    message_by_reader = graphene.List(MessageEnvelopeOutput,
+                             reader=Address(required=True))
+
+    def resolve_message_by_reader(self, info, reader):
+        messages = Reader.get_message_by_reader(reader)
+        print(messages)
+        return [MessageEnvelopeOutput(message) for message in messages]

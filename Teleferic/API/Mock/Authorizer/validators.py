@@ -47,17 +47,3 @@ def validate_containers(sender_pubkey, containers=[]):
 
         # Validate date limits
         now = datetime.datetime.now(datetime.timezone.utc)
-
-        # Validate validUntil
-        _validUntil = Teleferic_Identity.decrypt_content(
-            container.get('validUntil'))
-        validUntil = dateutil.parser.parse(_validUntil)
-        if validUntil <= now:
-            raise Exception('Invalid validUntil, is on the past. %s' % validUntil)
-
-        # Validate retainUntil
-        _retainUntil = Teleferic_Identity.decrypt_content(
-            container.get('retainUntil'))
-        retainUntil = dateutil.parser.parse(_retainUntil)
-        if retainUntil < validUntil:
-            raise Exception('Invalid retainUntil, is before validUntil. %s' % retainUntil)

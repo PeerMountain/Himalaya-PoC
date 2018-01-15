@@ -10,8 +10,6 @@ class ContainerAbstract():
   objectHash = SHA256()
   containerSig = Sign()
   objectContainer = AESEncryptedBlob()
-  validUntil = RSAEncryptedBlob()
-  retainUntil = RSAEncryptedBlob()
   saltedMetaHashes = graphene.List(HMACSHA256)
 
 class ContainerInput(graphene.InputObjectType, ContainerAbstract):
