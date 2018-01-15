@@ -1,6 +1,6 @@
 Feature: Assertion Message
+    @wip
     Scenario Outline: Generate object container requirements
-    Scenario:
         Given user attaches base64 encoded object <object>
         
         When we calculate SHA256 hash of <object> as object_SHA256
@@ -56,7 +56,7 @@ Feature: Assertion Message
         XbG3KQKCAQBf0TJ5wC5IM3uHyCzney1YjmxOwwFSm7iTfT4SmQ5NvoPB3DvPdQeZ
         VBAtABqdMRTW9soFPzUGrNTU2B4RjmBvzZqg75MxvbJgL+5RkjnBrOxxgbZLwxEH
         x+37bpB6ifP9cHI1NPfclX/VGHVUlUn+7xcJ0CsjCPv0QBWSu1kYtPIUXRBFnN93
-        rv2jsXgKCbWayN+LSuSrowIQyB7SF3dOsO+LrSjw71BOt7w1NW4vP2z8vq9sYeEg
+        rv2jsXgKCbWayN+LSuSrowIQyB7SF3dOsO+LrSjw71BOtw1NW4vP2z8vq9sYeEg
         qxFA/h/elixUYdPl82uObQECGx8HnBxDApGIFVbrkAu/i9CCrFgmhOjxH3O3p14C
         OB9ZJvJ936tuv8QfMx7u3/aP5d32fj6FAoIBAQDVt2qxjkVDRauku2vKZCno44B7
         kmtnTJGS8qNiy5o8fQs1A0qov8xtM9HwQtv+dveXMLyvffgahh7mirMsUZt4X1ZT
@@ -66,57 +66,67 @@ Feature: Assertion Message
         884tMQf4Ah7UQtcLiiazGMIUY+LZZmUQv7g90rjvtxha8rD19wQ0qPJ4s1Te
         -----END RSA PRIVATE KEY-----
         """
-            And teleferic bootstrap node URI https://teleferic-dev.dxmarkets.com/teleferic/
+            # And teleferic bootstrap node URI https://teleferic-dev.dxmarkets.com/teleferic/
+            And teleferic bootstrap node URI http://192.168.252.14:8000/teleferic/
             And teleferic signed timestamp as teleferic_signed_timestamp
             And we set our identity with private key [private_key]
+            And we create identity reader_identity with private key [private_key]
         When we XAdES-T sign [object_SHA256] as object_SHA256_signature
             And we XAdES-T sign [encrypted_object_SHA256] as encrypted_object_SHA256_signature
 
-        Then we check [object_signature] and <expected_object_signature> are equal
-
-        Given compose meta_list as
+        Given compose meta_list as literal
         """
         [
             {
-                'metaKey': 1,
-                'metaValue': "Pepe"
+                "metaKey": 1,
+                "metaValue": "Pepe"
             },
             {
-                'metaKey': 2,
-                'metaValue': "Sarasa"
-            },
+                "metaKey": 2,
+                "metaValue": "Sarasa"
+            }
         ]
         """
-            And we calculate salt for each element in [meta_list] as meta_salts
+            And we pack every element in [meta_list] with Message Pack as meta_list
+            And we calculate a 40 byte salt for each element in [meta_list] as meta_salts
             And we calculate salted hash for each element in [meta_list] with salts [meta_salts] as salted_meta_hashes
-            And we include salts [meta_salts] in meta list [meta_list] as meta_list
+        Then we include salts [meta_salts] in meta list [meta_list] as meta_list
 
         Given valid_until is datetime 2018-05-10
             And retain_until is datetime 2018-05-20
+            And context var container_key is <container_key>
 
-        Then we compose assertion message body assertion_message_body with
+        Then we compose assertion with keys
         """
-        {
-            'valid_until': {valid_until},
-            'retain_until': {retain_until},
-            'encrypted_object_SHA256': {encrypted_object_SHA256},
-            'container_key': {container_key},
-            'encrypted_object_signature' {encrypted_object_signature},
-
-        }
-        """ with <valid_until>, <retain_until>, <encrypted_object_SHA256>, <container_key>, <object_signature>, <meta_list>
-
+            'containerHash': {encrypted_object_SHA256},
+            'containerKey': {container_key},
+            'objectHash': {object_SHA256},
+            'metas': {meta_list},
+        """
+        When we set assertions as list
+            And we append [assertion] to [assertions]
+            And we compose assertion message body assertion_message_body with assertions [assertions] and body type 0
+            And we compose message content message_content with [assertion_message_body] and message type 2
+            And we set containers as list
+            And we compose container with keys
+            """
+                'objectContainer': {encrypted_object},
+                'containerSig': {encrypted_object_SHA256_signature},
+                'saltedMetaHashes': {salted_meta_hashes},
+                'objectHash': {object_SHA256},
+                'containerHash': {encrypted_object_SHA256},
+            """
+            And we append [container] to [containers]
+            And we set readers as list
+            And we append [reader_identity] to [readers]
+            And we compose message with [message_content], passphrase sarasa1234, readers [readers] and containers [containers]
+        
+        Then we send [message] to teleferic with container key [container_key] and save response as teleferic_response
+            And response [teleferic_response] is OK
 
     Examples:
-        | object | expectedObjectSHA256 | containerKey | expectedEncryptedObject | expectedEncryptedObjectSHA256 |
-        | utvu8A== | RbUuANM6CTG3WUNkNPsc7ia9iY87HKc0LoQZsT/KEvs= | sarasa1 | IgzAp08p7dHnaccZ9wbwXg== | li9ozDxnPexSW4vQK1fcGCMx9Fp4TMXu0pCwd5sRJ0= |
+        | object | expected_object_SHA256 | container_key | expected_encrypted_object | expected_encrypted_object_SHA256 |
+        | utvu8A== | RbUuANM6CTG3WUNkNPsc7ia9iY87HKc0LoQZsT/KEvs= | sarasa1 | IgzAp08p7dHnaccZ9wbwXg== | 9li9ozDxnPexSW4vQK1fcGCMx9Fp4TMXu0pCwd5sRJ0= |
         | 0WqSAQ== | InccYmBaAj+sTJJ3VWOPqqoJ6xcu9wa78Sm1Atg0V4Q= | sarasa0 | RRqInN+GYjl7hHl4iKW7hg== | QHJ87QgHpkyxweV9ctRu2fl9ih0jxwtya9viIKrr1Eg= |
         | 0WqSAQAAAQmS | 0MUuYJ4X2qLrEmzYMTcg3TrBoIbR/MEZiQqBnk/reTk= | sarasa3 | 6HlIZ3oDyBkWVjuU/9uFvw== | fjcK0da8qwdIgfLiJqihQ7PlUc4SH1nDt2GWV9pkHdk= |
         | 0WqSAQAAAQmS/hGe | VZIM0Ny3VGaAeJ9jro5ql/9ccTNGMKFLbdICeFe4Z5M= | sarasa4 | G4QvaTvqRfSzui4bQ7XlXg== | jYeVTtpgqJscV7EIsDDnmRFbViGQOcai1qaPHQuMc9w= |
-
-    Scenario: Use the Assertion Message api    
-
-        @wip
-        Given we pass
-        When we pass
-        Then we pass

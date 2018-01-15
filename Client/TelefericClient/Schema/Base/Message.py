@@ -35,6 +35,8 @@ class Message():
         :param identity: Identity: identity of the sender.
         :param client: Teleferic API client.
         """
+        if not isinstance(self.passphrase, bytes):
+            self.passphrase = self.passphrase.encode()
         build_content = self.message_content.build(self.passphrase)
         content = {
             'sender': identity.address,
