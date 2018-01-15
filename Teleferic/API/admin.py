@@ -22,7 +22,7 @@ class ContainerInline(admin.StackedInline):
     extra = 0
 
 class MessageAdmin(admin.ModelAdmin):
-    inlines = [ACLInline,ContainerInline]
+    inlines = [ACLInline]
 
 class ContainerAdmin(admin.ModelAdmin):
     pass
