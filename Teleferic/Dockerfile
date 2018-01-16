@@ -9,7 +9,7 @@ ADD requirements.txt /code/
 RUN pip install -r requirements.txt
 
 RUN apt update
-RUN apt install zip postgres-client -y
+RUN apt install zip postgresql-client -y
 
 ADD gunicorn_conf.py /code/
 ADD manage.py /code/
