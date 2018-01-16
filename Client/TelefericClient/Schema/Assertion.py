@@ -19,11 +19,11 @@ class Assertion(MessageEnvelope):
         assertions = list(
             self.build_assertion_list(assertions, container_key)
         )
-        meta_hashes = list(
-            self.build_meta_hash_list(assertions)
+        salted_meta_hashes = list(
+            self.build_salted_meta_hash_list(assertions)
         )
         containers = list(
-            self.build_container_list(assertions, meta_hashes)
+            self.build_container_list(assertions, salted_meta_hashes)
         )
 
         message_body = MessageBody(
@@ -36,7 +36,7 @@ class Assertion(MessageEnvelope):
 
 
         message_content = MessageContent(
-            message_type=2, # Assertion
+            message_type="ASSERTION", # Assertion
             message_body=message_body,
         )
 
@@ -83,9 +83,9 @@ class Assertion(MessageEnvelope):
                 'containerSignature': container_signature,
             }
 
-    def build_meta_hash_list(self, assertions):
+    def build_salted_meta_hash_list(self, assertions):
         for assertion in assertions:
-            metahashes = []
+            salted_meta_hashes = []
             for meta in assertion.get('metas'):
                 salt = self.generate_random_bytes()
                 pack = msgpack.packb(meta)
@@ -100,22 +100,16 @@ class Assertion(MessageEnvelope):
                     'metaSalt': salt,
                 })
 
-                metahashes.append(salted_meta_hash.decode())
-            yield metahashes
+                salted_meta_hashes.append(salted_meta_hash.decode())
+            yield salted_meta_hashes
  
-    def build_container_list(self, assertions, meta_hashes):
+    def build_container_list(self, assertions, salted_meta_hashes):
         teleferic_pubkey = self.client.get_node_pubkey()
         for i, assertion in enumerate(assertions):
             yield {
                 'containerHash': assertion.get('containerHash'),
                 'objectHash': assertion.get('objectHash'),
                 'containerSig': assertion.pop('containerSignature'),
-                'metaHashes': meta_hashes[i],
-                'retainUntil': RSA(teleferic_pubkey).encrypt(
-                    assertion.get('retainUntil'),
-                ).decode(),
-                'validUntil': RSA(teleferic_pubkey).encrypt(
-                    assertion.get('validUntil'),
-                ).decode(),
+                'saltedMetaHashes': salted_meta_hashes[i],
                 'objectContainer': assertion.pop('container')
             }

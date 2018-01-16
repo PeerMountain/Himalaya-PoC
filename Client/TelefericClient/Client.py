@@ -1,17 +1,32 @@
 import requests
 import json
 import base64
+from pprint import pprint
 
+class JsonEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (bytes, bytearray)):
+            return obj.decode("ASCII")
+        return json.JSONEncoder.default(self, obj)
 
 class Client():
 
-    def __init__(self, node='https://teleferic-dev.dxmarkets.com/teleferic/'):
+    def __init__(self, node='https://teleferic-dev.dxmarkets.com/teleferic/', debug=False):
+        self.debug = debug
         self.node = node
 
     def request(self, query, variables=None):
+        if self.debug:
+            print('Query:\n%s' % query)
+            print('variables:')
+            pprint(variables)
+        variables =  json.dumps(variables,  cls=JsonEncoder)
+        if self.debug:
+            print('variables encoded:')
+            print(variables)
         r = requests.post(self.node, data={
             'query': query,
-            'variables': json.dumps(variables)
+            'variables': variables
         })
         return r.json()
 
