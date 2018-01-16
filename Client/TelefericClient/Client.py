@@ -1,7 +1,13 @@
 import requests
 import json
 import base64
+from pprint import pprint
 
+class JsonEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (bytes, bytearray)):
+            return obj.decode("ASCII")
+        return json.JSONEncoder.default(self, obj)
 
 class Client():
 
@@ -10,14 +16,18 @@ class Client():
         self.node = node
 
     def request(self, query, variables=None):
-        variables =  json.dumps(variables)
+        if self.debug:
+            print('Query:\n%s' % query)
+            print('variables:')
+            pprint(variables)
+        variables =  json.dumps(variables,  cls=JsonEncoder)
+        if self.debug:
+            print('variables encoded:')
+            print(variables)
         r = requests.post(self.node, data={
             'query': query,
             'variables': variables
         })
-        if self.debug:
-            print('Query:\n%s' % query)
-            print('variables:\n%s' % variables)
         return r.json()
 
     def get_persona_pubkey(self, address):

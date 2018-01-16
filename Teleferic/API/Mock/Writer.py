@@ -55,8 +55,8 @@ def write_message(envelope):
             container_hash = encode_hash(
                 _container.get('containerHash'))
             
+            saltedMetaHashes = _container.pop('saltedMetaHashes')
             if not Container.objects.filter(containerHash=container_hash).exists():
-                saltedMetaHashes = _container.pop('saltedMetaHashes')
                 _container['objectContainerPath'] = store_container(
                     _container.pop('objectContainer'), _container.get('containerHash'))
                 _container['containerHash'] = container_hash
@@ -66,6 +66,7 @@ def write_message(envelope):
                     _container.get('containerSig'))
                 container = message.containers.create(**_container)
             else:
+                container = Container.objects.get(containerHash=container_hash)
                 message.containers.add(Container.objects.get(containerHash=container_hash))
             
             for salted_meta_hash in saltedMetaHashes:
