@@ -2,6 +2,7 @@ import logging
 import json
 import random
 import datetime
+from collections import OrderedDict
 
 import msgpack
 from behave import (
@@ -47,16 +48,27 @@ def ghernik_vars(func):
 def step(context, _object):
     context.object = _object
 
+@then("we calculate SHA256 hash of pack {} as {}")
+@ghernik_vars
+def step(context, hashable, save_as):
+    if not isinstance(hashable, bytes):
+        hashable = hashable.encode()
+    setattr(context, save_as, b64encode(
+        SHA256.new(hashable).digest()
+    ))
 
 @when("we calculate SHA256 hash of {} as {}")
 @ghernik_vars
 def step(context, hashable, save_as):
+    if not isinstance(hashable, bytes):
+        hashable = hashable.encode()
     setattr(context, save_as, b64encode(
-        SHA256.new(hashable.encode()).digest()
+        SHA256.new(hashable).digest()
     ))
 
 
-@then("we check {} and {} are equal")
+
+@then("we check {} and {} should be equal")
 @ghernik_vars
 def step(context, a, b):
     if type(a) is bytes:
@@ -67,6 +79,7 @@ def step(context, a, b):
         d = b.decode()
     else:
         d = b
+    print(a,b)
     assert c == d
 
 @when('we encrypt {} using AES with key {} as {}')
@@ -76,7 +89,28 @@ def step(context, to_encrypt, key, save_as):
     setattr(
         context,
         save_as,
-        aes.encrypt(to_encrypt.encode()).decode()
+        aes.encrypt(to_encrypt.encode())
+    )
+
+@when('we encrypt {} usign RSA with key {} as {}')
+@ghernik_vars
+def step(context, to_encrypt, key, save_as):
+    setattr(
+        context,
+        save_as,
+        Identity(key).encrypt(to_encrypt.encode())
+    )
+
+@then('we encrypt {} using AES with key {} as {}')
+@ghernik_vars
+def step(context, to_encrypt, key, save_as):
+    aes = AES(key)
+    if not isinstance(to_encrypt, bytes):
+        to_encrypt = to_encrypt.encode()
+    setattr(
+        context,
+        save_as,
+        aes.encrypt(to_encrypt)
     )
 
 
@@ -85,10 +119,15 @@ def step(context, to_encrypt, key, save_as):
 def step(context, save_as):
     setattr(context, save_as, context.text.strip())
 
+@given('following public key as {}')
+@ghernik_vars
+def step(context, save_as):
+    setattr(context, save_as, context.text.strip())
+
 
 @given('teleferic bootstrap node URI {}')
 def step(context, uri):
-    context.client = Client(uri)
+    context.client = Client(uri, debug=True)
 
 
 @given('teleferic signed timestamp as {}')
@@ -152,6 +191,11 @@ def step(context, save_as, sk_string, to_sign):
 def step(context, private_key):
     context.identity = Identity(private_key)
 
+@then("we set our identity with private key {}")
+@ghernik_vars
+def step(context, private_key):
+    context.identity = Identity(private_key)
+
 
 @given('we create identity {} with private key {}')
 @ghernik_vars
@@ -163,7 +207,7 @@ def step(context, save_as, private_key):
     )
 
 
-@given("we calculate a {} byte salt for each element in {} as {}")
+@given("we generate a random {} byte salt for each element in {} as {}")
 @ghernik_vars
 def step(context, salt_length, object_list, save_as):
     setattr(
@@ -223,15 +267,208 @@ def step(context, salt_list, meta_list, save_as):
         meta_list
     )
 
+@given("{} is integer {}")
+@ghernik_vars
+def step(context, save_as, origin):
+    setattr(
+        context,
+        save_as,
+        int(origin)
+    )
+
+@given("{} is string {}")
+@ghernik_vars
+def step(context, save_as, origin):
+    setattr(
+        context,
+        save_as,
+        str(origin)
+    )
+
+@given("{} is the address of {}")
+@ghernik_vars
+def step(context, save_as, key):
+    setattr(
+        context,
+        save_as,
+        Identity(key).address
+    )
+
+@given("{} is object {}")
+@ghernik_vars
+def step(context, save_as, origin):
+    setattr(
+        context,
+        save_as,
+        origin
+    )
+
+@given('timestamped signature of {} as {}')
+@ghernik_vars
+def step(context, to_sign, save_as):
+    print(context.identity.address,to_sign,save_as)
+    setattr(
+        context,
+        save_as,
+        context.identity.sign_message(
+            to_sign, context.client
+        )
+    )
+
+@when('we pack {} with message pack as {}')
+@ghernik_vars
+def step(context, data_dict, save_as):
+    setattr(
+        context,
+        save_as,
+        msgpack.packb(data_dict)
+    )
+
+@given('random 40 bytes salt for example {} as {}')
+@ghernik_vars
+def step(context, salt, save_as):
+    setattr(
+        context,
+        save_as,
+        bytes(bytearray.fromhex(salt.replace(':', '')))
+    )
+
+@given('random {} bytes salt as {}')
+@ghernik_vars
+def step(context, salt_length, save_as):
+    setattr(
+        context,
+        save_as,
+        "".join([
+            chr(random.randint(0, 255))
+            for _ in range(int(salt_length))
+        ]).encode()
+    )
+
+@given('{} is random string form example {}')
+@ghernik_vars
+def step(context, save_as, rnd_string):
+    setattr(
+        context,
+        save_as,
+        str(rnd_string)
+    )
+
+@given('following graphql query as {}')
+@ghernik_vars
+def step(context, save_as):
+    setattr(
+        context,
+        save_as,
+        context.text.strip()
+    )
+
+@when('we compose {} with following keys')
+@ghernik_vars
+def step(context, save_as):
+    obj = OrderedDict()
+    for row in context.text.strip().split('\n'):
+        k, v = row.split(':')
+        value = getattr(context, v.strip()[1:-2])
+        obj[k.strip().strip('"').strip("'")] = value
+    setattr(
+        context,
+        save_as,
+        obj
+    )
+
+@when('we send {} with variables {} to bootstrap node')
+@ghernik_vars
+def step(context, query, variables):
+    context.response = context.client.request(query,variables)
+    
+@then('server should response success')
+@ghernik_vars
+def step(context):
+    assert context.response.get('error') == None
+
+
+@given('one or more {}')
+@ghernik_vars
+def step(context, x):
+    pass
+
+@given('{} for each one')
+@ghernik_vars
+def step(context,var):
+    pass
+
+@then('we compose a list of {} as {}')
+@ghernik_vars
+def step(context,item,save_as):
+    setattr(
+        context,
+        save_as,
+        [item]
+    )
+
+
+@then('we compose {} with following keys')
+@ghernik_vars
+def step(context, save_as):
+    obj = OrderedDict()
+    for row in context.text.strip().split('\n'):
+        k, v = row.split(':')
+        value = getattr(context, v.strip()[1:-2])
+        obj[k.strip().strip('"').strip("'")] = value
+    setattr(
+        context,
+        save_as,
+        obj
+    )
+
+@when('we calculate HMAC-SHA256 of {} with {} as {}')
+@ghernik_vars
+def step(context, pack, salt, save_as):
+    setattr(
+        context,
+        save_as,
+        b64encode(
+            HMAC.new(
+                salt,
+                pack,
+                SHA256
+            ).digest()
+        )
+    )
+
+@then('we calculate HMAC-SHA256 of {} with {} as {}')
+@ghernik_vars
+def step(context, pack, salt, save_as):
+    setattr(
+        context,
+        save_as,
+        b64encode(
+            HMAC.new(
+                salt,
+                pack,
+                SHA256
+            ).digest()
+        )
+    )
+
 @given("{} is datetime {}")
 @ghernik_vars
 def step(context, save_as, date_string):
     setattr(
         context,
         save_as,
-        datetime.datetime.strptime(date_string, "%Y-%m-%d").replace(tzinfo=datetime.timezone.utc)
+        datetime.datetime.strptime(date_string, "%Y-%m-%d")
     )
 
+@when("we format {} with iso formated string as {}")
+@ghernik_vars
+def step(context, origin_date, save_as):
+    setattr(
+        context,
+        save_as,
+        origin_date.isoformat()
+    )
 
 @when('we XAdES-T sign {} as {}')
 @ghernik_vars
@@ -245,12 +482,10 @@ def step(context, to_sign, save_as):
         signature
     )
 
-
-@when('we compose {} with keys')
 @then('we compose {} with keys')
 @ghernik_vars
 def step(context, save_as):
-    obj = dict()
+    obj = OrderedDict()
     for row in context.text.strip().split('\n'):
         k, v = row.split(':')
         value = getattr(context, v.strip()[1:-2])
