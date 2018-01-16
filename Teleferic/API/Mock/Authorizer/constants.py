@@ -1,5 +1,5 @@
 class Parameters(object):
-    TOLERABLE_TIME_DIFFERENCE_IN_SECONDS = 5
+    TOLERABLE_TIME_DIFFERENCE_IN_SECONDS = 420
 
 class MessageTypes(object):
     SYSTEM = 0
