@@ -2,7 +2,6 @@ Feature: Query bootstap node information
   In obtain informetion from Teleferic node
   As a client
 
-  @wip
   Scenario: Get Teleferic public key
     Given following query
     '''
