@@ -77,7 +77,7 @@ def write_message(envelope):
                         'saltedMetaHash': salted_meta_hash
                     })
                 else:
-                    container.salted_meta_hash.add(SaltedMetaHash.objects.get(saltedMetaHash=salted_meta_hash))
+                    container.saltedMetaHashes.add(SaltedMetaHash.objects.get(saltedMetaHash=salted_meta_hash))
 
     return {
         "envelopeID": message.pk.decode('utf-8'),
