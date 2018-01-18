@@ -307,14 +307,16 @@ Feature: Assertion Message
     When we calculate SHA256 hash of [encrypted_message] as message_hash
     Then we check [message_hash] and [expected_message_hash] should be equal
 
-    Given we extract containers from message envelope as containers
-        And we extract first value of [containers] as container
+    Given we extract value containers from [envelope] as containers
+    Given we extract first value from [containers] as container
         And we extract value objectContainer from [container] as encrypted_object
 
     Given we decrypt [encrypted_message] with AES [message_key] as message
-        And we extract value dossierSalt from [envelope] as dossier_salt
+        And we extract value dossierSalt from [message] as dossier_salt
         And we extract value dossierHash from [envelope] as expected_dossier_hash
-    When we calculate HMAC-SHA256 of [message] with [dossier_salt] as dossier_hash
+    When we pack [message] with message pack as packed_message
+    Then we break
+    When we calculate HMAC-SHA256 of [packed_message] with [dossier_salt] as dossier_hash
     Then we check [dossier_hash] and [expected_dossier_hash] should be equal
 
     Given we extract message body from [message] as message_body

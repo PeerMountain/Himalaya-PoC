@@ -391,7 +391,6 @@ def step(context):
 @given('sent message hash as {}')
 @ghernik_vars
 def step(context, save_as):
-    import pdb; pdb.set_trace()
     setattr(
         context,
         save_as,
@@ -765,7 +764,7 @@ def step(context, key, _dict, save_as):
     setattr(
         context,
         save_as,
-        _dict.get(key)
+        _dict.get(key, _dict.get(key.encode()))
     )
 
 
