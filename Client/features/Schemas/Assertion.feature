@@ -1,4 +1,5 @@
 Feature: Assertion Message
+    @wip
     Scenario Outline: Generate object container requirements
         # Object
         Given following private key as sender_key
@@ -102,7 +103,7 @@ Feature: Assertion Message
         When we format [retain_until] with iso formated string as retain_until_formated
         Then we check [retain_until_formated] and <expected_retain_until> should be equal
 
-        Given teleferic bootstrap node URI http://localhost:8000/teleferic/
+        Given teleferic bootstrap node URI https://teleferic-dev.dxmarkets.com/teleferic/
             And timestamped signature of [user_attachment] as object_sign
         Then we compose assertion with following keys
             """
@@ -151,21 +152,22 @@ Feature: Assertion Message
         Given following public key as reader_key
         """
         -----BEGIN PUBLIC KEY-----
-        MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAqc5KBvXlpj4mrDKgiCk2
-        ubKBI6lqEKrcvCoXqpwL5O9sWUo9DMCREHjUg5Fxrzu2zq2DveGaCn3QnNYf+Agx
-        oC3cEHpAKx5tTQ+adErO4Uy6Bkl/006oGC5Y3cTfTZuq9r6vFEGbQzNIZFd7LP72
-        eCqkqva3U64JjQ7TRHsrCk4xKV7ZXiHvxAT8kl7NmXqFUyVuD4iZHKk2t1dPFbMH
-        7glDbQHWKXwcP3I1vTG4HLPQxbR6JzZsxIXWkAjTaswcBQ2F7sKpecKRxXKGuj3X
-        0hXt6OyljM/sqmGrzif5uwYEVIaqOPvtk2irVDIomzBtvN/zEuwr0DKYJEZdcFuq
-        EKlEBDq2bcCFOuOuLfhxljfDaxRSL2QuloRab1n5gm5OgSr1hwQQ94yod8rjJ9Mc
-        XLnmEMfkvx9CC6vWJ2TkfQrnAa5XMpRz1bLE/Vw8r4ENOlR+VFSxPAEPajuU5cWe
-        LjtP8+Nd0BQY9oGA1yAt//2Mh7GKaYMQOcKb2M3YrE7bcIGNgz+8A7GI3k0fmYiw
-        2TkYJCRR9cHHHYj2eDu1dcCBafe0rS5FdVLKQIatraWiF06IzvgpwDfespduf4pZ
-        mESz6EkX9kE5So8xMLkpGZzgI+2jaqwYPniO6kAa/7XgeWjka0mKCPAAgUc6vt/2
-        TonU5aVIDB6MrfFXQO5oeXECAwEAAQ==
+        MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAzqetl2Xeljv2kbW0mn4s
+        BWeLPdsI213yHWZ45DAYEe/7ldMeXpDvkaVH9JTauDoGhwmopsS5zOVVs5+IC/9U
+        PNViD7fYCpTvsu1qnbyKJJNPbTxvzPelArvOTfprmnFCDW7YZcpPoqPtibZXIpkk
+        cFFNRCCZDjMgVfd0TUVW1l7UVeG32a0a68JK9k5mTbcqoZdWZT+zK2JwMsrMAxno
+        EqxvrjpnZLpKsHQ8JMZQ98akaUVLzYnDBd7uVoHHdnumE/oW/dnAf5xJE8AgLkGq
+        qhEC5BY/EF6BpkqYzeGLY1lJ+lqsyAySu91GGlAF/vVsCxGHBICuIQwdNvVOUTLr
+        HTZjIy3A00bzSmL/cYCmGdXt5PDik4d1J6pu+UEWp1rQOSB9l+G8qogMo7m7OTmc
+        pxODbgZwrw+yk0FGlSAdPMJ3eIuEHbh6CmRY2lmJ6Todc7nzF8FX/CyysJ1AO1i/
+        q/Kjy4N4NcIDHysGZ10H/TzEKmOvujuNQUQXLoj3KaXSh3HLBSw/IYdQxEK1+t0Z
+        KwrXpBYHNo/E87T37qLxq6s0Qlgvb2lsX6mDkYMqQSuCTpLxRt9L1poGhkE4UJY/
+        KJh/Xj1XAh66VpZ6iuUjFNUPkvmG9VfRGdtdhlIZJdrx72VLbuwd+XuoVa1i9ZYa
+        UWdRIWVqQqAjpzWwn9qlXJMCAwEAAQ==
         -----END PUBLIC KEY-----
         """
-            And reader_address is the address of [reader_key] When we encrypt [message_key] usign RSA with key [reader_key] as encrypted_message_key  
+        And reader_address is the address of [reader_key]
+        When we encrypt [message_key] usign RSA with key [reader_key] as encrypted_message_key
         Then we compose acl_rule with following keys
         """
             'reader': {reader_address},
@@ -237,6 +239,100 @@ Feature: Assertion Message
         When we send [gql_query] with variables [message_envelope] to bootstrap node
         Then server should response success
 
+
+    # Retrieve the message from Teleferic
+    # and check all the hashes.
+    Given sent message hash as assertion_message_hash
+        And following private key as reader_sk
+        """
+        -----BEGIN RSA PRIVATE KEY-----
+        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
+        -----END RSA PRIVATE KEY-----
+        """
+        And we set our identity with private key [reader_sk]
+
+    Given we retrieve message with hash [assertion_message_hash]
+        And we get key from ACL for our address as encrypted_key
+        And we decrypt [encrypted_key] with our identity as message_key
+        And we get the encrypted message content as encrypted_message
+        And we extract value messageHash from [envelope] as expected_message_hash
+    When we calculate SHA256 hash of [encrypted_message] as message_hash
+    Then we check [message_hash] and [expected_message_hash] should be equal
+
+    Given we extract containers from message envelope as containers
+        And we extract first value of [containers] as container
+        And we extract value objectContainer from [container] as encrypted_object
+
+    Given we decrypt [encrypted_message] with AES [message_key] as message
+        And we extract value dossierSalt from [envelope] as dossier_salt
+        And we extract value dossierHash from [envelope] as expected_dossier_hash
+    When we calculate HMAC-SHA256 of [message] with [dossier_salt] as dossier_hash
+    Then we check [dossier_hash] and [expected_dossier_hash] should be equal
+
+    Given we extract message body from [message] as message_body
+        And we extract assertions from [message_body] as assertions
+        And we extract first value from [assertions] as assertion
+        And we extract value containerHash from assertion as expected_container_hash
+    When we calculate SHA256 hash of [encrypted_object] as container_hash
+    Then we check [container_hash] and [expected_container_hash] should be equal
+
+    Given we extract value containerKey from [assertion] as container_key
+        And we decrypt [encrypted_object] with AES [container_key] as object
+        And we extract value objectHash from assertion as expected_object_hash
+    When we calculate SHA256 hash of [object] as object_hash
+    Then we check [object_hash] and [expected_object_hash] should be equal
+
+
+    Then we break
+
     Examples:
         | object           | expected_object_hash                         | container_key | expected_object_container | meta_key | meta_value | meta_salt                                                                                                               | expected_salted_meta_hash                    | valid_until | expected_valid_until | retain_until | expected_retain_until | expected_container_hash                      | message_key |
         | utvu8A==         | RbUuANM6CTG3WUNkNPsc7ia9iY87HKc0LoQZsT/KEvs= | sarasa1       | IgzAp08p7dHnaccZ9wbwXg==  | 1        | Pepe       | 74:26:13:2f:4d:f3:f8:3e:82:ba:f3:fe:6a:dd:46:c2:00:4c:99:e8:88:ed:0f:a9:58:85:a2:11:9e:c8:b7:46:e4:f4:f0:c3:70:30:0e:17 | iekh9yXHh9UCVKNChpGsKtCgtVQ89ZLkfWnwnS9/zTM= | 2018-05-10  | 2018-05-10T00:00:00  | 2018-05-20   | 2018-05-20T00:00:00   | 9li9ozDxnPexSW4vQK1fcGCMx9Fp4TMXu0pCwd5sRJ0= | sarasa1234  |
@@ -244,147 +340,3 @@ Feature: Assertion Message
         | 0WqSAQAAAQmS     | 0MUuYJ4X2qLrEmzYMTcg3TrBoIbR/MEZiQqBnk/reTk= | sarasa3       | 6HlIZ3oDyBkWVjuU/9uFvw==  | 1        | Pedro      | 80:9a:a9:b7:c4:d7:0c:4a:59:45:4e:b3:d5:7e:cc:b4:58:83:cf:e4:f5:5c:1e:68:2a:d1:0e:0d:45:c6:b4:cc:71:5d:b6:0d:62:45:25:26 | mmrsu+/74WuOM/siW5RrghwlM886IiyLkneW/7o2P1s= | 2018-07-10  | 2018-07-10T00:00:00  | 2018-07-20   | 2018-07-20T00:00:00   | fjcK0da8qwdIgfLiJqihQ7PlUc4SH1nDt2GWV9pkHdk= | sarasa1236  |
         | 0WqSAQAAAQmS/hGe | VZIM0Ny3VGaAeJ9jro5ql/9ccTNGMKFLbdICeFe4Z5M= | sarasa4       | G4QvaTvqRfSzui4bQ7XlXg==  | 2        | hector     | 74:26:13:2f:4d:f3:f8:3e:82:ba:f3:fe:6a:dd:46:c2:00:4c:99:e8:88:ed:0f:a9:58:85:a2:11:9e:c8:b7:46:e4:f4:f0:c3:70:30:0e:17 | tOii8FZ24idxCk1h5v7afmlWNGsyBA39yhoh+5nm59g= | 2018-08-10  | 2018-08-10T00:00:00  | 2018-08-20   | 2018-08-20T00:00:00   | jYeVTtpgqJscV7EIsDDnmRFbViGQOcai1qaPHQuMc9w= | sarasa1237  |
     
-
-    @wip
-    Scenario: Decrypt a message for which we are the reader
-    # a
-    Given following private key as reader_private
-    """
-    -----BEGIN RSA PRIVATE KEY-----
-    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
-    -----END RSA PRIVATE KEY-----
-    """
-        # A
-        And following public key as reader_public
-        """
-        -----BEGIN PUBLIC KEY-----
-        MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAv3H3EmVjgI/N7LWiTmqn
-        Mi3ie6RJBgWYOJ9jsZQK/Vifl9ovVd7iw/fCJf0S1IUBI2rbjpzwRvWrYOs3u9g0
-        EAlXi1B9u1kR1OqPaD2YjRvzkzX6dAbb7Bcu2Ityz4PyyN1Qxr9yzoamfwgSWc6P
-        9IpBUy4wtRWTwslHkga9uDQ1zPceCOuEIpn20AZ2bc56GhzBF3WBZBUscCJlUxmd
-        h88bTLQwhnBVVHsaouWJvlcLb41+q7P8eIZR4fX1NUuUpmnPQ4TKbUawXx1r/AG8
-        YkpxbB2WG3hwppVuJEI/biZGvZOaZzqqbHDEcQkzHGxmqjG+CPc4zr9oKhgzpkiF
-        tTDvMug5zDqcRdvavUedfY98Fe+SDnlCOisacStJWJH9HiCkvqRZkr2qIxm962Ys
-        DklllHgh4L6qZ3wdQYRIQPr/P1D0Ew/S6Fm8kexEyO10hc3IoEGnYWhnWIl2dzFI
-        WX/cY9rPE1cBok6Y6Y6Wef8zQy970/TuSiL7xjZKH7ocog/rd4ElFyC67rcSECBE
-        KxKWzb4kNGMCAVGVoXyPcJXq35oKKyAyqHLJQzoYjOW6zZzA1U+v6V5YPxpvBgTs
-        QbrN5ldLdEbyF9Ef8FAt8pX8hMo8OV5TBicnW9Q8zjr9RJ4t638ePS8g+xGSnLe6
-        xha0TMay29a0wpgNcqER0KECAwEAAQ==
-        -----END PUBLIC KEY-----
-        """
-        # B
-        And following private key as sender_key
-        """
-
-        -----BEGIN RSA PRIVATE KEY-----
-        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
-        -----END RSA PRIVATE KEY-----
-        """
-        And teleferic bootstrap node URI https://teleferic-dev.dxmarkets.com/teleferic/
-        And assertion by [sender_key] to [reader_public] with hash as assertion_message_hash
-        And we set our identity with private key [reader_private]
-    
-    Given message with hash [assertion_message_hash]
-        And we get key from ACL for our address as encrypted_key
-        And we decrypt [encrypted_key] with our identity as message_key
-        And we get the encrypted message content as encrypted_message
-        And we decrypt [encrypted_message] with AES [message_key] as message
-        And we extract message body from [message] as message_body
-        And we extract assertions from [message_body] as assertions
-    Then we break

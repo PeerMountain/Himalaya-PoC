@@ -10,6 +10,7 @@ RUN pip install -r requirements.txt
 
 RUN apt update
 RUN apt install zip postgresql-client -y
+RUN mkdir static
 
 ADD gunicorn_conf.py /code/
 ADD manage.py /code/

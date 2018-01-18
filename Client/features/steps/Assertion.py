@@ -388,6 +388,16 @@ def step(context, query, variables):
 def step(context):
     assert context.response.get('error') == None
 
+@given('sent message hash as {}')
+@ghernik_vars
+def step(context, save_as):
+    import pdb; pdb.set_trace()
+    setattr(
+        context,
+        save_as,
+        context.response.get('data').get('sendMessage').get('messageHash')
+    )
+
 
 @given('one or more {}')
 @ghernik_vars
@@ -625,7 +635,7 @@ def step(context, sender_sk, reader_pk, save_as):
         raise
 
 
-@given('message with hash {}')
+@given('we retrieve message with hash {}')
 @ghernik_vars
 def step(context, _hash):
     query = """
@@ -694,7 +704,7 @@ def step(context, save_as):
         context.envelope.get('message')
     )
 
-@given('we extract the message body from {} as {}')
+@given('we extract message body from {} as {}')
 @ghernik_vars
 def step(context, message_content, save_as):
     setattr(
@@ -739,7 +749,25 @@ def step(context, encrypted_data, aes_key, save_as):
             cipher.decrypt(encrypted_data)
         )
     )
-    import pdb; pdb.set_trace()
+
+@given('we extract first value from {} as {}')
+@ghernik_vars
+def step(context, _list, save_as):
+    setattr(
+        context,
+        save_as,
+        _list[0]
+    )
+
+@given('we extract value {} from {} as {}')
+@ghernik_vars
+def step(context, key, _dict, save_as):
+    setattr(
+        context,
+        save_as,
+        _dict.get(key)
+    )
+
 
 @then('we break')
 def step(context):
