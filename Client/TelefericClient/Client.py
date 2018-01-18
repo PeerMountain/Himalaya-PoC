@@ -20,7 +20,6 @@ class Client():
             print('Query:\n%s' % query)
             print('variables:')
             pprint(variables)
-            pprint(self.node)
         variables =  json.dumps(variables,  cls=JsonEncoder)
         if self.debug:
             print('variables encoded:')
@@ -29,7 +28,6 @@ class Client():
             'query': query,
             'variables': variables
         })
-        print(r.json())
         return r.json()
 
     def get_persona_pubkey(self, address):

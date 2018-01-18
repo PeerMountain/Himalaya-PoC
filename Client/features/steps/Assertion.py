@@ -3,6 +3,7 @@ import json
 import random
 import datetime
 from collections import OrderedDict
+from contextlib import suppress
 
 import msgpack
 from behave import (
@@ -323,6 +324,15 @@ def step(context, data_dict, save_as):
         context,
         save_as,
         msgpack.packb(data_dict)
+    )
+
+@when('we unpack {} with message pack as {}')
+@ghernik_vars
+def step(context, byte_array, save_as):
+    setattr(
+        context,
+        save_as,
+        msgpack.unpackb(byte_array)
     )
 
 @given('random 40 bytes salt for example {} as {}')
@@ -658,6 +668,7 @@ def step(context, _hash):
                 objectHash
                 containerSig
                 objectContainer
+                saltedMetaHashes
             }
         }
     }
@@ -744,9 +755,7 @@ def step(context, encrypted_data, aes_key, save_as):
     setattr(
         context,
         save_as,
-        msgpack.unpackb(
-            cipher.decrypt(encrypted_data)
-        )
+        cipher.decrypt(encrypted_data)
     )
 
 @given('we extract first value from {} as {}')
@@ -767,6 +776,13 @@ def step(context, key, _dict, save_as):
         _dict.get(key, _dict.get(key.encode()))
     )
 
+@given('we remove value {} from {}')
+@ghernik_vars
+def step(context, key, _dict):
+    with suppress(KeyError):
+        del _dict[key]
+    with suppress(KeyError):
+        del _dict[key.encode()]
 
 @then('we break')
 def step(context):

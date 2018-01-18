@@ -311,29 +311,38 @@ Feature: Assertion Message
     Given we extract first value from [containers] as container
         And we extract value objectContainer from [container] as encrypted_object
 
-    Given we decrypt [encrypted_message] with AES [message_key] as message
-        And we extract value dossierSalt from [message] as dossier_salt
+    Given we decrypt [encrypted_message] with AES [message_key] as packed_message
+    When we unpack [packed_message] with message pack as message
+    Given we extract value dossierSalt from [message] as dossier_salt
         And we extract value dossierHash from [envelope] as expected_dossier_hash
-    When we pack [message] with message pack as packed_message
-    Then we break
-    When we calculate HMAC-SHA256 of [packed_message] with [dossier_salt] as dossier_hash
+        And we extract value messageBody from [message] as packed_body
+    When we calculate HMAC-SHA256 of [packed_body] with [dossier_salt] as dossier_hash
     Then we check [dossier_hash] and [expected_dossier_hash] should be equal
 
-    Given we extract message body from [message] as message_body
-        And we extract assertions from [message_body] as assertions
+    When we unpack [packed_body] with message pack as message_body
+    Given we extract assertions from [message_body] as assertions
         And we extract first value from [assertions] as assertion
-        And we extract value containerHash from assertion as expected_container_hash
+        And we extract value containerHash from [assertion] as expected_container_hash
     When we calculate SHA256 hash of [encrypted_object] as container_hash
     Then we check [container_hash] and [expected_container_hash] should be equal
 
     Given we extract value containerKey from [assertion] as container_key
         And we decrypt [encrypted_object] with AES [container_key] as object
-        And we extract value objectHash from assertion as expected_object_hash
+        And we extract value objectHash from [assertion] as expected_object_hash
     When we calculate SHA256 hash of [object] as object_hash
     Then we check [object_hash] and [expected_object_hash] should be equal
 
+    Given we extract value saltedMetaHashes from [container] as meta_hash_list
+    Given we extract first value from [meta_hash_list] as expected_meta_hash
+        And we extract value metas from [assertion] as meta_list
+        And we extract first value from [meta_list] as meta
+        And we extract value metaSalt from [meta] as meta_salt
+        And we remove value metaSalt from [meta]
+    When we pack [meta] with message pack as packed_meta
+        And we calculate HMAC-SHA256 of [packed_meta] with [meta_salt] as meta_hash
+    Then we check [meta_hash] and [expected_meta_hash] should be equal
 
-    Then we break
+
 
     Examples:
         | object           | expected_object_hash                         | container_key | expected_object_container | meta_key | meta_value | meta_salt                                                                                                               | expected_salted_meta_hash                    | valid_until | expected_valid_until | retain_until | expected_retain_until | expected_container_hash                      | message_key |
