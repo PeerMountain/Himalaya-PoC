@@ -178,6 +178,15 @@ def step(context, to_encode, save_as):
     )
 
 
+@when("we base64 decode {} as {}")
+@ghernik_vars
+def step(context, to_encode, save_as):
+    setattr(
+        context,
+        save_as,
+        b64decode(to_encode)
+    )
+
 @when("generate RSA signature {} using private_key {} of formated signable object {}")
 @ghernik_vars
 def step(context, save_as, sk_string, to_sign):
@@ -329,7 +338,7 @@ def step(context, data_dict, save_as):
 @when('we unpack {} with message pack as {}')
 @ghernik_vars
 def step(context, byte_array, save_as):
-    setattr(
+        setattr(
         context,
         save_as,
         msgpack.unpackb(byte_array)
@@ -752,11 +761,18 @@ def step(context, save_as):
 @ghernik_vars
 def step(context, encrypted_data, aes_key, save_as):
     cipher = AES(aes_key)
-    setattr(
-        context,
-        save_as,
-        cipher.decrypt(encrypted_data)
-    )
+    try:
+        setattr(
+            context,
+            save_as,
+            cipher.decrypt(b64decode(encrypted_data))
+        )
+    except Exception:
+        setattr(
+            context,
+            save_as,
+            cipher.decrypt(encrypted_data)
+        )
 
 @given('we extract first value from {} as {}')
 @ghernik_vars
