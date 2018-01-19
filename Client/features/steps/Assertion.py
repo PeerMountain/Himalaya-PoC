@@ -757,7 +757,7 @@ def step(context, save_as):
     )
 
 
-@given('we decrypt {} with AES {} as {}')
+@given('we decrypt {} with AES module {} as {}')
 @ghernik_vars
 def step(context, encrypted_data, aes_key, save_as):
     cipher = AES(aes_key)

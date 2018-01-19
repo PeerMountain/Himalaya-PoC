@@ -311,7 +311,7 @@ Feature: Assertion Message
     Given we extract first value from [containers] as container
         And we extract value objectContainer from [container] as encrypted_object
 
-    Given we decrypt [encrypted_message] with AES [message_key] as packed_message
+    Given we decrypt [encrypted_message] with AES module [message_key] as packed_message
     When we unpack [packed_message] with message pack as message
     Given we extract value dossierSalt from [message] as dossier_salt
         And we extract value dossierHash from [envelope] as expected_dossier_hash
@@ -327,7 +327,7 @@ Feature: Assertion Message
     Then we check [container_hash] and [expected_container_hash] should be equal
 
     Given we extract value containerKey from [assertion] as container_key
-        And we decrypt [encrypted_object] with AES [container_key] as encoded_object
+        And we decrypt [encrypted_object] with AES module [container_key] as encoded_object
     # When we base64 decode [encoded_object] as object
     # object is for example, the passport picture that the sender sent.
     Given we extract value objectHash from [assertion] as expected_object_hash
