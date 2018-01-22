@@ -13,7 +13,7 @@ class MessageEnvelope():
         self.identity = identity
         self.client = Client(node)
 
-    def send(self, debug=False):
+    def send(self):
         """send
 
         Send the message to Teleferic's API.
@@ -49,9 +49,6 @@ class MessageEnvelope():
         '''
         variables = self.message.build(self.identity, self.client)
 
-        if debug:
-            print('Query', query)
-            print('Variables', json.dumps(variables))
         # return self.message.build(self.identity, self.client)
         return self.client.request(
             query=query,
