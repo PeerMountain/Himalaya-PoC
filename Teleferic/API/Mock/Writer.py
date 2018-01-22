@@ -48,7 +48,7 @@ def write_message(envelope):
                 'message': message
             })
             acl_rule.save()
-
+ 
     containers = envelope.get('containers')
     if not containers is None:
         for _container in containers:
@@ -72,12 +72,10 @@ def write_message(envelope):
             for salted_meta_hash in saltedMetaHashes:
                 salted_meta_hash = encode_hash(salted_meta_hash)
                 
-                if not SaltedMetaHash.objects.filter(saltedMetaHash=salted_meta_hash).exists():
+                if not container.saltedMetaHashes.filter(saltedMetaHash=salted_meta_hash).exists():
                     container.saltedMetaHashes.create(**{
                         'saltedMetaHash': salted_meta_hash
                     })
-                else:
-                    container.saltedMetaHashes.add(SaltedMetaHash.objects.get(saltedMetaHash=salted_meta_hash))
 
     return {
         "envelopeID": message.pk.decode('utf-8'),
