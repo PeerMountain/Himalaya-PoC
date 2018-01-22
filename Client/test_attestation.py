@@ -1,34 +1,94 @@
 #!/usr/bin/env python3
 from collections import OrderedDict
-import datetime
+
+import msgpack
+import base64
+from Crypto.Hash import HMAC, SHA256
+
 
 from TelefericClient.Identity import Identity
 from TelefericClient.Client import Client
-from TelefericClient.Schema.Attestation import Attestation, ASSERTION_TYPE
+from TelefericClient.Cryptography import AES
+from TelefericClient.Schema.Attestation import Attestation, ATTESTATION_TYPE
 
-idn_sender = Identity(open("keys/4096_a.private").read())
-idn_reader = Identity(open("keys/4096_b.public").read())
+idn_sender = Identity(open("keys/4096_b.private").read())
+idn_reader = Identity(open("keys/4096_a.public").read())
 
-assertion = 'EKgLvSTTA3EGMEsPr/9hj+snAo5y/62y9V0Al+JB3+k='
+assertion_hash = b'hXG9yPtMdv9mRxyTjvvLOgre9Zi4t1JFaOxXd8FBKW8='
 
-readers = [idn_reader]
-client = Client("http://127.0.0.1:8000/teleferic/", debug=True)
-att = OrderedDict(**{
-    'subject': assertion,
-    'attestations': [{
-        'type': ASSERTION_TYPE.Message_Analysis,
-        'detail': {
-            'containerHash': b'LS66jsaQHcN0Z9X/nM/WD8JNdqXQA5YrnadRLnHNh1E=',
-            'objectHash': b'bEUOA355t28jGnGiL/QEA/fZt0sV4BTlL+EVbTZmw+Y=',
-            'metaType': 2,
-            'metaValue': b'Pepe Sarasa',
-            'metaSalt': b'xG\xb8\xf5jbx\xbd3x\xbf\xb9\x14\x1a\xb65\xd2\xdb\xd4\x96\\\xda\xba"K\xe0\xba\\\\\x9a\x01t=\x19\xa1c\xea\x0fu\x80',
-            'attest': 'Test'
+#Retrive assertion
+client = Client("http://127.0.0.1:8000/teleferic/", debug=False)
+query = '''
+    query(
+        $messageHash: SHA256!
+    ){
+        messageByHash(messageHash: $messageHash){
+            ACL{
+                reader{
+                    address
+                }
+                key
+            }
+            containers{
+                objectHash
+                containerHash
+                objectContainer
+                saltedMetaHashes
+            }
+            message
         }
-    }]
+    }'''
+variables = {
+    'messageHash': assertion_hash
+}
+
+assertion_raw = client.request(query,variables).get('data').get('messageByHash')
+key_raw = [x for x in assertion_raw.get('ACL') if x.get('reader').get('address') == idn_sender.address][0]
+key = idn_sender.decrypt(key_raw.get('key'))
+
+message_raw = AES(key).decrypt(assertion_raw.get('message'))
+message = msgpack.unpackb(message_raw)
+message_body = msgpack.unpackb(base64.b64decode(message.get(b'messageBody')))
+
+assertions = message_body.get(b'assertions')
+attetations = []
+for assertion in message_body.get(b'assertions'):
+    container = [x for x in assertion_raw.get('containers') if x.get('containerHash').encode() == assertion.get(b'containerHash')][0]
+    metas = assertion.get(b'metas')
+    for index,meta in enumerate(metas):
+        meta_validation = OrderedDict()
+        meta_validation['metaKey'] = meta.get(b'metaKey')
+        meta_validation['metaValue'] = meta.get(b'metaValue')
+        pack = msgpack.packb(meta_validation)
+        salt = meta.get(b'metaSalt')
+        salted_meta_hash = base64.b64encode(
+            HMAC.new(
+                salt, pack, SHA256
+            ).digest()
+        )
+
+        print(salted_meta_hash,container.get('saltedMetaHashes')[index].encode())
+        assert salted_meta_hash == container.get('saltedMetaHashes')[index].encode()
+
+        print(container.get('containerHash'),meta.get(b'metaKey'),meta.get(b'metaValue'))
+
+        attetations.append({
+            'type': ATTESTATION_TYPE.Message_Analysis,
+            'detail': {
+                'containerHash': container.get('containerHash'),
+                'objectHash': container.get('objectHash'),
+                'metaKey': meta.get(b'metaKey'),
+                'metaValue':  meta.get(b'metaValue'),
+                'metaSalt':  meta.get(b'metaSalt'),
+                'attest': 'Test'
+            }
+        })
+readers = [idn_reader]
+att = OrderedDict(**{
+    'subject': assertion_hash,
+    'attestations': attetations
 })
 
 attestation = Attestation(idn_sender, client, att, readers)
-# agarra la asercion recien creada 
-result = attestation.send(debug=True)
+result = attestation.send()
 print('Result', result)
