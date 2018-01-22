@@ -11,7 +11,7 @@ from .Base.MessageContent import MessageContent
 from .Base.Message import Message
 
 
-class ASSERTION_TYPE(Enum):
+class ATTESTATION_TYPE(Enum):
     Message_Analysis     = 1
     Message_Comparison   = 2
     Research_Analysis    = 3
@@ -26,7 +26,7 @@ class Attestation(MessageEnvelope):
         self.client = client
 
         self.builders_map = {
-            1: self.build_message_analysis
+            ATTESTATION_TYPE.Message_Analysis: self.build_message_analysis
         }
 
         attestations = list(
@@ -37,12 +37,12 @@ class Attestation(MessageEnvelope):
 
         message_body = MessageBody(
             subjectAddr=self.identity.address,
-            z=attestations,
+            attestations=attestations,
             body_type=0
         )
 
         message_content = MessageContent(
-            message_type="ASSERTION",  # Assertion
+            message_type="ATTESTATION",
             message_body=message_body,
         )
 
@@ -58,7 +58,7 @@ class Attestation(MessageEnvelope):
     def build_message_analysis(self, attestation):
         salt = attestation.get('metaSalt')
         metas = OrderedDict()
-        metas['metaType'] = attestation.get('metaType')
+        metas['metaKey'] = attestation.get('metaKey')
         metas['metaValue'] = attestation.get('metaValue')
         pack = msgpack.packb(metas)
         salted_meta_hash = base64.b64encode(
@@ -83,7 +83,7 @@ class Attestation(MessageEnvelope):
     def build_attestations_list(self, attestations):
         for attestation in attestations:
             
-            attestation_type = attestation.get('type').value
+            attestation_type = attestation.get('type')
 
             details = next(self.builders_map.get(attestation_type)(attestation.get('detail')))
             container = details.pop('container')
@@ -91,9 +91,8 @@ class Attestation(MessageEnvelope):
             datails_pack = msgpack.packb(details)
 
             attestation_signature = self.identity.sign_bytes(datails_pack,self.client)
-
             yield {
-                'attestType': attestation_type,
+                'attestType': attestation_type.value,
                 'attestSign': attestation_signature,
                 'detail': datails_pack,
                 'container': container
@@ -103,7 +102,7 @@ class Attestation(MessageEnvelope):
         containers =  []
         for attestation in attestations:
             container = attestation.pop('container')
-            aux = [x for x in containers if x.get('containerHash')]
+            aux = [x for x in containers if x.get('containerHash') == container.get('containerHash')]
             if aux.__len__() is 0:
                 aux = {
                     'containerHash': container.get('containerHash'),
@@ -112,6 +111,6 @@ class Attestation(MessageEnvelope):
                 }
                 containers.append(aux)
             else:
-                aux.get('saltedMetaHashes').append(container.get('saltedMetaHashes'))
+                aux[0].get('saltedMetaHashes').append(container.get('saltedMetaHashes'))
         yield containers
             
