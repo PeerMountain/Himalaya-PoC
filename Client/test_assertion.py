@@ -13,22 +13,41 @@ idn_sender = Identity(open("keys/4096_a.private").read())
 idn_reader = Identity(open("keys/4096_b.public").read())
 
 readers = [idn_reader]
-client = Client("http://localhost:8000/teleferic/")
+client = Client("http://localhost:8000/teleferic/", debug=True)
 ass = [
     {
         'valid_until': now.isoformat(),
         'retain_until': tomorrow.isoformat(),
         'object': b'\x12\x34\x56\x78\x90',
         'metas': [
-            OrderedDict(**{
+            {
                 'metaKey': 2, 
                 'metaValue': 'Pepe Sarasa'
-            })
+            },
+            {
+                'metaKey': 3, 
+                'metaValue': 'Juancho'
+            }
+        ]
+    },
+    {
+        'valid_until': now.isoformat(),
+        'retain_until': tomorrow.isoformat(),
+        'object': b'\x12\x34\x42\x78\x90',
+        'metas': [
+            {
+                'metaKey': 3, 
+                'metaValue': 'Pepe Sarasa'
+            },
+            {
+                'metaKey': 2, 
+                'metaValue': 'Juancho'
+            }
         ]
     }
 ]
 
 assertion = Assertion(idn_sender, client, ass, readers)
 # agarra la asercion recien creada 
-result = assertion.send(debug=True)
+result = assertion.send()
 print('Result', result)
