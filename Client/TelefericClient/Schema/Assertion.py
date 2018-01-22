@@ -1,5 +1,6 @@
 import base64
 import msgpack
+from collections import OrderedDict
 from Crypto.Hash import SHA256, HMAC
 
 from ..Cryptography import AES, RSA
@@ -88,7 +89,10 @@ class Assertion(MessageEnvelope):
             salted_meta_hashes = []
             for meta in assertion.get('metas'):
                 salt = self.generate_random_bytes()
-                pack = msgpack.packb(meta)
+                meta_base = OrderedDict()
+                meta_base['metaKey'] = meta.get('metaKey')
+                meta_base['metaValue'] = meta.get('metaValue')
+                pack = msgpack.packb(meta_base)
                 salted_meta_hash = base64.b64encode(
                     HMAC.new(
                         salt, pack, SHA256
