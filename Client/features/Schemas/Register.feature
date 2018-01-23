@@ -53,8 +53,7 @@ Feature: Register message
       Given message <message>
       When I compute SHA256 hash of message content
       And encode resulting message hash with Base64  
-      # TODO: assert error
-      # Then resulting message content hash messageHash should be <messageHash>
+      Then resulting message content hash messageHash should be <messageHash>
 
       # Calculate message body hash
       Given message body content <messageBody>
