@@ -28,11 +28,6 @@ SECRET_KEY = 'y5)uziy$$8cg(fpn1*3(d-gpdpz1=$m$&vd9!0_*ab*4(%%92p'
 DEBUG = os.getenv('DEBUG') == '1'
 
 ALLOWED_HOSTS = [
-    'localhost',
-    'teleferic',
-    'teleferic.local',
-    'teleferic-dev.dxmarkets.com',
-    '192.168.252.14',
     '*'
 ]
 

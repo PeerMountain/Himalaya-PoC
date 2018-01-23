@@ -67,6 +67,9 @@ def get_message_by_reader(_reader):
 def get_container(_hash):
     return Container.objects.get(containerHash=_hash)
 
+def get_container_existance(_hash):
+    return Container.objects.filter(containerHash=_hash).exists()
+
 def get_message_existance(message_hash):
     message_path = get_message_path(message_hash)
     return os.path.isfile(message_path)

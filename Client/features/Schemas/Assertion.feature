@@ -103,7 +103,7 @@ Feature: Assertion Message
         When we format [retain_until] with iso formated string as retain_until_formated
         Then we check [retain_until_formated] and <expected_retain_until> should be equal
 
-        Given teleferic bootstrap node URI http://localhost:8000/teleferic/
+        Given teleferic bootstrap node URI https://teleferic-dev.dxmarkets.com/teleferic/
             And timestamped signature of [user_attachment] as object_sign
         Then we compose assertion with following keys
             """

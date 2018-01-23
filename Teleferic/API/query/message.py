@@ -3,7 +3,7 @@ import graphene
 from API.types import Sign, HMACSHA256, MessageType, SHA256, Persona, AESEncryptedBlob, ACLRuleAbstract, ContainerAbstract, DateTime, Address
 from graphene_django.types import DjangoObjectType
 from API.Mock import Reader
-from API.Mock.utils import decode_hash, decode_dict
+from API.Mock.utils import decode_hash, decode_dict, encode_hash
 
 class ACLRuleOutput(graphene.ObjectType, ACLRuleAbstract):
     reader = graphene.Field(Persona, description='''
@@ -137,6 +137,8 @@ class Query():
                              messageHash=SHA256(required=True))
 
     def resolve_message_by_hash(self, info, messageHash):
+        if type(messageHash) is bytes:
+            messageHash = encode_hash(messageHash)
         message = Reader.get_message(messageHash)
         return MessageEnvelopeOutput(message)
 
