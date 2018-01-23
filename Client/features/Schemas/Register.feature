@@ -35,7 +35,7 @@ Feature: Register message
 
       # Compose registration message content
       Given 40 bytes random salt <dossierSalt>
-      And message body type <bodyType> equal to 1 (Registtration)
+      And message body type <bodyType> equal to 1 (Registration)
       And message body content <messageBody>
       When I compose resgiter message content with following shape
       '''
