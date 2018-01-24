@@ -14,7 +14,7 @@ from TelefericClient.Schema.Attestation import Attestation, ATTESTATION_TYPE
 idn_sender = Identity(open("keys/4096_b.private").read())
 idn_reader = Identity(open("keys/4096_a.public").read())
 
-assertion_hash = b'hXG9yPtMdv9mRxyTjvvLOgre9Zi4t1JFaOxXd8FBKW8='
+assertion_hash = b'd0+J5K0myPITO2/alAcnTokv3rugorCeBguNqJ4aSx4='
 
 #Retrive assertion
 client = Client("http://127.0.0.1:8000/teleferic/", debug=False)
@@ -35,6 +35,7 @@ query = '''
                 objectContainer
                 saltedMetaHashes
             }
+            bodyHash
             message
         }
     }'''
@@ -75,7 +76,7 @@ for assertion in message_body.get(b'assertions'):
         attetations.append({
             'type': ATTESTATION_TYPE.Message_Analysis,
             'detail': {
-                'containerHash': container.get('containerHash'),
+                'bodyHash': assertion_raw.get('bodyHash'),
                 'objectHash': container.get('objectHash'),
                 'metaKey': meta.get(b'metaKey'),
                 'metaValue':  meta.get(b'metaValue'),

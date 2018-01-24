@@ -67,14 +67,13 @@ class Attestation(MessageEnvelope):
             ).digest()
         )
         yield {
-            'containerHash': attestation.get('containerHash'),
+            'bodyHash': attestation.get('bodyHash'),
             'objectHash':  attestation.get('objectHash'),
-            'metaType': attestation.get('metaType'),
+            'metaKey': attestation.get('metaKey'),
             'metaValue': attestation.get('metaValue'),
             'metaSalt': attestation.get('metaSalt'),
             'attest': attestation.get('attest'),
             'container': {
-                'containerHash': attestation.get('containerHash'),
                 'objectHash':  attestation.get('objectHash'),
                 'saltedMetaHashes': salted_meta_hash,
             }
@@ -102,10 +101,9 @@ class Attestation(MessageEnvelope):
         containers =  []
         for attestation in attestations:
             container = attestation.pop('container')
-            aux = [x for x in containers if x.get('containerHash') == container.get('containerHash')]
+            aux = [x for x in containers if x.get('objectHash') == container.get('objectHash')]
             if aux.__len__() is 0:
                 aux = {
-                    'containerHash': container.get('containerHash'),
                     'objectHash':  container.get('objectHash'),
                     'saltedMetaHashes': [container.get('saltedMetaHashes')],
                 }
