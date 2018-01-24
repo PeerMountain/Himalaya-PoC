@@ -35,16 +35,16 @@ class ContainerEnvelopeOutput(graphene.ObjectType, ContainerAbstract):
         super(ContainerEnvelopeOutput, self).__init__(*args, **kwargs)
 
     def resolve_containerHash(self, info):
-        return decode_hash(self.data.containerHash)
+        return decode_hash(self.data.container.first().containerHash)
 
     def resolve_objectHash(self, info):
         return decode_hash(self.data.objectHash)
 
     def resolve_containerSig(self, info):
-        return decode_dict(self.data.containerSig)
+        return decode_dict(self.data.container.first().containerSig)
 
     def resolve_objectContainer(self, info):
-        return Reader.get_container_content(decode_hash(self.data.containerHash))
+        return Reader.get_container_content(self.data.container.first())
 
     def resolve_saltedMetaHashes(self, info):
         saltedMetaHashes = []
@@ -121,10 +121,10 @@ class MessageEnvelopeOutput(graphene.ObjectType):
         return acls
 
     def resolve_containers(self, info):
-        containers = []
-        for container in self.data.containers.all():
-            containers.append(ContainerEnvelopeOutput(container))
-        return containers
+        _objects = []
+        for _object in self.data._objects.all():
+            _objects.append(ContainerEnvelopeOutput(_object))
+        return _objects
 
     def resolve_message(self, info):
         return Reader.get_message_content(decode_hash(self.data.messageHash))
