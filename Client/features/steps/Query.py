@@ -23,9 +23,9 @@ def step_impl(context):
     })
     context.query_response = r.json()
 
-@when(u'send mutation with variables to bootstrap node <bootstrapNode>')
-def step_impl(context):
-    r = requests.post(context.bootstrap_node, data = {
+@when('send mutation with variables to bootstrap node {}')
+def step_impl(context, bootstrap_node):
+    r = requests.post(bootstrap_node, data = {
         'query': context.mutation,
         'variables': context.variables
     })
