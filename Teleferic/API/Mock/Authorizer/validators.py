@@ -34,13 +34,13 @@ def validate_timestamped_signature(pubkey, hash, signature):
 def validate_containers(sender_pubkey, containers=[]):
     # For each container
     for container in containers:
-        container_hash = container.get('containerHash')
-        container_object = container.get('objectContainer')
-        container_object = container.get('objectContainer')
+        object_hash = encode_hash(container.get('objectHash'))
 
-        # if objectContainer present
+        # if objectContainer be present
         objectContainer = container.get('objectContainer')
         if not objectContainer is None:
+            container_object = container.get('objectContainer')
+            container_hash = container.get('containerHash')
             # Validate container hash
             verify_sha256(container.get('objectContainer'),
                         container.get('containerHash'))
@@ -49,5 +49,5 @@ def validate_containers(sender_pubkey, containers=[]):
             validate_timestamped_signature(
                 sender_pubkey, container_hash, container.get('containerSig'))
         else:
-            if not Reader.get_container_existance(encode_hash(container_hash)):
-                raise Exception('Container %s not exist.' % encode_hash(container_hash))
+            if not Reader.get_object_existance(object_hash):
+                raise Exception('Object %s not exist.' % object_hash)

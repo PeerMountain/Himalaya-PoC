@@ -1,7 +1,7 @@
 import base58
 from Crypto.Hash import RIPEMD, SHA256
 from Crypto.PublicKey import RSA
-from API.models import Message, Persona, ACLRule, Container, SaltedMetaHash
+from API.models import Message, Persona, ACLRule, SaltedMetaHash
 from . import Reader
 from libs.tools import Identity
 import time
@@ -52,30 +52,35 @@ def write_message(envelope):
     containers = envelope.get('containers')
     if not containers is None:
         for _container in containers:
-            container_hash = encode_hash(
-                _container.get('containerHash'))
-            
-            saltedMetaHashes = _container.pop('saltedMetaHashes')
-            if not Container.objects.filter(containerHash=container_hash).exists():
-                _container['objectContainerPath'] = store_container(
-                    _container.pop('objectContainer'), _container.get('containerHash'))
+            object_hash = encode_hash(_container.get('objectHash'))
+            salted_meta_hashes = _container.pop('saltedMetaHashes')
+            _object = message._objects.create(objectHash= object_hash)
+
+            import pdb; pdb.set_trace()
+            if not _container.get('objectContainer') is None:
+                object_container = _container.pop('objectContainer')
+                container_hash = encode_hash(_container.get('containerHash'))
                 _container['containerHash'] = container_hash
-                _container['objectHash'] = encode_hash(
-                    _container.get('objectHash'))
-                _container['containerSig'] = encode_dict(
-                    _container.get('containerSig'))
-                container = message.containers.create(**_container)
-            else:
-                container = Container.objects.get(containerHash=container_hash)
-                message.containers.add(Container.objects.get(containerHash=container_hash))
-            
-            for salted_meta_hash in saltedMetaHashes:
+                
+                object_container_path = store_container(object_container, container_hash)
+
+                _container['objectContainerPath'] = object_container_path
+                
+                container_signature = encode_dict(_container.get('containerSig'))
+                _container['containerSig'] = container_signature
+                
+                _object.container.create(
+                    containerHash= container_hash,
+                    containerSig= container_signature,
+                    objectContainerPath= object_container_path
+                )
+
+            for salted_meta_hash in salted_meta_hashes:
                 salted_meta_hash = encode_hash(salted_meta_hash)
                 
-                if not container.saltedMetaHashes.filter(saltedMetaHash=salted_meta_hash).exists():
-                    container.saltedMetaHashes.create(**{
-                        'saltedMetaHash': salted_meta_hash
-                    })
+                _object.saltedMetaHashes.create(**{
+                    'saltedMetaHash': salted_meta_hash
+                })
 
     return {
         "envelopeID": message.pk.decode('utf-8'),
@@ -97,4 +102,5 @@ def store_message(message, messageHash):
 
 
 def store_container(container, containerHash):
+    import pdb; pdb.set_trace()
     return store(container, get_container_path(containerHash))
