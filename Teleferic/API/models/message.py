@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.db import models
 from .persona import Persona
-from .containers import Container
 
 
 class Message(models.Model):
@@ -13,7 +12,6 @@ class Message(models.Model):
   dossierHash = models.TextField()
   bodyHash = models.TextField()
   messagePath = models.TextField(blank=True)
-  containers = models.ManyToManyField(Container, related_name='messages')
   sender = models.ForeignKey(Persona,
     related_name="outgoing_messages")
   createdAt = models.DateTimeField(auto_now_add=True, null=True)

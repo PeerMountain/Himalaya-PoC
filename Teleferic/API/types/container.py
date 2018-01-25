@@ -6,11 +6,11 @@ from .sign import Sign
 from .blob import AESEncryptedBlob, RSAEncryptedBlob
 
 class ContainerAbstract():
-  containerHash = SHA256(required=True)
   objectHash = SHA256(required=True)
+  saltedMetaHashes = graphene.List(HMACSHA256, required=True)
+  containerHash = SHA256()
   containerSig = Sign()
   objectContainer = AESEncryptedBlob()
-  saltedMetaHashes = graphene.List(HMACSHA256, required=True)
 
 class ContainerInput(graphene.InputObjectType, ContainerAbstract):
   pass

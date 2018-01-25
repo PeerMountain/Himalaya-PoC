@@ -2,7 +2,7 @@ import base58
 import base64
 from Crypto.Hash import RIPEMD, SHA256
 from Crypto.PublicKey import RSA
-from API.models import Persona, Message, Container
+from API.models import Persona, Message, Container, Object
 from libs.tools import Identity
 import os
 from API.Mock.utils import get_container_path, get_message_path, encode_hash 
@@ -49,9 +49,8 @@ def get_message_content(message_hash):
     content = message.read()
     return content
 
-def get_container_content(container_hash):
-    container_path = get_message_path(container_hash)
-    container = open(container_path, 'r')
+def get_container_content(container):
+    container = open(container.objectContainerPath, 'r')
     content = container.read()
     return content
 
@@ -69,6 +68,9 @@ def get_container(_hash):
 
 def get_container_existance(_hash):
     return Container.objects.filter(containerHash=_hash).exists()
+
+def get_object_existance(_hash):
+    return Object.objects.filter(objectHash=_hash).exists()
 
 def get_message_existance(message_hash):
     message_path = get_message_path(message_hash)
