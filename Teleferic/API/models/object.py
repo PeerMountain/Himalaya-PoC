@@ -11,9 +11,9 @@ class Object(models.Model):
   def __str__(self):
     return self.objectHash
 
-class SaltedMetaHash(models.Model):
-  saltedMetaHash = models.TextField(db_index=True)
-  _object = models.ForeignKey(Object, related_name='saltedMetaHashes')
+class MetaHash(models.Model):
+  metaHash = models.TextField(db_index=True)
+  _object = models.ForeignKey(Object, related_name='metaHashes')
   createdAt = models.DateTimeField(auto_now_add=True, blank=True)
 
 class Container(models.Model):

@@ -1,21 +1,20 @@
 import graphene
 
-from API.types import Sign, HMACSHA256, MessageType, SHA256, Persona, AESEncryptedBlob, ACLRuleAbstract, ContainerAbstract
+from API.types import Sign, HMACSHA256, MessageType, SHA256, Persona, AESEncryptedBlob, ACLRuleAbstract
 from graphene_django.types import DjangoObjectType
 from API.Mock import Reader
 from API.Mock.utils import decode_hash, decode_dict
 
 
-class ContainerOutput(graphene.ObjectType, ContainerAbstract):
+class ContainerOutput(graphene.ObjectType):
     containerHash = SHA256()
     objectHash = SHA256()
     objectContainer = AESEncryptedBlob()
-    saltedMetaHashes = graphene.List(HMACSHA256)
+    metaHashes = graphene.List(HMACSHA256)
     messages = graphene.List(SHA256)
 
     def __init__(self, data, *args, **kwargs):
         self.data = data
-        super(ContainerOutput, self).__init__(*args, **kwargs)
 
     def resolve_containerHash(self, info):
         return decode_hash(self.data.containerHash)

@@ -1,6 +1,6 @@
 import graphene
 
-from API.types import Sign, HMACSHA256, MessageType, SHA256, Persona, AESEncryptedBlob, ACLRuleAbstract, ContainerAbstract, DateTime, Address
+from API.types import Sign, HMACSHA256, MessageType, SHA256, Persona, AESEncryptedBlob, ACLRuleAbstract, ObjectAbstract, DateTime, Address
 from graphene_django.types import DjangoObjectType
 from API.Mock import Reader
 from API.Mock.utils import decode_hash, decode_dict, encode_hash
@@ -26,31 +26,38 @@ class ACLRuleOutput(graphene.ObjectType, ACLRuleAbstract):
         return self.data.key
 
 
-class ContainerEnvelopeOutput(graphene.ObjectType, ContainerAbstract):
+class ObjectEnvelopeOutput(graphene.ObjectType, ObjectAbstract):
 
-    saltedMetaHashes = graphene.List(HMACSHA256)
+    metaHashes = graphene.List(HMACSHA256)
 
     def __init__(self, data, *args, **kwargs):
         self.data = data
-        super(ContainerEnvelopeOutput, self).__init__(*args, **kwargs)
-
-    def resolve_containerHash(self, info):
-        return decode_hash(self.data.container.first().containerHash)
+        super(ObjectEnvelopeOutput, self).__init__(*args, **kwargs)
 
     def resolve_objectHash(self, info):
         return decode_hash(self.data.objectHash)
 
+    def resolve_metaHashes(self, info):
+        metaHashes = []
+        for metaHash in self.data.metaHashes.all():
+            metaHashes.append(decode_hash(metaHash.metaHash))
+        return metaHashes
+
+    def resolve_containerHash(self, info):
+        container = self.data.container.first()
+        if not container is None:
+            return decode_hash(container.containerHash)
+
     def resolve_containerSig(self, info):
-        return decode_dict(self.data.container.first().containerSig)
+        container = self.data.container.first()
+        if not container is None:
+            return decode_dict(container.containerSig)
 
     def resolve_objectContainer(self, info):
-        return Reader.get_container_content(self.data.container.first())
+        container = self.data.container.first()
+        if not container is None:
+            return Reader.get_container_content(container)
 
-    def resolve_saltedMetaHashes(self, info):
-        saltedMetaHashes = []
-        for saltedMetaHash in self.data.saltedMetaHashes.all():
-            saltedMetaHashes.append(decode_hash(saltedMetaHash.saltedMetaHash))
-        return saltedMetaHashes
 
 
 class MessageEnvelopeOutput(graphene.ObjectType):
@@ -82,8 +89,8 @@ class MessageEnvelopeOutput(graphene.ObjectType):
     If is empty, message will be public and content
     needs to be encrypted with 'Peer Mountain' passphrase
     ''')
-    containers = graphene.List(ContainerEnvelopeOutput, description='''
-    Contains hash of all containers present on message
+    objects = graphene.List(ObjectEnvelopeOutput, description='''
+    Object data of all objects present on the message
     ''')
     message = AESEncryptedBlob(description='''
     AES Encrypted message
@@ -120,10 +127,10 @@ class MessageEnvelopeOutput(graphene.ObjectType):
             acls.append(ACLRuleOutput(acl))
         return acls
 
-    def resolve_containers(self, info):
+    def resolve_objects(self, info):
         _objects = []
         for _object in self.data._objects.all():
-            _objects.append(ContainerEnvelopeOutput(_object))
+            _objects.append(ObjectEnvelopeOutput(_object))
         return _objects
 
     def resolve_message(self, info):

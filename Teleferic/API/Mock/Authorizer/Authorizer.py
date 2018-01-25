@@ -11,7 +11,7 @@ from .constants import (
     Parameters
 )
 
-from .validators import validate_containers
+from .validators import validate_objects
 
 from collections import OrderedDict
 import msgpack
@@ -100,7 +100,7 @@ def authorize_message(envelope):
         else:
             raise Exception('Invalid ACL')
         
-        validate_containers(sender_pubkey,envelope.get('containers'))
+        validate_objects(sender_pubkey,envelope.get('objects'))
     else:
         
         # Validate Pulic Message

@@ -12,11 +12,6 @@ class ACLInline(admin.TabularInline):
     model = ACLRule
     extra = 0
 
-# TODO (nacho) This needs to be listed
-class SaltedMetaHashInline(admin.StackedInline):
-    model = SaltedMetaHash
-    extra = 0
-
 class ContainerInline(admin.StackedInline):
     model = Container
     extra = 0
