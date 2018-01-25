@@ -1,9 +1,9 @@
 from TelefericClient.Identity import Identity
 from TelefericClient.Schema.Register import Register
 
-identity = Identity(open("keys/4096_a.private").read())
+identity = Identity(open("keys/4096_c.private").read())
 
-invite_message_hash = "ypiI7utRFTqFCRDiR6bAAZfp1RcYphBOfN47YD81tLk="
+invite_message_hash = "QkaoapEUS9M91iPI++wAMrfhKN+avvqpylj5uZ1bXhs="
 
 register = Register(
     identity,
@@ -13,7 +13,7 @@ register.compose(
     inviteMsgID=invite_message_hash, 
     inviteKey= '72x35FDOXuTkxivh7qYlqPU91jVgy607', 
     inviteName= 'Invite 1',
-    nickname= '4096_a'
+    nickname= '4096_c'
 )
 result = register.send()
 print(result)

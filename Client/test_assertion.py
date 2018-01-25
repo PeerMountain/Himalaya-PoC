@@ -21,11 +21,11 @@ ass = [
         'object': b'\x12\x34\x56\x78\x90',
         'metas': [
             {
-                'metaKey': 2, 
+                'metaType': 2, 
                 'metaValue': 'Pepe Sarasa'
             },
             {
-                'metaKey': 3, 
+                'metaType': 3, 
                 'metaValue': 'Juancho'
             }
         ]
@@ -36,11 +36,11 @@ ass = [
         'object': b'\x12\x34\x42\x78\x90',
         'metas': [
             {
-                'metaKey': 3, 
+                'metaType': 3, 
                 'metaValue': 'Pepe Sarasa'
             },
             {
-                'metaKey': 2, 
+                'metaType': 2, 
                 'metaValue': 'Juancho'
             }
         ]

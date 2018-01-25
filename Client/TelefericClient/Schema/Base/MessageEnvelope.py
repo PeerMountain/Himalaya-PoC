@@ -28,7 +28,7 @@ class MessageEnvelope():
                 $message: AESEncryptedBlob!
                 $dossierHash: HMACSHA256!
                 $ACL: [ACLRule]
-                $containers: [ContainerInput]
+                $objects: [ObjectInput]
                 ){
                 sendMessage(
                     envelope: {
@@ -39,7 +39,7 @@ class MessageEnvelope():
                         messageSig: $messageSig
                         message: $message
                         dossierHash: $dossierHash
-                        containers: $containers
+                        objects: $objects
                         ACL: $ACL    
                     }
                 ) {

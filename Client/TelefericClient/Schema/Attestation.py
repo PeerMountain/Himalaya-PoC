@@ -33,7 +33,7 @@ class Attestation(MessageEnvelope):
             self.build_attestations_list(_attestations.get('attestations'))
         )
 
-        containers = next(self.build_container_list(attestations))
+        objects = next(self.build_object_list(attestations))
 
         message_body = MessageBody(
             subjectAddr=self.identity.address,
@@ -52,13 +52,13 @@ class Attestation(MessageEnvelope):
             message_content,
             passphrase,
             readers,
-            containers,
+            objects,
         )
 
     def build_message_analysis(self, attestation):
         salt = attestation.get('metaSalt')
         metas = OrderedDict()
-        metas['metaKey'] = attestation.get('metaKey')
+        metas['metaType'] = attestation.get('metaType')
         metas['metaValue'] = attestation.get('metaValue')
         pack = msgpack.packb(metas)
         salted_meta_hash = base64.b64encode(
@@ -69,13 +69,13 @@ class Attestation(MessageEnvelope):
         yield {
             'bodyHash': attestation.get('bodyHash'),
             'objectHash':  attestation.get('objectHash'),
-            'metaKey': attestation.get('metaKey'),
+            'metaType': attestation.get('metaType'),
             'metaValue': attestation.get('metaValue'),
             'metaSalt': attestation.get('metaSalt'),
             'attest': attestation.get('attest'),
-            'container': {
+            'object': {
                 'objectHash':  attestation.get('objectHash'),
-                'saltedMetaHashes': salted_meta_hash,
+                'metaHashes': salted_meta_hash,
             }
         }
 
@@ -85,7 +85,7 @@ class Attestation(MessageEnvelope):
             attestation_type = attestation.get('type')
 
             details = next(self.builders_map.get(attestation_type)(attestation.get('detail')))
-            container = details.pop('container')
+            _object = details.pop('object')
 
             datails_pack = msgpack.packb(details)
 
@@ -94,21 +94,21 @@ class Attestation(MessageEnvelope):
                 'attestType': attestation_type.value,
                 'attestSign': attestation_signature,
                 'detail': datails_pack,
-                'container': container
+                'object': _object
             }
 
-    def build_container_list(self, attestations):
-        containers =  []
+    def build_object_list(self, attestations):
+        objects =  []
         for attestation in attestations:
-            container = attestation.pop('container')
-            aux = [x for x in containers if x.get('objectHash') == container.get('objectHash')]
+            _object = attestation.pop('object')
+            aux = [x for x in objects if x.get('objectHash') == _object.get('objectHash')]
             if aux.__len__() is 0:
                 aux = {
-                    'objectHash':  container.get('objectHash'),
-                    'saltedMetaHashes': [container.get('saltedMetaHashes')],
+                    'objectHash':  _object.get('objectHash'),
+                    'metaHashes': [_object.get('metaHashes')],
                 }
-                containers.append(aux)
+                objects.append(aux)
             else:
-                aux[0].get('saltedMetaHashes').append(container.get('saltedMetaHashes'))
-        yield containers
+                aux[0].get('metaHashes').append(_object.get('metaHashes'))
+        yield objects
             

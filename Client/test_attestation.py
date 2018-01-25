@@ -14,7 +14,7 @@ from TelefericClient.Schema.Attestation import Attestation, ATTESTATION_TYPE
 idn_sender = Identity(open("keys/4096_b.private").read())
 idn_reader = Identity(open("keys/4096_a.public").read())
 
-assertion_hash = b'd0+J5K0myPITO2/alAcnTokv3rugorCeBguNqJ4aSx4='
+assertion_hash = b'guq7X42Eb/MJhkSLXr5B0+qr3HzEzDHO0UaX4bKqZTY='
 
 #Retrive assertion
 client = Client("http://127.0.0.1:8000/teleferic/", debug=False)
@@ -29,11 +29,11 @@ query = '''
                 }
                 key
             }
-            containers{
+            objects{
                 objectHash
                 containerHash
                 objectContainer
-                saltedMetaHashes
+                metaHashes
             }
             bodyHash
             message
@@ -54,11 +54,11 @@ message_body = msgpack.unpackb(base64.b64decode(message.get(b'messageBody')))
 assertions = message_body.get(b'assertions')
 attetations = []
 for assertion in message_body.get(b'assertions'):
-    container = [x for x in assertion_raw.get('containers') if x.get('containerHash').encode() == assertion.get(b'containerHash')][0]
+    container = [x for x in assertion_raw.get('objects') if x.get('containerHash').encode() == assertion.get(b'containerHash')][0]
     metas = assertion.get(b'metas')
     for index,meta in enumerate(metas):
         meta_validation = OrderedDict()
-        meta_validation['metaKey'] = meta.get(b'metaKey')
+        meta_validation['metaType'] = meta.get(b'metaType')
         meta_validation['metaValue'] = meta.get(b'metaValue')
         pack = msgpack.packb(meta_validation)
         salt = meta.get(b'metaSalt')
@@ -68,17 +68,17 @@ for assertion in message_body.get(b'assertions'):
             ).digest()
         )
 
-        print(salted_meta_hash,container.get('saltedMetaHashes')[index].encode())
-        assert salted_meta_hash == container.get('saltedMetaHashes')[index].encode()
+        print(salted_meta_hash,container.get('metaHashes')[index].encode())
+        assert salted_meta_hash == container.get('metaHashes')[index].encode()
 
-        print(container.get('containerHash'),meta.get(b'metaKey'),meta.get(b'metaValue'))
+        print(container.get('containerHash'),meta.get(b'metaType'),meta.get(b'metaValue'))
 
         attetations.append({
             'type': ATTESTATION_TYPE.Message_Analysis,
             'detail': {
                 'bodyHash': assertion_raw.get('bodyHash'),
                 'objectHash': container.get('objectHash'),
-                'metaKey': meta.get(b'metaKey'),
+                'metaType': meta.get(b'metaType'),
                 'metaValue':  meta.get(b'metaValue'),
                 'metaSalt':  meta.get(b'metaSalt'),
                 'attest': 'Test'
