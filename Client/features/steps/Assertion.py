@@ -336,7 +336,8 @@ def step(context, data_dict, save_as):
 @when('we unpack {} with message pack as {}')
 @ghernik_vars
 def step(context, byte_array, save_as):
-        setattr(
+    print(byte_array,'to unpack')
+    setattr(
         context,
         save_as,
         msgpack.unpackb(byte_array)
@@ -389,6 +390,7 @@ def step(context, save_as):
         k, v = row.split(':')
         value = getattr(context, v.strip()[1:-2])
         obj[k.strip().strip('"').strip("'")] = value
+    print(obj,'objeto')
     setattr(
         context,
         save_as,
@@ -454,6 +456,7 @@ def step(context, save_as):
 @when('we calculate HMAC-SHA256 of {} with {} as {}')
 @ghernik_vars
 def step(context, pack, salt, save_as):
+    print(pack, 'pack')
     setattr(
         context,
         save_as,
@@ -621,6 +624,9 @@ def step(context):
 def step(context, sender_sk, reader_pk, save_as):
     now = datetime.datetime.now()
     tomorrow = now + datetime.timedelta(days=1)
+    meta = OrderedDict()
+    meta['metaType'] = 2
+    meta['metaValue'] = 'Pepe Sarasa'
     assertion = Assertion(
         Identity(sender_sk),
         context.client,
@@ -629,12 +635,7 @@ def step(context, sender_sk, reader_pk, save_as):
                 'valid_until': now.isoformat(),
                 'retain_until': tomorrow.isoformat(),
                 'object': b'\x12\x34\x56\x78\x90',
-                'metas': [
-                    OrderedDict(**{
-                        'metaKey': 2, 
-                        'metaValue': 'Pepe Sarasa'
-                    })
-                ]
+                'metas': [meta]
             }
         ],
         [
@@ -672,20 +673,22 @@ def step(context, _hash):
                 }
                 key
             }
-            containers{
+            objects{
                 containerHash
                 objectHash
                 containerSig
                 objectContainer
-                saltedMetaHashes
+                metaHashes
             }
         }
     }
     """ % _hash
+    response = context.client.request(query)
+    print(response)
     setattr(
         context,
         'envelope',
-        context.client.request(query).get('data').get('messageByHash')
+        response.get('data').get('messageByHash')
     )
 
 @given('we get key from ACL for our address as {}')
