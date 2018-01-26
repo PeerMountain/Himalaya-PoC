@@ -103,7 +103,7 @@ Feature: Assertion Message
         When we format [retain_until] with iso formated string as retain_until_formated
         Then we check [retain_until_formated] and <expected_retain_until> should be equal
 
-        Given teleferic bootstrap node URI https://teleferic-dev.dxmarkets.com/teleferic/
+        Given teleferic bootstrap node URI http://127.0.0.1:8000/teleferic
             And timestamped signature of [user_attachment] as object_sign
         Then we compose assertion with following keys
             """
@@ -178,17 +178,17 @@ Feature: Assertion Message
         Then we compose a list of [acl_rule] as acl_rule_list
 
         Given timestamped signature of [container_hash] as container_sign
-        Then we compose container_data with following keys
+        Then we compose object_data with following keys
         """
             'containerHash': [container_hash],
             'objectHash': [object_hash],
             'containerSig': [container_sign],
             'objectContainer': [object_container],
-            'saltedMetaHashes': [salted_meta_hash_list],
+            'metaHashes': [salted_meta_hash_list],
         """
 
-        Given one or more [container_data]
-        Then we compose a list of [container_data] as container_data_list
+        Given one or more [object_data]
+        Then we compose a list of [object_data] as objects_data_list
 
         Given timestamped signature of [message_hash] as message_sign
             And message_type is string ASSERTION
@@ -197,7 +197,7 @@ Feature: Assertion Message
             'sender': [sender_address],
             'messageType': {message_type},
             'ACL': {acl_rule_list},
-            'containers': {container_data_list},
+            'objects': {objects_data_list},
             'messageHash': {message_hash},
             'messageSig': {message_sign},
             'dossierHash': {dossier_hash},
@@ -217,7 +217,7 @@ Feature: Assertion Message
             $message: AESEncryptedBlob!
             $dossierHash: HMACSHA256!
             $ACL: [ACLRule]
-            $containers: [ContainerInput]
+            $objects: [ObjectInput]
             ){
             sendMessage(
                 envelope: {
@@ -228,7 +228,7 @@ Feature: Assertion Message
                     messageSig: $messageSig
                     message: $message
                     dossierHash: $dossierHash
-                    containers: $containers
+                    objects: $objects
                     ACL: $ACL    
                 }
             ) {

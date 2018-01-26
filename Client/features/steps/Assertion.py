@@ -79,7 +79,6 @@ def step(context, a, b):
         d = b.decode()
     else:
         d = b
-    print(a,b)
     assert c == d
 
 @when('we encrypt {} using AES with key {} as {}')
@@ -127,7 +126,7 @@ def step(context, save_as):
 
 @given('teleferic bootstrap node URI {}')
 def step(context, uri):
-    context.client = Client(uri, debug=True)
+    context.client = Client(uri, debug=False)
 
 
 @given('teleferic signed timestamp as {}')
@@ -306,7 +305,6 @@ def step(context, save_as, origin):
 @given('timestamped signature of {} as {}')
 @ghernik_vars
 def step(context, to_sign, save_as):
-    print(context.identity.address,to_sign,save_as)
     setattr(
         context,
         save_as,
@@ -385,7 +383,9 @@ def step(context, query, variables):
 @then('server should response success')
 @ghernik_vars
 def step(context):
-    assert context.response.get('error') == None
+    
+    print(context.response)
+    assert context.response.get('errors') == None
 
 
 @given('one or more {}')
