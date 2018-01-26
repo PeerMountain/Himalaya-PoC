@@ -1,35 +1,34 @@
-# -- FILE: features/steps/Invite.py
-import os
+# -- FILE: features/steps/InviteNew.py
+import base64
+import msgpack
+from collections import OrderedDict
+
 from behave import given, when, then, step
 
-from TelefericClient.Cryptography import AES, RSA
 from Crypto.Hash import SHA256, HMAC
-
-from collections import OrderedDict
-import msgpack
-import base64
+from TelefericClient.Cryptography import AES, RSA
+from TelefericClient import Client
 
 
 @given('secret passphrase {passphrase}')
-def step_impl(context, passphrase):
+def step(context, passphrase):
     context.passphrase = passphrase.strip().encode()
-    assert len(context.passphrase) == 32
 
 
-@given('secret invite name {inviteName}')
-def step_impl(context, inviteName):
-    context.inviteName = inviteName.strip().encode()
+@given('secret invite name {secretInviteName}')
+def step_impl(context, secretInviteName):
+    context.secretInviteName = secretInviteName.strip().encode()
 
 
 @when('I encrypt using AES module and given passphrase')
 def step_impl(context):
     cipher = AES(context.passphrase)
-    context.encryptedInviteName = cipher.encrypt(context.inviteName)
+    context.InviteName = cipher.encrypt(context.secretInviteName)
 
 
-@then('the resulting encrypted <inviteName> should be {result}')
-def step_impl(context, result):
-    assert context.encryptedInviteName == result.strip().encode()
+@then('the resulting encrypted inviteName should be {inviteName}')
+def step_impl(context, inviteName):
+    assert context.InviteName == inviteName.strip().encode()
 
 
 @given('a bootstrap node url {bootstrapNode}')
@@ -85,14 +84,14 @@ def step_impl(context):
     context.b64PackMessageBody = base64.b64encode(context.packMessageBody)
 
 
-@then('resulting <messageBody> should be equal to {result}')
-def step_impl(context, result):
-    assert result.strip().encode() == context.b64PackMessageBody
+@then('resulting messageBody should be equal to {messageBody}')
+def step_impl(context, messageBody):
+    assert messageBody.strip().encode() == context.b64PackMessageBody
 
 
-@given('message body content {result}')
-def step_impl(context, result):
-    context.b64PackMessageBody = result.strip().encode()
+@given('message body content {messageBody}')
+def step_impl(context, messageBody):
+    context.b64PackMessageBody = messageBody.strip().encode()
 
 
 @when('I decode message body with Base64')
@@ -105,11 +104,9 @@ def step_impl(context):
     context.messageBody = msgpack.unpackb(context.packMessageBody)
 
 
-@then('{attribute} attribute should be {value}')
-def step_impl(context, attribute, value):
-    assert context.messageBody[
-        attribute.strip().encode()] == value.strip().encode()
-
+@then('{attribute} attribute should be {inviteName}')
+def step_impl(context, attribute, inviteName):
+    assert context.messageBody[attribute.strip().encode()] == inviteName.strip().encode()
 
 @given('40 bytes random salt {dossierSalt}')
 def step_imp(context, dossierSalt):
@@ -140,30 +137,31 @@ def step_imp(context):
 @when('encrypt resulting message content pack using AES module with public passphrase "Peer Mountain"')
 def step_imp(context):
     cipher = AES('Peer Mountain'.encode())
-    context.b64EncryptedPackMessageContent = cipher.encrypt(
-        context.packMessageContent)
+    context.b64EncryptedPackMessageContent = cipher.encrypt(context.packMessageContent) 
 
 
-@then('resulting <message> should be {result}')
-def step_imp(context, result):
-    print(context.b64EncryptedPackMessageContent)
-    assert result.strip().encode() == context.b64EncryptedPackMessageContent
+@then('resulting message should be {message}')
+def step_imp(context, message):
+    assert message.strip().encode() == context.b64EncryptedPackMessageContent
+
+@given('message {message}')
+def step_impl(context, message):
+    context.message = message.strip().encode()
 
 
-@when(u'I compute SHA256 hash of message content')
+@when('I compute SHA256 hash of message content')
 def step_impl(context):
     context.rawMessageHash = SHA256.new(context.message).digest()
 
 
-@when(u'encode resulting message hash with Base64')
+@when('encode resulting message hash with Base64')
 def step_impl(context):
     context.messageHash = base64.b64encode(context.rawMessageHash)
 
 
-@then('resulting message content hash <messageHash> should be {result}')
-def step_imp(context, result):
-    print(context.messageHash)
-    assert context.messageHash == result.strip().encode()
+@then('resulting message content hash messageHash should be {messageHash}')
+def step_imp(context, messageHash):
+    assert context.messageHash == messageHash.strip().encode()
 
 
 @when('I compute SHA256 hash of message body')
@@ -176,16 +174,13 @@ def step_imp(context):
     context.b64HashMessageBody = base64.b64encode(context.hashMessageBody)
 
 
-@then('resulting message body hash <bodyHash> should be {result}')
-def step_imp(context, result):
-    print(context.b64HashMessageBody)
-    assert context.b64HashMessageBody == result.strip().encode()
-
+@then('resulting message body hash bodyHash should be {bodyHash}')
+def step_imp(context, bodyHash):
+    assert context.b64HashMessageBody == bodyHash.strip().encode()
 
 @when('I compute HMAC-SHA256 hash of message body with given 40bytes salt')
 def step_imp(context):
-    context.dossierHash = HMAC.new(
-        context.dossierSalt, context.b64PackMessageBody, SHA256).digest()
+    context.dossierHash = HMAC.new(context.dossierSalt, context.b64PackMessageBody, SHA256).digest()
 
 
 @when('encode resulting message body hmac-hash with Base64')
@@ -193,114 +188,101 @@ def step_imp(context):
     context.b64DossierHash = base64.b64encode(context.dossierHash)
 
 
-@then('resulting <dossierHash> should be {result}')
-def step_imp(context, result):
-    print(context.b64DossierHash)
-    assert context.b64DossierHash == result.strip().encode()
+@then('resulting dossierHash should be {dossierHash}')
+def step_imp(context, dossierHash):
+    assert context.b64DossierHash == dossierHash.strip().encode()
 
 
-@given(u'following private key <privkey>')
+@given('following private key <privkey>')
 def step_impl(context):
+    context.raw_privkey = context.text.strip()
     context.privkey = RSA(context.text.strip())
 
 
-@given(u'message hash {messageHash}')
+@given('messageHash {messageHash}')
 def step_impl(context, messageHash):
     context.messageHash = messageHash.strip().encode()
 
 
-@given(u'teleferic signed timestamp {telefericSignedTimestamp}')
-def step_impl(context, telefericSignedTimestamp):
+@given('teleferic signed timestamp telefericSignedTimestamp')
+def step_impl(context):
+    client = Client()
+    telefericSignedTimestamp = client.get_node_signedtimestamp()
     context.telefericSignedTimestamp = telefericSignedTimestamp.strip().encode()
 
 
-@given(u'compose signable object')
+@given('compose signable object')
 def step_impl(context):
     context.signable_object = OrderedDict()
     context.signable_object['messageHash'] = context.messageHash
     context.signable_object['timestamp'] = context.telefericSignedTimestamp
 
 
-@when(u'I format signable object with Message Pack')
+@when('I format signable object with Message Pack')
 def step_impl(context):
     context.formated_signable_object = msgpack.packb(context.signable_object)
 
 
-@when(u'generate RSA signature <signature> using <privkey> of formated signable object')
+@when('generate RSA signature <signature> using <privkey> of formated signable object')
 def step_impl(context):
     context.signature = context.privkey.sign(context.formated_signable_object)
 
 
-@when(u'compose signature object')
+@when('compose signature object')
 def step_impl(context):
     context.signature_object = OrderedDict()
     context.signature_object['signature'] = context.signature
     context.signature_object['timestamp'] = context.telefericSignedTimestamp
 
 
-@when(u'format signature object with Message Pack')
+@when('format signature object with Message Pack')
 def step_impl(context):
-    context.format_signature_object = msgpack.packb(
-        context.signature_object)
+    context.format_signature_object = msgpack.packb(context.signature_object)
 
 
-@when(u'encode resulted signature with Base64')
+@when('encode resulted signature with Base64 into messageSig')
 def step_impl(context):
-    context.b64encoded_format_signature_object = base64.b64encode(
-        context.format_signature_object)
+    context.messageSig = base64.b64encode(context.format_signature_object)
 
 
-@then(u'resulting <messageSig> should be {result}')
-def step_impl(context, result):
-    print(context.b64encoded_format_signature_object)
-    assert context.b64encoded_format_signature_object == result.strip().encode()
-
-
-@given(u'dossier hash {dossierHash}')
-def step_impl(context, dossierHash):
-    context.dossierHash = dossierHash.strip().encode()
-
-
-@given(u'following mutation')
-def step_impl(context):
-    context.mutation = context.text.strip()
-
-
-@given(u'sender address {sender}')
+@given('sender address {sender}')
 def step_impl(context, sender):
     context.sender = sender.strip().encode()
 
 
-@given(u'message type {messageType}')
+@given('messageType {messageType}')
 def step_impl(context, messageType):
     context.messageType = messageType.strip().encode()
 
 
-@given(u'body hash {bodyHash}')
+@given('body hash {bodyHash}')
 def step_impl(context, bodyHash):
     context.bodyHash = bodyHash.strip().encode()
 
 
-@given(u'message signature {messageSig}')
-def step_impl(context, messageSig):
-    context.messageSig = messageSig.strip().encode()
+@given('dossier hash {dossierHash}')
+def step_impl(context, dossierHash):
+    context.dossierHash = dossierHash.strip().encode()
 
 
-@given(u'message {message}')
-def step_impl(context, message):
-    context.message = message.strip().encode()
-
-
-@when(u'I compose variable object')
+@given('following mutation')
 def step_impl(context):
-    context.variables = context.text.strip()
+    context.mutation = context.text.strip()
 
 
-@then(u'response should be success')
+@when('I compose variable object')
+def step_impl(context):
+    import json
+    vars = json.loads(context.text.strip())
+    vars['messageSig'] = context.messageSig.decode()
+    context.variables = json.dumps(vars)
+
+
+@then('response should be success')
 def step_impl(context):
     assert not 'errors' in context.query_response
 
 
-@then(u'response should have messageHash property equal to {messageHash}')
+@then('response should have messageHash property equal to {messageHash}')
 def step_impl(context, messageHash):
     assert context.messageHash == messageHash.strip().encode()

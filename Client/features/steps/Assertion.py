@@ -3,6 +3,7 @@ import json
 import random
 import datetime
 from collections import OrderedDict
+from contextlib import suppress
 
 import msgpack
 from behave import (
@@ -22,6 +23,7 @@ from TelefericClient.Schema.Base.MessageContent import MessageContent
 from TelefericClient.Schema.Base.MessageBody import MessageBody
 from TelefericClient.Schema.Base.MessageEnvelope import MessageEnvelope
 from TelefericClient.Schema.Base.Message import Message
+from TelefericClient.Schema.Assertion import Assertion
 from base64 import (
     b64encode,
     b64decode,
@@ -175,6 +177,15 @@ def step(context, to_encode, save_as):
     )
 
 
+@when("we base64 decode {} as {}")
+@ghernik_vars
+def step(context, to_encode, save_as):
+    setattr(
+        context,
+        save_as,
+        b64decode(to_encode)
+    )
+
 @when("generate RSA signature {} using private_key {} of formated signable object {}")
 @ghernik_vars
 def step(context, save_as, sk_string, to_sign):
@@ -322,6 +333,15 @@ def step(context, data_dict, save_as):
         msgpack.packb(data_dict)
     )
 
+@when('we unpack {} with message pack as {}')
+@ghernik_vars
+def step(context, byte_array, save_as):
+        setattr(
+        context,
+        save_as,
+        msgpack.unpackb(byte_array)
+    )
+
 @given('random 40 bytes salt for example {} as {}')
 @ghernik_vars
 def step(context, salt, save_as):
@@ -386,6 +406,15 @@ def step(context):
     
     print(context.response)
     assert context.response.get('errors') == None
+
+@given('sent message hash as {}')
+@ghernik_vars
+def step(context, save_as):
+    setattr(
+        context,
+        save_as,
+        context.response.get('data').get('sendMessage').get('messageHash')
+    )
 
 
 @given('one or more {}')
@@ -586,3 +615,191 @@ def step(context, response):
 @given('we pass')
 def step(context):
     pass
+
+@given("assertion by {} to {} with hash as {}")
+@ghernik_vars
+def step(context, sender_sk, reader_pk, save_as):
+    now = datetime.datetime.now()
+    tomorrow = now + datetime.timedelta(days=1)
+    assertion = Assertion(
+        Identity(sender_sk),
+        context.client,
+        [
+            {
+                'valid_until': now.isoformat(),
+                'retain_until': tomorrow.isoformat(),
+                'object': b'\x12\x34\x56\x78\x90',
+                'metas': [
+                    OrderedDict(**{
+                        'metaKey': 2, 
+                        'metaValue': 'Pepe Sarasa'
+                    })
+                ]
+            }
+        ],
+        [
+            Identity(reader_pk),
+        ]
+    )
+    response = assertion.send()
+    try:
+        setattr(
+            context,
+            save_as,
+            response.get('data').get('sendMessage').get('messageHash')
+        ) 
+    except Exception as e:
+        logging.warning("Request failed.")
+        raise
+
+
+@given('we retrieve message with hash {}')
+@ghernik_vars
+def step(context, _hash):
+    query = """
+    query{
+        messageByHash(messageHash: "%s") {
+            messageHash
+            messageType
+            messageSig
+            dossierHash
+            bodyHash
+            message
+            createdAt
+            ACL{
+                reader{
+                    address
+                }
+                key
+            }
+            containers{
+                containerHash
+                objectHash
+                containerSig
+                objectContainer
+                saltedMetaHashes
+            }
+        }
+    }
+    """ % _hash
+    setattr(
+        context,
+        'envelope',
+        context.client.request(query).get('data').get('messageByHash')
+    )
+
+@given('we get key from ACL for our address as {}')
+@ghernik_vars
+def step(context, save_as):
+    key = next(
+        filter(
+            lambda x: x.get('reader').get('address') == context.identity.address,
+            context.envelope.get('ACL')
+        )
+    )
+    setattr(
+        context,
+        save_as,
+        key.get('key')
+    )
+
+
+@given('we decrypt {} with our identity as {}')
+@ghernik_vars
+def step(context, encrypted_data, save_as):
+    setattr(
+        context,
+        save_as,
+        context.identity.decrypt(encrypted_data)
+    )
+
+
+@given('we get the encrypted message content as {}')
+@ghernik_vars
+def step(context, save_as):
+    setattr(
+        context,
+        save_as,
+        context.envelope.get('message')
+    )
+
+@given('we extract message body from {} as {}')
+@ghernik_vars
+def step(context, message_content, save_as):
+    setattr(
+        context,
+        save_as,
+        msgpack.unpackb(
+            b64decode(
+                message_content.get(b'messageBody')
+            )
+        )
+    )
+
+
+@given('we extract assertions from {} as {}')
+@ghernik_vars
+def step(context, message_body, save_as):
+    setattr(
+        context,
+        save_as,
+        message_body.get(b'assertions')
+    )
+
+
+@given('we extract containers from message envelope as {}')
+@ghernik_vars
+def step(context, save_as):
+    setattr(
+        context,
+        save_as,
+        context.envelope.get(b'containers')
+    )
+
+
+@given('we decrypt {} with AES module {} as {}')
+@ghernik_vars
+def step(context, encrypted_data, aes_key, save_as):
+    cipher = AES(aes_key)
+    try:
+        setattr(
+            context,
+            save_as,
+            cipher.decrypt(b64decode(encrypted_data))
+        )
+    except Exception:
+        setattr(
+            context,
+            save_as,
+            cipher.decrypt(encrypted_data)
+        )
+
+@given('we extract first value from {} as {}')
+@ghernik_vars
+def step(context, _list, save_as):
+    setattr(
+        context,
+        save_as,
+        _list[0]
+    )
+
+@given('we extract value {} from {} as {}')
+@ghernik_vars
+def step(context, key, _dict, save_as):
+    setattr(
+        context,
+        save_as,
+        _dict.get(key, _dict.get(key.encode()))
+    )
+
+@given('we remove value {} from {}')
+@ghernik_vars
+def step(context, key, _dict):
+    with suppress(KeyError):
+        del _dict[key]
+    with suppress(KeyError):
+        del _dict[key.encode()]
+
+@then('we break')
+def step(context):
+    import pdb; pdb.set_trace()
