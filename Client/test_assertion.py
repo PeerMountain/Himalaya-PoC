@@ -9,8 +9,8 @@ from TelefericClient.Schema.Assertion import Assertion
 now = datetime.datetime.now(datetime.timezone.utc)
 tomorrow = now + datetime.timedelta(days=1)
 
-idn_sender = Identity(open("keys/4096_a.private").read())
-idn_reader = Identity(open("keys/4096_b.public").read())
+idn_sender = Identity(open("keys/4096_registred.private").read())
+idn_reader = Identity(open("keys/4096_registred.public").read())
 
 readers = [idn_reader]
 client = Client("http://localhost:8000/teleferic/")
