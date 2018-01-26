@@ -109,6 +109,46 @@ class Identity():
             return self.rsa.decrypt(content)
         else:
             return False
+    
+    def sign_dict(self, content, client):
+        """sign_dict
+
+        Sign bytes to be sent to Teleferic.
+
+        This requires using a timestamp signed by Teleferic, so the API is called.
+
+        :param content: Dict content.
+        :param client: Teleferic API client.
+        """
+        content = msgpack.packb(content)
+        return self.sign_bytes(content,client)
+
+    def sign_bytes(self, content, client):
+        """sign_bytes
+
+        Sign bytes to be sent to Teleferic.
+
+        This requires using a timestamp signed by Teleferic, so the API is called.
+
+        :param content: Bytes content.
+        :param client: Teleferic API client.
+        """
+        content_hash = base64.b64encode(
+            SHA256.new(content).digest()
+        ).decode()
+        
+        node_signed_timestamp = client.get_node_signedtimestamp()
+
+        signable_object = OrderedDict()
+        signable_object['messageHash'] = content_hash
+        signable_object['timestamp'] = node_signed_timestamp
+        
+        signable_object = msgpack.packb(signable_object)
+
+        return base64.b64encode(msgpack.packb({
+            'signature': self.sign(signable_object),
+            'timestamp': node_signed_timestamp
+        })).decode()
 
     def sign_message(self, message_hash, client):
         """sign_message

@@ -11,7 +11,7 @@ from .constants import (
     Parameters
 )
 
-from .validators import validate_containers
+from .validators import validate_objects
 
 from collections import OrderedDict
 import msgpack
@@ -77,7 +77,10 @@ def authorize_message(envelope):
     if check_sender:
         # Validate Sender
         sender = envelope.get('sender')
-        sender_pubkey = Reader.get_persona(address=sender).pubkey
+        try:
+            sender_pubkey = Reader.get_persona(address=sender).pubkey
+        except:
+            raise Exception('Sender address %s not exist.' % sender)
     
     # Validate MessageHash
     message = envelope.get('message').encode()
@@ -96,11 +99,14 @@ def authorize_message(envelope):
             for ACL_rule in ACL:
                 reader = ACL_rule.get('reader')
                 # Rise an exception if some address be not registred
-                Reader.get_persona(address=reader)
+                try:
+                    Reader.get_persona(address=reader)
+                except:
+                    raise Exception('Reader address %s not exist.' % reader)
         else:
             raise Exception('Invalid ACL')
         
-        validate_containers(sender_pubkey,envelope.get('containers'))
+        validate_objects(sender_pubkey,envelope.get('objects'))
     else:
         
         # Validate Pulic Message

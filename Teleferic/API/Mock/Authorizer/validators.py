@@ -1,5 +1,6 @@
 from libs.tools import Identity
-from .. import Teleferic_Identity
+from .. import Teleferic_Identity,Reader
+from ..utils import encode_hash
 from Crypto.Hash import SHA256
 from collections import OrderedDict
 import msgpack
@@ -30,20 +31,23 @@ def validate_timestamped_signature(pubkey, hash, signature):
         raise Exception("Invalid sign")
 
 
-def validate_containers(sender_pubkey, containers=[]):
+def validate_objects(sender_pubkey, objects=[]):
     # For each container
-    for container in containers:
-        container_hash = container.get('containerHash')
-        container_object = container.get('objectContainer')
-        container_object = container.get('objectContainer')
+    for _object in objects:
+        object_hash = encode_hash(_object.get('objectHash'))
 
-        # Validate container hash
-        verify_sha256(container.get('objectContainer'),
-                      container.get('containerHash'))
+        # if objectContainer be present
+        objectContainer = _object.get('objectContainer')
+        if not objectContainer is None:
+            container_object = _object.get('objectContainer')
+            container_hash = _object.get('containerHash')
+            # Validate container hash
+            verify_sha256(_object.get('objectContainer'),
+                        _object.get('containerHash'))
 
-        # Validate container signature
-        validate_timestamped_signature(
-            sender_pubkey, container_hash, container.get('containerSig'))
-
-        # Validate date limits
-        now = datetime.datetime.now(datetime.timezone.utc)
+            # Validate container signature
+            validate_timestamped_signature(
+                sender_pubkey, container_hash, _object.get('containerSig'))
+        else:
+            if not Reader.get_object_existance(object_hash):
+                raise Exception('Object %s not exist.' % object_hash)

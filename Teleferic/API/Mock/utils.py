@@ -6,13 +6,13 @@ import msgpack
 MESSAGES_STORAGE = os.path.join(os.path.dirname(os.path.abspath(__file__)),'messages')
 CONTAINER_STORAGE = os.path.join(os.path.dirname(os.path.abspath(__file__)),'containers')
 
-def get_message_path(message_hash):
-  file_name = base58.b58encode(message_hash)
+def get_message_path(_hash):
+  file_name = base58.b58encode(_hash)
   return os.path.join(MESSAGES_STORAGE,file_name)
 
-def get_container_path(message_hash):
-  file_name = base58.b58encode(message_hash)
-  return os.path.join(MESSAGES_STORAGE,file_name)
+def get_container_path(_hash):
+  file_name = base58.b58encode(_hash)
+  return os.path.join(CONTAINER_STORAGE,file_name)
 
 def encode_hash(_hash):
   if not type(_hash) is bytes:

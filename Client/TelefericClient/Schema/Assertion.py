@@ -1,5 +1,6 @@
 import base64
 import msgpack
+from collections import OrderedDict
 from Crypto.Hash import SHA256, HMAC
 
 from ..Cryptography import AES, RSA
@@ -19,11 +20,11 @@ class Assertion(MessageEnvelope):
         assertions = list(
             self.build_assertion_list(assertions, container_key)
         )
-        salted_meta_hashes = list(
+        meta_hashes = list(
             self.build_salted_meta_hash_list(assertions)
         )
-        containers = list(
-            self.build_container_list(assertions, salted_meta_hashes)
+        objects = list(
+            self.build_object_list(assertions, meta_hashes)
         )
 
         message_body = MessageBody(
@@ -46,7 +47,7 @@ class Assertion(MessageEnvelope):
             message_content,
             passphrase,
             readers,
-            containers,
+            objects,
         )
 
     def build_assertion_list(self, assertions, container_key):
@@ -88,7 +89,10 @@ class Assertion(MessageEnvelope):
             salted_meta_hashes = []
             for meta in assertion.get('metas'):
                 salt = self.generate_random_bytes()
-                pack = msgpack.packb(meta)
+                meta_base = OrderedDict()
+                meta_base['metaType'] = meta.get('metaType')
+                meta_base['metaValue'] = meta.get('metaValue')
+                pack = msgpack.packb(meta_base)
                 salted_meta_hash = base64.b64encode(
                     HMAC.new(
                         salt, pack, SHA256
@@ -103,13 +107,13 @@ class Assertion(MessageEnvelope):
                 salted_meta_hashes.append(salted_meta_hash.decode())
             yield salted_meta_hashes
  
-    def build_container_list(self, assertions, salted_meta_hashes):
+    def build_object_list(self, assertions, salted_meta_hashes):
         teleferic_pubkey = self.client.get_node_pubkey()
         for i, assertion in enumerate(assertions):
             yield {
                 'containerHash': assertion.get('containerHash'),
                 'objectHash': assertion.get('objectHash'),
                 'containerSig': assertion.pop('containerSignature'),
-                'saltedMetaHashes': salted_meta_hashes[i],
+                'metaHashes': salted_meta_hashes[i],
                 'objectContainer': assertion.pop('container')
             }

@@ -71,12 +71,12 @@ Feature: Assertion Message
         Then we check [container_hash] and <expected_container_hash> should be equal
 
         # Meta data
-        Given meta_key is integer <meta_key>
+        Given meta_type is integer <meta_type>
             And meta_value is string <meta_value>
             And random 40 bytes salt for example <meta_salt> as meta_salt
         When we compose meta_base with following keys
         """
-            'metaKey': {meta_key},
+            'metaType': {meta_type},
             'metaValue': {meta_value},
         """
             And we pack [meta_base] with message pack as packed_meta_base
@@ -84,7 +84,7 @@ Feature: Assertion Message
         Then we check [salted_meta_hash] and <expected_salted_meta_hash> should be equal
             And we compose assertion_meta with following keys 
             """
-                'metaKey': {meta_key},
+                'metaType': {meta_type},
                 'metaValue': {meta_value},
                 'metaSalt': {meta_salt},
             """
@@ -103,7 +103,7 @@ Feature: Assertion Message
         When we format [retain_until] with iso formated string as retain_until_formated
         Then we check [retain_until_formated] and <expected_retain_until> should be equal
 
-        Given teleferic bootstrap node URI https://teleferic-dev.dxmarkets.com/teleferic/
+        Given teleferic bootstrap node URI http://127.0.0.1:8000/teleferic
             And timestamped signature of [user_attachment] as object_sign
         Then we compose assertion with following keys
             """
@@ -178,17 +178,17 @@ Feature: Assertion Message
         Then we compose a list of [acl_rule] as acl_rule_list
 
         Given timestamped signature of [container_hash] as container_sign
-        Then we compose container_data with following keys
+        Then we compose object_data with following keys
         """
             'containerHash': [container_hash],
             'objectHash': [object_hash],
             'containerSig': [container_sign],
             'objectContainer': [object_container],
-            'saltedMetaHashes': [salted_meta_hash_list],
+            'metaHashes': [salted_meta_hash_list],
         """
 
-        Given one or more [container_data]
-        Then we compose a list of [container_data] as container_data_list
+        Given one or more [object_data]
+        Then we compose a list of [object_data] as objects_data_list
 
         Given timestamped signature of [message_hash] as message_sign
             And message_type is string ASSERTION
@@ -197,7 +197,7 @@ Feature: Assertion Message
             'sender': [sender_address],
             'messageType': {message_type},
             'ACL': {acl_rule_list},
-            'containers': {container_data_list},
+            'objects': {objects_data_list},
             'messageHash': {message_hash},
             'messageSig': {message_sign},
             'dossierHash': {dossier_hash},
@@ -217,7 +217,7 @@ Feature: Assertion Message
             $message: AESEncryptedBlob!
             $dossierHash: HMACSHA256!
             $ACL: [ACLRule]
-            $containers: [ContainerInput]
+            $objects: [ObjectInput]
             ){
             sendMessage(
                 envelope: {
@@ -228,7 +228,7 @@ Feature: Assertion Message
                     messageSig: $messageSig
                     message: $message
                     dossierHash: $dossierHash
-                    containers: $containers
+                    objects: $objects
                     ACL: $ACL    
                 }
             ) {
@@ -307,9 +307,9 @@ Feature: Assertion Message
     When we calculate SHA256 hash of [encrypted_message] as message_hash
     Then we check [message_hash] and [expected_message_hash] should be equal
 
-    Given we extract value containers from [envelope] as containers
-    Given we extract first value from [containers] as container
-        And we extract value objectContainer from [container] as encrypted_object
+    Given we extract value objects from [envelope] as objects
+    Given we extract first value from [objects] as object
+        And we extract value objectContainer from [object] as encrypted_object
 
     Given we decrypt [encrypted_message] with AES module [message_key] as packed_message
     When we unpack [packed_message] with message pack as message
@@ -335,22 +335,28 @@ Feature: Assertion Message
     When we calculate SHA256 hash of [encoded_object] as object_hash
     Then we check [object_hash] and [expected_object_hash] should be equal
 
-    Given we extract value saltedMetaHashes from [container] as meta_hash_list
+    Given we extract value metaHashes from [object] as meta_hash_list
     Given we extract first value from [meta_hash_list] as expected_meta_hash
         And we extract value metas from [assertion] as meta_list
         And we extract first value from [meta_list] as meta
         And we extract value metaSalt from [meta] as meta_salt
-        And we remove value metaSalt from [meta]
-    When we pack [meta] with message pack as packed_meta
+        And we extract value metaType from [meta] as meta_type
+        And we extract value metaValue from [meta] as meta_value
+    When we compose meta with following keys
+        """
+            'metaType': {meta_type},
+            'metaValue': {meta_value},
+        """
+        And we pack [meta] with message pack as packed_meta
         And we calculate HMAC-SHA256 of [packed_meta] with [meta_salt] as meta_hash
     Then we check [meta_hash] and [expected_meta_hash] should be equal
 
 
 
     Examples:
-        | object           | expected_object_hash                         | container_key | expected_object_container | meta_key | meta_value | meta_salt                                                                                                               | expected_salted_meta_hash                    | valid_until | expected_valid_until | retain_until | expected_retain_until | expected_container_hash                      | message_key |
-        | 010203         | t56he3xcqP6czNjNum6PjtCzyUj59wntD0fS/Uf8uoI= | sarasa1       | +jEzC80Y9Pul7g98F6gZAg==  | 1        | Pepe       | 74:26:13:2f:4d:f3:f8:3e:82:ba:f3:fe:6a:dd:46:c2:00:4c:99:e8:88:ed:0f:a9:58:85:a2:11:9e:c8:b7:46:e4:f4:f0:c3:70:30:0e:17 | iekh9yXHh9UCVKNChpGsKtCgtVQ89ZLkfWnwnS9/zTM= | 2018-05-10  | 2018-05-10T00:00:00  | 2018-05-20   | 2018-05-20T00:00:00   | D5mrut86IyMo2kNA5hqwf3UiZN1XM7N4KZc/q51aVPU= | sarasa1234  |
-        | 010203         | t56he3xcqP6czNjNum6PjtCzyUj59wntD0fS/Uf8uoI= | sarasa0       | B2KGRIBbF6UKpAFjvsF79A==  | 2        | Juan       | d3:11:19:a2:86:14:91:74:c7:d1:2c:10:04:59:a0:db:e5:75:e5:2c:1c:7e:9e:df:07:7c:90:8e:a0:aa:01:0b:ae:7f:b7:13:32:d3:d2:dc | n4K6Rj38wS1ufwUGwYadviLoR+OMYlzXrlCP5fZ1ts8= | 2018-06-10  | 2018-06-10T00:00:00  | 2018-06-20   | 2018-06-20T00:00:00   | LKGjgDBL2hMXQ/+ax59Sl/4WjccOk8YalVVrT7EE/JU= | sarasa1235  |
-        | 010203040506     | P1wLX5wybnlopT/lIdtUbxaNUYSUmNUSHDothe6nQGA= | sarasa3       | ensTiWrrO78XQAffe8t3SQ==  | 1        | Pedro      | 80:9a:a9:b7:c4:d7:0c:4a:59:45:4e:b3:d5:7e:cc:b4:58:83:cf:e4:f5:5c:1e:68:2a:d1:0e:0d:45:c6:b4:cc:71:5d:b6:0d:62:45:25:26 | mmrsu+/74WuOM/siW5RrghwlM886IiyLkneW/7o2P1s= | 2018-07-10  | 2018-07-10T00:00:00  | 2018-07-20   | 2018-07-20T00:00:00   | EmDPxxrI8yahbGnP/wxqUZw4rX6WqXXzreN6fgDibnM= | sarasa1236  |
+        | object           | expected_object_hash                         | container_key | expected_object_container | meta_type | meta_value | meta_salt                                                                                                               | expected_salted_meta_hash                    | valid_until | expected_valid_until | retain_until | expected_retain_until | expected_container_hash                      | message_key |
+        | 010203           | t56he3xcqP6czNjNum6PjtCzyUj59wntD0fS/Uf8uoI= | sarasa1       | +jEzC80Y9Pul7g98F6gZAg==  | 1         | Pepe       | 74:26:13:2f:4d:f3:f8:3e:82:ba:f3:fe:6a:dd:46:c2:00:4c:99:e8:88:ed:0f:a9:58:85:a2:11:9e:c8:b7:46:e4:f4:f0:c3:70:30:0e:17 | bBiKfN62xmZnCGsM6Hqmfw0+BpsVc0SYxdWFhcndGi4= | 2018-05-10  | 2018-05-10T00:00:00  | 2018-05-20   | 2018-05-20T00:00:00   | D5mrut86IyMo2kNA5hqwf3UiZN1XM7N4KZc/q51aVPU= | sarasa1234  |
+        | 010203           | t56he3xcqP6czNjNum6PjtCzyUj59wntD0fS/Uf8uoI= | sarasa0       | B2KGRIBbF6UKpAFjvsF79A==  | 2         | Juan       | d3:11:19:a2:86:14:91:74:c7:d1:2c:10:04:59:a0:db:e5:75:e5:2c:1c:7e:9e:df:07:7c:90:8e:a0:aa:01:0b:ae:7f:b7:13:32:d3:d2:dc | sPhFVzSRrH5M4XeJImz21kogpwrkXePynS2XwFxJKsY= | 2018-06-10  | 2018-06-10T00:00:00  | 2018-06-20   | 2018-06-20T00:00:00   | LKGjgDBL2hMXQ/+ax59Sl/4WjccOk8YalVVrT7EE/JU= | sarasa1235  |
+        | 010203040506     | P1wLX5wybnlopT/lIdtUbxaNUYSUmNUSHDothe6nQGA= | sarasa3       | ensTiWrrO78XQAffe8t3SQ==  | 1         | Pedro      | 80:9a:a9:b7:c4:d7:0c:4a:59:45:4e:b3:d5:7e:cc:b4:58:83:cf:e4:f5:5c:1e:68:2a:d1:0e:0d:45:c6:b4:cc:71:5d:b6:0d:62:45:25:26 | HgIIyadfDofShEHKpoJ1K9CRzvplqnQtg4eJmdsUyhE= | 2018-07-10  | 2018-07-10T00:00:00  | 2018-07-20   | 2018-07-20T00:00:00   | EmDPxxrI8yahbGnP/wxqUZw4rX6WqXXzreN6fgDibnM= | sarasa1236  |
         # | 0102030405060708 | RLiURq/ipbxA10ohl74XCBAE+PldgbhEZlJhTNUykMU= | sarasa4       | i4PpgB6LbuB7CWeUKG3cEg==  | 2        | hector     | 74:26:13:2f:4d:f3:f8:3e:82:ba:f3:fe:6a:dd:46:c2:00:4c:99:e8:88:ed:0f:a9:58:85:a2:11:9e:c8:b7:46:e4:f4:f0:c3:70:30:0e:17 | tOii8FZ24idxCk1h5v7afmlWNGsyBA39yhoh+5nm59g= | 2018-08-10  | 2018-08-10T00:00:00  | 2018-08-20   | 2018-08-20T00:00:00   | ujf0XjAjWnqqYeU9pXXuvmrql+L99c6q4ETpQSKsFc0= | sarasa1237  |
     

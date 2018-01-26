@@ -5,12 +5,12 @@ from .hmac_sha256 import HMACSHA256
 from .sign import Sign
 from .blob import AESEncryptedBlob, RSAEncryptedBlob
 
-class ContainerAbstract():
+class ObjectAbstract():
+  objectHash = SHA256(required=True)
+  metaHashes = graphene.List(HMACSHA256, required=True)
   containerHash = SHA256()
-  objectHash = SHA256()
   containerSig = Sign()
   objectContainer = AESEncryptedBlob()
-  saltedMetaHashes = graphene.List(HMACSHA256)
 
-class ContainerInput(graphene.InputObjectType, ContainerAbstract):
+class ObjectInput(graphene.InputObjectType, ObjectAbstract):
   pass
