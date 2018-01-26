@@ -77,7 +77,10 @@ def authorize_message(envelope):
     if check_sender:
         # Validate Sender
         sender = envelope.get('sender')
-        sender_pubkey = Reader.get_persona(address=sender).pubkey
+        try:
+            sender_pubkey = Reader.get_persona(address=sender).pubkey
+        except:
+            raise Exception('Sender address %s not exist.' % sender)
     
     # Validate MessageHash
     message = envelope.get('message').encode()
@@ -96,7 +99,10 @@ def authorize_message(envelope):
             for ACL_rule in ACL:
                 reader = ACL_rule.get('reader')
                 # Rise an exception if some address be not registred
-                Reader.get_persona(address=reader)
+                try:
+                    Reader.get_persona(address=reader)
+                except:
+                    raise Exception('Reader address %s not exist.' % reader)
         else:
             raise Exception('Invalid ACL')
         
