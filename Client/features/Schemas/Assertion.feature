@@ -1,6 +1,6 @@
 Feature: Assertion Message
     @wip
-    Scenario Outline: Generate object container requirements
+    Scenario Outline: Create an Assertion
         # Object
         Given following private key as sender_key
         """
@@ -57,12 +57,16 @@ Feature: Assertion Message
         -----END RSA PRIVATE KEY-----
         """
         Then we set our identity with private key [sender_key]
-            
-        Given user_attachment is object <object>
-        
-        When we calculate SHA256 hash of [user_attachment] as object_hash
-        Then we check [object_hash] and <expected_object_hash> should be equal
 
+        #Object
+        Given object is object <object>
+            And teleferic bootstrap node URI <bootstrap_node>
+        When we calculate SHA256 hash of [object] as object_hash
+        Then we check [object_hash] and <expected_object_hash> should be equal
+            And we create a timestamped signature of [object_hash] as object_sign
+        
+
+        #Container    
         Given container_key is random string form example <container_key>
         When we encrypt <object> using AES with key [container_key] as object_container
         Then we check [object_container] and <expected_object_container> should be equal
@@ -70,7 +74,16 @@ Feature: Assertion Message
         When we calculate SHA256 hash of [object_container] as container_hash
         Then we check [container_hash] and <expected_container_hash> should be equal
 
-        # Meta data
+        Given teleferic bootstrap node URI <bootstrap_node>
+        Then we create a timestamped signature of [container_hash] as container_sign
+            And we compose container with following keys
+            """
+                'containerHash': {container_hash},
+                'containerSign': {container_sign},
+                'objectContainer': {object_container},
+            """
+        
+        # Metas
         Given meta_type is integer <meta_type>
             And meta_value is string <meta_value>
             And random 40 bytes salt for example <meta_salt> as meta_salt
@@ -78,21 +91,16 @@ Feature: Assertion Message
         """
             'metaType': {meta_type},
             'metaValue': {meta_value},
+            'metaSalt': {meta_salt},
         """
             And we pack [meta_base] with message pack as packed_meta_base
             And we calculate HMAC-SHA256 of [packed_meta_base] with [meta_salt] as salted_meta_hash
         Then we check [salted_meta_hash] and <expected_salted_meta_hash> should be equal
-            And we compose assertion_meta with following keys 
-            """
-                'metaType': {meta_type},
-                'metaValue': {meta_value},
-                'metaSalt': {meta_salt},
-            """
         
         # Assertions
-        Given one or more [assertion_meta]
+        Given one or more [meta_base]
             And [salted_meta_hash] for each one
-        Then we compose a list of [assertion_meta] as meta_list
+        Then we compose a list of [meta_base] as meta_list
             And we compose a list of [salted_meta_hash] as salted_meta_hash_list
 
         Given valid_until is datetime <valid_until>
@@ -102,18 +110,15 @@ Feature: Assertion Message
         Given retain_until is datetime <retain_until>
         When we format [retain_until] with iso formated string as retain_until_formated
         Then we check [retain_until_formated] and <expected_retain_until> should be equal
-
-        Given teleferic bootstrap node URI http://127.0.0.1:8000/teleferic
-            And timestamped signature of [user_attachment] as object_sign
-        Then we compose assertion with following keys
+            And we compose assertion with following keys
             """
                 'validUntil': {valid_until_formated},
                 'retainUntil': {retain_until_formated},
-                'containerHash': {container_hash},
                 'containerKey': {container_key},
+                'containerHash': {container_hash},
                 'objectHash': {object_hash},
-                'objectSign': {object_sign},
                 'metas': {meta_list},
+                'objectSign': {object_sign},
             """
 
         Given one or more [assertion]
@@ -123,20 +128,18 @@ Feature: Assertion Message
         Given sender_address is the address of [sender_key]
         Then we compose message_body with following keys
         """
-            'subjectAddr': {sender_address},
+            'subject': {sender_address},
             'assertions': {assertion_list},
         """
 
         When we pack [message_body] with message pack as packed_message_body
         Then we calculate SHA256 hash of pack [packed_message_body] as body_hash
-        
-        Given random 40 bytes salt as dossier_salt
-        Then we calculate HMAC-SHA256 of [packed_message_body] with [dossier_salt] as dossier_hash
 
         #Message content
         Given body_type is integer 0
             And message_key is string <message_key>
             And timestamped signature of [packed_message_body] as message_body_signature
+            Given random 40 bytes salt as dossier_salt
         When we compose message_content with following keys
         """
             'bodyType': {body_type},
@@ -147,8 +150,9 @@ Feature: Assertion Message
             And we pack [message_content] with message pack as packed_message_content
         Then we encrypt [packed_message_content] using AES with key [message_key] as encrypted_message_content
             And we calculate SHA256 hash of pack [encrypted_message_content] as message_hash
+            And we calculate HMAC-SHA256 of [packed_message_content] with [dossier_salt] as dossier_hash
         
-        #Message envelope
+        #Readers
         Given following public key as reader_key
         """
         -----BEGIN PUBLIC KEY-----
@@ -167,24 +171,30 @@ Feature: Assertion Message
         -----END PUBLIC KEY-----
         """
         And reader_address is the address of [reader_key]
-        When we encrypt [message_key] usign RSA with key [reader_key] as encrypted_message_key
-        Then we compose acl_rule with following keys
+        When we encrypt [message_key] usign RSA with key [reader_key] as encrypted_message_key_for_reader
+            And we encrypt [message_key] usign RSA with key [sender_key] as encrypted_message_key_for_sender
+
+        Then we compose reader_acl_rule with following keys
         """
             'reader': {reader_address},
-            'key': {encrypted_message_key},
+            'key': {encrypted_message_key_for_reader},
         """
+            And we compose sender_acl_rule with following keys
+            """
+                'reader': {sender_address},
+                'key': {encrypted_message_key_for_sender},
+            """
 
-        Given one or more [acl_rule]
-        Then we compose a list of [acl_rule] as acl_rule_list
+        Given [reader_acl_rule] and [sender_acl_rule] acl rules
+        Then we compose a list of acl rules as acl_rule_list
 
+        #Objects
         Given timestamped signature of [container_hash] as container_sign
         Then we compose object_data with following keys
         """
-            'containerHash': [container_hash],
-            'objectHash': [object_hash],
-            'containerSig': [container_sign],
-            'objectContainer': [object_container],
-            'metaHashes': [salted_meta_hash_list],
+            'objectHash': {object_hash},
+            'metaHashes': {salted_meta_hash_list},
+            'container': {container},
         """
 
         Given one or more [object_data]
@@ -194,7 +204,7 @@ Feature: Assertion Message
             And message_type is string ASSERTION
         Then we compose message_envelope with following keys
         """
-            'sender': [sender_address],
+            'sender': {sender_address},
             'messageType': {message_type},
             'ACL': {acl_rule_list},
             'objects': {objects_data_list},
@@ -229,7 +239,7 @@ Feature: Assertion Message
                     message: $message
                     dossierHash: $dossierHash
                     objects: $objects
-                    ACL: $ACL    
+                    ACL: $ACL
                 }
             ) {
                 messageHash
@@ -239,7 +249,13 @@ Feature: Assertion Message
         When we send [gql_query] with variables [message_envelope] to bootstrap node
         Then server should response success
 
+    Examples:
+        | bootstrap_node                  | object           | expected_object_hash                         | container_key | expected_object_container | meta_type | meta_value | meta_salt                                                                                                               | expected_salted_meta_hash                    | valid_until | expected_valid_until | retain_until | expected_retain_until | expected_container_hash                      | message_key |
+        | http://127.0.0.1:8000/teleferic | 010203           | t56he3xcqP6czNjNum6PjtCzyUj59wntD0fS/Uf8uoI= | sarasa1       | +jEzC80Y9Pul7g98F6gZAg==  | 1         | Pepe       | 74:26:13:2f:4d:f3:f8:3e:82:ba:f3:fe:6a:dd:46:c2:00:4c:99:e8:88:ed:0f:a9:58:85:a2:11:9e:c8:b7:46:e4:f4:f0:c3:70:30:0e:17 | ls0eaLLfnH+ej1Ylzg9hdEyH3rDiaa6yiy/vPXoPWoM= | 2018-05-10  | 2018-05-10T00:00:00  | 2018-05-20   | 2018-05-20T00:00:00   | D5mrut86IyMo2kNA5hqwf3UiZN1XM7N4KZc/q51aVPU= | sarasa1234  |
+        | http://127.0.0.1:8000/teleferic | 010203           | t56he3xcqP6czNjNum6PjtCzyUj59wntD0fS/Uf8uoI= | sarasa0       | B2KGRIBbF6UKpAFjvsF79A==  | 2         | Juan       | d3:11:19:a2:86:14:91:74:c7:d1:2c:10:04:59:a0:db:e5:75:e5:2c:1c:7e:9e:df:07:7c:90:8e:a0:aa:01:0b:ae:7f:b7:13:32:d3:d2:dc | RI+RKkbLxOQRrlP9yd3RSV7hbPuwMPKcHJmw3Eouk78= | 2018-06-10  | 2018-06-10T00:00:00  | 2018-06-20   | 2018-06-20T00:00:00   | LKGjgDBL2hMXQ/+ax59Sl/4WjccOk8YalVVrT7EE/JU= | sarasa1235  |
+        | http://127.0.0.1:8000/teleferic | 010203040506     | P1wLX5wybnlopT/lIdtUbxaNUYSUmNUSHDothe6nQGA= | sarasa3       | ensTiWrrO78XQAffe8t3SQ==  | 1         | Pedro      | 80:9a:a9:b7:c4:d7:0c:4a:59:45:4e:b3:d5:7e:cc:b4:58:83:cf:e4:f5:5c:1e:68:2a:d1:0e:0d:45:c6:b4:cc:71:5d:b6:0d:62:45:25:26 | f5c89TycbEK7DDjouuFKxCxgNCPR0aku+I9DZ6gLIyw= | 2018-07-10  | 2018-07-10T00:00:00  | 2018-07-20   | 2018-07-20T00:00:00   | EmDPxxrI8yahbGnP/wxqUZw4rX6WqXXzreN6fgDibnM= | sarasa1236  |
 
+    Scenario Outline: Retrieve Assertion
     # Retrieve the message from Teleferic
     # and check all the hashes.
     Given sent message hash as assertion_message_hash
@@ -299,7 +315,7 @@ Feature: Assertion Message
         """
         And we set our identity with private key [reader_sk]
 
-    Given we retrieve message with hash [assertion_message_hash]
+    Given we retrieve message with hash [assertion_message_hash] as envelope
         And we get key from ACL for our address as encrypted_key
         And we decrypt [encrypted_key] with our identity as message_key
         And we get the encrypted message content as encrypted_message
@@ -359,4 +375,81 @@ Feature: Assertion Message
         | 010203           | t56he3xcqP6czNjNum6PjtCzyUj59wntD0fS/Uf8uoI= | sarasa0       | B2KGRIBbF6UKpAFjvsF79A==  | 2         | Juan       | d3:11:19:a2:86:14:91:74:c7:d1:2c:10:04:59:a0:db:e5:75:e5:2c:1c:7e:9e:df:07:7c:90:8e:a0:aa:01:0b:ae:7f:b7:13:32:d3:d2:dc | sPhFVzSRrH5M4XeJImz21kogpwrkXePynS2XwFxJKsY= | 2018-06-10  | 2018-06-10T00:00:00  | 2018-06-20   | 2018-06-20T00:00:00   | LKGjgDBL2hMXQ/+ax59Sl/4WjccOk8YalVVrT7EE/JU= | sarasa1235  |
         | 010203040506     | P1wLX5wybnlopT/lIdtUbxaNUYSUmNUSHDothe6nQGA= | sarasa3       | ensTiWrrO78XQAffe8t3SQ==  | 1         | Pedro      | 80:9a:a9:b7:c4:d7:0c:4a:59:45:4e:b3:d5:7e:cc:b4:58:83:cf:e4:f5:5c:1e:68:2a:d1:0e:0d:45:c6:b4:cc:71:5d:b6:0d:62:45:25:26 | HgIIyadfDofShEHKpoJ1K9CRzvplqnQtg4eJmdsUyhE= | 2018-07-10  | 2018-07-10T00:00:00  | 2018-07-20   | 2018-07-20T00:00:00   | EmDPxxrI8yahbGnP/wxqUZw4rX6WqXXzreN6fgDibnM= | sarasa1236  |
         # | 0102030405060708 | RLiURq/ipbxA10ohl74XCBAE+PldgbhEZlJhTNUykMU= | sarasa4       | i4PpgB6LbuB7CWeUKG3cEg==  | 2        | hector     | 74:26:13:2f:4d:f3:f8:3e:82:ba:f3:fe:6a:dd:46:c2:00:4c:99:e8:88:ed:0f:a9:58:85:a2:11:9e:c8:b7:46:e4:f4:f0:c3:70:30:0e:17 | tOii8FZ24idxCk1h5v7afmlWNGsyBA39yhoh+5nm59g= | 2018-08-10  | 2018-08-10T00:00:00  | 2018-08-20   | 2018-08-20T00:00:00   | ujf0XjAjWnqqYeU9pXXuvmrql+L99c6q4ETpQSKsFc0= | sarasa1237  |
-    
+        #
+        #
+
+    Scenario: We resend an Attestation to another entity
+        Given teleferic bootstrap node URI http://localhost:8000/teleferic
+            And we set our identity as 4096_a
+            And our address as our_address
+            And new_reader_address is string iZoktDgS3HGTXtn5HNBeE9Cupy1GGedhcVwBwxoD4razyBNeqggfs5EG3oF6nYwfnrW
+            And we retrieve pubkey for persona with address [new_reader_address] as new_reader_pubkey
+            And we retrieve message with hash JnPtAnX1koMgbpn4hwBrDYOsDAXPB3Aq7PSMrw4sS7w= as envelope
+            And we get key from ACL for our address as encrypted_key
+            And we decrypt [encrypted_key] with our identity as message_key
+            And we get the encrypted message content as encrypted_message
+            And we decrypt [encrypted_message] with AES module [message_key] as packed_message
+        Then we break
+        When we unpack [packed_message] with message pack as message
+        Given new_salt is string sarasa1234884848
+            And we extract value messageBody from [message] as message_body
+        When we calculate HMAC-SHA256 of [message_body] with [new_salt] as new_dossier_hash
+        Then we replace value dossierSalt of [message] with [new_salt]
+            And we replace value dossierHash of [envelope] with [new_dossier_hash]
+
+        When we pack [message] with message pack as packed_message
+            And we encrypt [packed_message] using AES with key [message_key] as encrypted_message
+        Then we replace value messageContent of [envelope] with [encrypted_message]
+
+        Given we extract value ACL from [envelope] as access_control_list
+        When we encrypt [message_key] usign RSA with key [new_reader_pubkey] as new_reader_message_key
+        Then we compose new_acl_rule with keys
+            """
+            'reader': {new_reader_address},
+            'key': {new_reader_message_key},
+            """
+        When we append [new_acl_rule] to [access_control_list]
+            And we compact access control list [access_control_list] as follows
+            """
+            reader: address,
+            key: key
+            """
+        Then we replace value ACL of [envelope] with [access_control_list]
+            And we replace value sender of [envelope] with [our_address]
+        Given we extract value messageHash from [envelope] as message_hash
+            And timestamped signature of [message_hash] as message_sign
+        Then we replace value messageSig of [envelope] with [message_sign]
+
+        #Send message
+        Given following graphql query as gql_query
+        """
+        mutation (
+            $sender: Address!
+            $messageType: MessageType!
+            $messageHash: SHA256!
+            $bodyHash: SHA256!
+            $messageSig: Sign!
+            $message: AESEncryptedBlob!
+            $dossierHash: HMACSHA256!
+            $ACL: [ACLRule]
+            $objects: [ObjectInput]
+            ){
+            sendMessage(
+                envelope: {
+                    sender: $sender
+                    messageType: $messageType
+                    messageHash: $messageHash
+                    bodyHash: $bodyHash
+                    messageSig: $messageSig
+                    message: $message
+                    dossierHash: $dossierHash
+                    objects: $objects
+                    ACL: $ACL
+                }
+            ) {
+                messageHash
+            }
+        }
+        """
+        When we send [gql_query] with variables [envelope] to bootstrap node
+        Then server should response success

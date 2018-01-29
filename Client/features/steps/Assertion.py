@@ -87,10 +87,12 @@ def step(context, a, b):
 @ghernik_vars
 def step(context, to_encrypt, key, save_as):
     aes = AES(key)
+    if not isinstance(to_encrypt, bytes):
+        to_encrypt = to_encrypt.encode()
     setattr(
         context,
         save_as,
-        aes.encrypt(to_encrypt.encode())
+        aes.encrypt(to_encrypt)
     )
 
 @when('we encrypt {} usign RSA with key {} as {}')
@@ -99,7 +101,11 @@ def step(context, to_encrypt, key, save_as):
     setattr(
         context,
         save_as,
-        Identity(key).encrypt(to_encrypt.encode())
+        Identity(key).encrypt(
+            to_encrypt.encode()
+            if isinstance(to_encrypt, str)
+            else to_encrypt
+        )
     )
 
 @then('we encrypt {} using AES with key {} as {}')
@@ -128,7 +134,7 @@ def step(context, save_as):
 
 @given('teleferic bootstrap node URI {}')
 def step(context, uri):
-    context.client = Client(uri, debug=False)
+    context.client = Client(uri, debug=True)
 
 
 @given('teleferic signed timestamp as {}')
@@ -324,6 +330,18 @@ def step(context, to_sign, save_as):
         )
     )
 
+@then(u'we create a timestamped signature of {} as {}')
+@ghernik_vars
+def step(context, to_sign, save_as):
+    setattr(
+        context,
+        save_as,
+        context.identity.sign_message(
+            to_sign, context.client
+        )
+    )
+
+
 @when('we pack {} with message pack as {}')
 @ghernik_vars
 def step(context, data_dict, save_as):
@@ -336,7 +354,6 @@ def step(context, data_dict, save_as):
 @when('we unpack {} with message pack as {}')
 @ghernik_vars
 def step(context, byte_array, save_as):
-    print(byte_array,'to unpack')
     setattr(
         context,
         save_as,
@@ -364,6 +381,11 @@ def step(context, salt_length, save_as):
         ]).encode()
     )
 
+@given('{} and {} acl rules')
+@ghernik_vars
+def step(context, acl_rule_1, acl_rule_2):
+    pass
+
 @given('{} is random string form example {}')
 @ghernik_vars
 def step(context, save_as, rnd_string):
@@ -390,7 +412,6 @@ def step(context, save_as):
         k, v = row.split(':')
         value = getattr(context, v.strip()[1:-2])
         obj[k.strip().strip('"').strip("'")] = value
-    print(obj,'objeto')
     setattr(
         context,
         save_as,
@@ -402,12 +423,14 @@ def step(context, save_as):
 def step(context, query, variables):
     context.response = context.client.request(query,variables)
     
-@then('server should response success')
-@ghernik_vars
-def step(context):
-    
-    print(context.response)
-    assert context.response.get('errors') == None
+@then('server should response {}')
+def step(context,status):
+    if status == 'success':
+        assert context.response.get('errors') == None
+    elif status == 'failure':
+        assert context.response.get('errors') != None
+    else:
+        raise Exception('Response can be success or failure not %s' % status)
 
 @given('sent message hash as {}')
 @ghernik_vars
@@ -429,6 +452,15 @@ def step(context, x):
 def step(context,var):
     pass
 
+@then('we compose a list of acl rules as {}')
+@ghernik_vars
+def step(context,save_as):
+    setattr(
+        context,
+        save_as,
+        [context.reader_acl_rule,context.sender_acl_rule]
+    )
+
 @then('we compose a list of {} as {}')
 @ghernik_vars
 def step(context,item,save_as):
@@ -437,7 +469,6 @@ def step(context,item,save_as):
         save_as,
         [item]
     )
-
 
 @then('we compose {} with following keys')
 @ghernik_vars
@@ -456,7 +487,8 @@ def step(context, save_as):
 @when('we calculate HMAC-SHA256 of {} with {} as {}')
 @ghernik_vars
 def step(context, pack, salt, save_as):
-    print(pack, 'pack')
+    if isinstance(salt, str):
+        salt = salt.encode()
     setattr(
         context,
         save_as,
@@ -684,7 +716,6 @@ def step(context, _hash):
     }
     """ % _hash
     response = context.client.request(query)
-    print(response)
     setattr(
         context,
         'envelope',
@@ -803,6 +834,33 @@ def step(context, key, _dict):
     with suppress(KeyError):
         del _dict[key.encode()]
 
+
+@then('we replace value {} of {} with {}')
+@given('we replace value {} of {} with {}')
+@ghernik_vars
+def step(context, value_name, _dict, new_value):
+    _dict[value_name] = new_value
+
+
+@given('{} is address of {}')
+@ghernik_vars
+def step(context, save_as, identity):
+    setattr(
+        context,
+        save_as,
+        identity.address
+    )
+
+
+@when('we compact access control list {} as follows')
+@ghernik_vars
+def step(context, acl):
+    context.access_control_list = [
+        {
+            'reader': el['reader']['address'] if isinstance(el['reader'], dict) else el['reader'],
+            'key': el['key']
+        } for el in context.access_control_list
+    ]
 @then('we break')
 def step(context):
     import pdb; pdb.set_trace()
