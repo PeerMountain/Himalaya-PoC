@@ -1,6 +1,6 @@
 import graphene
 
-from API.types import Sign, HMACSHA256, MessageType, SHA256, Persona, AESEncryptedBlob, ACLRuleAbstract, ObjectAbstract, DateTime, Address
+from API.types import Sign, HMACSHA256, MessageType, SHA256, Persona, AESEncryptedBlob, ACLRuleAbstract, ObjectAbstract, DateTime, Address, ContainerAbstract
 from graphene_django.types import DjangoObjectType
 from API.Mock import Reader
 from API.Mock.utils import decode_hash, decode_dict, encode_hash
@@ -26,9 +26,24 @@ class ACLRuleOutput(graphene.ObjectType, ACLRuleAbstract):
         return self.data.key
 
 
+class ObjectContainerEnvelopeOutput(graphene.ObjectType, ContainerAbstract):
+    def __init__(self, data, *args, **kwargs):
+        self.data = data
+        super(ObjectContainerEnvelopeOutput, self).__init__(*args, **kwargs)
+
+    def resolve_containerHash(self, info):
+        return decode_hash(self.data.containerHash)
+
+    def resolve_containerSig(self, info):
+        return decode_dict(self.data.containerSig)
+
+    def resolve_objectContainer(self, info):
+        return Reader.get_container_content(self.data)
+
 class ObjectEnvelopeOutput(graphene.ObjectType, ObjectAbstract):
 
     metaHashes = graphene.List(HMACSHA256)
+    container = graphene.Field(ObjectContainerEnvelopeOutput)
 
     def __init__(self, data, *args, **kwargs):
         self.data = data
@@ -42,21 +57,9 @@ class ObjectEnvelopeOutput(graphene.ObjectType, ObjectAbstract):
         for metaHash in self.data.metaHashes.all():
             metaHashes.append(decode_hash(metaHash.metaHash))
         return metaHashes
-
-    def resolve_containerHash(self, info):
-        container = self.data.container.first()
-        if not container is None:
-            return decode_hash(container.containerHash)
-
-    def resolve_containerSig(self, info):
-        container = self.data.container.first()
-        if not container is None:
-            return decode_dict(container.containerSig)
-
-    def resolve_objectContainer(self, info):
-        container = self.data.container.first()
-        if not container is None:
-            return Reader.get_container_content(container)
+    
+    def resolve_container(self, info):
+        return ObjectContainerEnvelopeOutput(self.data.container.first())
 
 
 
