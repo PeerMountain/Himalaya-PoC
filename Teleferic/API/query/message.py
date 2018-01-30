@@ -34,8 +34,8 @@ class ObjectContainerEnvelopeOutput(graphene.ObjectType, ContainerAbstract):
     def resolve_containerHash(self, info):
         return decode_hash(self.data.containerHash)
 
-    def resolve_containerSig(self, info):
-        return decode_dict(self.data.containerSig)
+    def resolve_containerSign(self, info):
+        return decode_dict(self.data.containerSign)
 
     def resolve_objectContainer(self, info):
         return Reader.get_container_content(self.data)
@@ -78,7 +78,7 @@ class MessageEnvelopeOutput(graphene.ObjectType):
     messageType = MessageType(description='''
     Define general message type
     ''')
-    messageSig = Sign(description='''
+    messageSign = Sign(description='''
     Contains messageHash siged with sender pubkey
     ''')
     dossierHash = HMACSHA256(description='''
@@ -115,8 +115,8 @@ class MessageEnvelopeOutput(graphene.ObjectType):
     def resolve_messageType(self, info):
         return self.data.messageType
 
-    def resolve_messageSig(self,info):
-        return decode_dict(self.data.messageSig)
+    def resolve_messageSign(self,info):
+        return decode_dict(self.data.messageSign)
 
     def resolve_dossierHash(self, info):
         return decode_hash(self.data.dossierHash)

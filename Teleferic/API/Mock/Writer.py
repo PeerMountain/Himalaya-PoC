@@ -28,7 +28,7 @@ def add_persona(pubkey, nickname):
 
 def write_message(envelope):
     message = Message(
-        messageSig=encode_dict(envelope.get('messageSig')),
+        messageSign=encode_dict(envelope.get('messageSign')),
         messageHash=encode_hash(envelope.get('messageHash')),
         messageType=envelope.get('messageType'),
         dossierHash=encode_hash(envelope.get('dossierHash')),
@@ -56,21 +56,22 @@ def write_message(envelope):
             salted_meta_hashes = _object.pop('metaHashes')
             object_model = message._objects.create(objectHash= object_hash)
 
-            if not _object.get('objectContainer') is None:
-                object_container = _object.pop('objectContainer')
-                container_hash = encode_hash(_object.get('containerHash'))
-                _object['containerHash'] = container_hash
+            if not _object.get('container') is None:
+                container = _object.get('container')
+                object_container = container.pop('objectContainer')
+                container_hash = encode_hash(container.get('containerHash'))
+                container['containerHash'] = container_hash
                 
                 object_container_path = store_container(object_container, container_hash)
 
-                _object['objectContainerPath'] = object_container_path
+                container['objectContainerPath'] = object_container_path
                 
-                container_signature = encode_dict(_object.get('containerSig'))
-                _object['containerSig'] = container_signature
+                container_signature = encode_dict(container.get('containerSign'))
+                container['containerSign'] = container_signature
                 
                 object_model.container.create(
                     containerHash= container_hash,
-                    containerSig= container_signature,
+                    containerSign= container_signature,
                     objectContainerPath= object_container_path
                 )
 

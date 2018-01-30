@@ -68,7 +68,21 @@ def step(context, hashable, save_as):
         SHA256.new(hashable).digest()
     ))
 
-
+@then("we check {} and {} salts should be equal")
+@ghernik_vars
+def step(context, a, b):
+    if type(a) is bytes:
+        c = a.decode()
+    else:
+        c = a
+    if type(b) is bytes:
+        d = b.decode()
+    else:
+        d = b
+    print(c,len(c))
+    print(d,len(d))
+    #bytes(bytearray.fromhex(salt.replace(':', '')))
+    assert c == d
 
 @then("we check {} and {} should be equal")
 @ghernik_vars
@@ -134,7 +148,7 @@ def step(context, save_as):
 
 @given('teleferic bootstrap node URI {}')
 def step(context, uri):
-    context.client = Client(uri, debug=True)
+    context.client = Client(uri, debug=False)
 
 
 @given('teleferic signed timestamp as {}')
@@ -172,6 +186,24 @@ def step(context, to_format, save_as):
         msgpack.packb(to_format)
     )
 
+
+@when('we decode {} with base64 as {}')
+@ghernik_vars
+def step(context, to_decode, save_as):
+    setattr(
+        context,
+        save_as,
+        b64decode(to_decode)
+    )
+
+@then('we decode {} with base64 as {}')
+@ghernik_vars
+def step(context, to_decode, save_as):
+    setattr(
+        context,
+        save_as,
+        b64decode(to_decode)
+    )
 
 @when("I base64 encode {} as {}")
 @ghernik_vars
@@ -360,6 +392,15 @@ def step(context, byte_array, save_as):
         msgpack.unpackb(byte_array)
     )
 
+@then('we unpack {} with message pack as {}')
+@ghernik_vars
+def step(context, byte_array, save_as):
+    setattr(
+        context,
+        save_as,
+        msgpack.unpackb(byte_array)
+    )
+
 @given('random 40 bytes salt for example {} as {}')
 @ghernik_vars
 def step(context, salt, save_as):
@@ -425,6 +466,7 @@ def step(context, query, variables):
     
 @then('server should response {}')
 def step(context,status):
+    print(context.response.get('errors'))
     if status == 'success':
         assert context.response.get('errors') == None
     elif status == 'failure':
@@ -864,3 +906,138 @@ def step(context, acl):
 @then('we break')
 def step(context):
     import pdb; pdb.set_trace()
+
+@then('we store resultant property {} as {}')
+@ghernik_vars
+def step(context, property_path, save_as):
+    result = context.response
+    path_parts = property_path.split('.')
+    for part_key in path_parts:
+        result = result.get(part_key)
+    setattr(
+        context,
+        save_as,
+        result
+    )
+
+@when('we get key from ACL for our address as {}')
+@ghernik_vars
+def step(context, save_as):
+    key = next(
+        filter(
+            lambda x: x.get('reader').get('address') == context.identity.address,
+            context.envelope.get('ACL')
+        )
+    )
+    setattr(
+        context,
+        save_as,
+        key.get('key')
+    )
+
+@when('we decrypt {} usign RSA as {}')
+@ghernik_vars
+def step(context, encrypted_data, save_as):
+    setattr(
+        context,
+        save_as,
+        context.identity.decrypt(encrypted_data)
+    )
+
+@given('property {} from {} as {}')
+@ghernik_vars
+def step(context,property_path, object, save_as):
+    result = object
+    path_parts = property_path.split('.')
+    for part_key in path_parts:
+        aux = result.get(part_key)
+        if aux is None:
+            aux = result.get(part_key.encode())
+        if aux is None:
+            raise Exception('Property %s is not defined on %s.' % (property_path,object))
+        result = aux
+    setattr(
+        context,
+        save_as,
+        result
+    )
+
+@when('we decrypt {} with AES module {} as {}')
+@ghernik_vars
+def step(context, encrypted_data, aes_key, save_as):
+    cipher = AES(aes_key)
+    try:
+        setattr(
+            context,
+            save_as,
+            cipher.decrypt(b64decode(encrypted_data))
+        )
+    except Exception:
+        setattr(
+            context,
+            save_as,
+            cipher.decrypt(encrypted_data)
+        )
+
+@then('the signature RSA {} is valid for the pack {} with the public key {} should be valid')
+@ghernik_vars
+def step(context, signature, pack, key):
+    idn = Identity(key)
+    assert idn.verify(pack,signature)
+
+
+@when('we get integer index {} from vector {} as {}')
+@ghernik_vars
+def step(context, index, vector, save_as):
+    setattr(
+        context,
+        save_as,
+        vector[int(index)]
+    )
+
+@given('integer index {} from vector {} as {}')
+@ghernik_vars
+def step(context, index, vector, save_as):
+    setattr(
+        context,
+        save_as,
+        vector[int(index)]
+    )
+
+@when('we filter vector {} searching {} on property {} as {}')
+@ghernik_vars
+def step(context, vector, searching, property_path, save_as):
+    if type(searching) != bytes:
+        searching = searching.encode()
+    result = False
+    for item in vector:
+        setattr(
+            context,
+            'aux_in',
+            item
+        )
+        context.execute_steps('''
+            Given property %s from [aux_in] as aux_out
+        ''' % property_path)
+        if type(context.aux_out) != bytes:
+            setattr(
+                context,
+                'aux_out',
+                context.aux_out.encode()
+            )
+        if context.aux_out == searching :
+            result = item
+            break
+    if result == False:
+        raise Exception('Value %s is not defined on %s preperty of %s.' % (searching,object,property_path))
+    setattr(
+        context,
+        save_as,
+        result
+    )
+
+@then('print {}')
+@ghernik_vars
+def step(context, to_print):
+    print(to_print)
+    assert False

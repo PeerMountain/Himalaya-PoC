@@ -18,7 +18,7 @@ class MetaHash(models.Model):
 
 class Container(models.Model):
   containerHash = models.TextField(db_index=True)
-  containerSig = models.TextField(max_length=2000)
+  containerSign = models.TextField(max_length=2000)
   objectContainerPath = models.TextField()
   _object = models.ForeignKey(Object, related_name='container')
   createdAt = models.DateTimeField(auto_now_add=True, blank=True)

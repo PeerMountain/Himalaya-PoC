@@ -8,7 +8,7 @@ from .persona import Persona
 class Message(models.Model):
   messageHash = models.TextField(primary_key=True)
   messageType = models.IntegerField()
-  messageSig = models.TextField(max_length=2000, blank=True)
+  messageSign = models.TextField(max_length=2000, blank=True)
   dossierHash = models.TextField()
   bodyHash = models.TextField()
   messagePath = models.TextField(blank=True)

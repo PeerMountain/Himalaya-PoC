@@ -6,7 +6,7 @@ from ..Mock import Reader
 
 class Query():
   persona = graphene.Field(Persona,
-    address=graphene.String(default_value=None),
+    address=Address(default_value=None),
     nickname=graphene.String(default_value='Teleferic'),
     pubkey=graphene.String(default_value=None),
     description='''
