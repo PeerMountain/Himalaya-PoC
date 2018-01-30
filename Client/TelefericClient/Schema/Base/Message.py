@@ -40,7 +40,7 @@ class Message():
         build_content = self.message_content.build(self.passphrase)
         content = {
             'sender': identity.address,
-            'messageSig': identity.sign_message(self.message_content.hash,client),
+            'messageSign': identity.sign_message(self.message_content.hash,client),
             'messageType': self.message_content.type,
             'messageHash': self.message_content.hash,
             'dossierHash': self.message_content.hmac,

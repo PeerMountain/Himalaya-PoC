@@ -25,6 +25,7 @@ services:
     image: 'meteoro.dxmarkets.com:5000/himalaya_teleferic:latest'
     volumes:
       - messages_content:/code/API/Mock/messages
+      - containers_content:/code/API/Mock/containers
     networks:
       - teleferic
       - pgdb
@@ -68,3 +69,4 @@ networks:
 volumes:
   pgdb:
   messages_content:
+  containers_content:
