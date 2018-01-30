@@ -16,5 +16,14 @@
       "nickname": "4096_registred",
       "createdAt": "2018-01-15T19:39:51.646Z"
     }
+  },
+  {
+    "model": "API.persona",
+    "pk": "ibnGrLfuSbgcpWcxtraDUx3TEuXPWhG3DGHFkiUc52B1huCRYDREpfHoaJpVcjT8gDW",
+    "fields": {
+      "pubkey": "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAv3H3EmVjgI/N7LWiTmqn\nMi3ie6RJBgWYOJ9jsZQK/Vifl9ovVd7iw/fCJf0S1IUBI2rbjpzwRvWrYOs3u9g0\nEAlXi1B9u1kR1OqPaD2YjRvzkzX6dAbb7Bcu2Ityz4PyyN1Qxr9yzoamfwgSWc6P\n9IpBUy4wtRWTwslHkga9uDQ1zPceCOuEIpn20AZ2bc56GhzBF3WBZBUscCJlUxmd\nh88bTLQwhnBVVHsaouWJvlcLb41+q7P8eIZR4fX1NUuUpmnPQ4TKbUawXx1r/AG8\nYkpxbB2WG3hwppVuJEI/biZGvZOaZzqqbHDEcQkzHGxmqjG+CPc4zr9oKhgzpkiF\ntTDvMug5zDqcRdvavUedfY98Fe+SDnlCOisacStJWJH9HiCkvqRZkr2qIxm962Ys\nDklllHgh4L6qZ3wdQYRIQPr/P1D0Ew/S6Fm8kexEyO10hc3IoEGnYWhnWIl2dzFI\nWX/cY9rPE1cBok6Y6Y6Wef8zQy970/TuSiL7xjZKH7ocog/rd4ElFyC67rcSECBE\nKxKWzb4kNGMCAVGVoXyPcJXq35oKKyAyqHLJQzoYjOW6zZzA1U+v6V5YPxpvBgTs\nQbrN5ldLdEbyF9Ef8FAt8pX8hMo8OV5TBicnW9Q8zjr9RJ4t638ePS8g+xGSnLe6\nxha0TMay29a0wpgNcqER0KECAwEAAQ==\n-----END PUBLIC KEY-----",
+      "nickname": "4096_a",
+      "createdAt": "2018-01-15T19:39:51.646Z"
+    }
   }
 ]
