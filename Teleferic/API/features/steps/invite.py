@@ -167,7 +167,7 @@ def step_impl(context):
       $messageType: MessageType!
       $messageHash: SHA256!
       $bodyHash: SHA256!
-      $messageSig: Sign!
+      $messageSign: Sign!
       $message: AESEncryptedBlob!
       $dossierHash: HMACSHA256!
     ){
@@ -177,7 +177,7 @@ def step_impl(context):
           messageType: $messageType
           messageHash: $messageHash
           bodyHash: $bodyHash
-          messageSig: $messageSig
+          messageSign: $messageSign
           message: $message
           dossierHash: $dossierHash
         }
@@ -208,7 +208,7 @@ def step_impl(context):
     "messageHash": base64.b64encode(messageHash.digest()).decode(), 
     "dossierHash": base64.b64encode(dossierHash.digest()).decode(),
     "bodyHash": base64.b64encode(bodyHash.digest()).decode(),
-    "messageSig": context.signature.decode(),
+    "messageSign": context.signature.decode(),
     "message": context.encryptedMessage.decode(),
   }
   context.executed = context.client.execute(context.query,variable_values=context.variables)

@@ -90,7 +90,7 @@ def step_imp(context):
       $messageType: MessageType!
       $messageHash: SHA256!
       $bodyHash: SHA256!
-      $messageSig: Sign!
+      $messageSign: Sign!
       $message: AESEncryptedBlob!
       $dossierHash: HMACSHA256!
     ){
@@ -100,7 +100,7 @@ def step_imp(context):
           messageType: $messageType
           messageHash: $messageHash
           bodyHash: $bodyHash
-          messageSig: $messageSig
+          messageSign: $messageSign
           message: $message
           dossierHash: $dossierHash
         }
@@ -116,7 +116,7 @@ def step_imp(context):
     "messageHash":base64.b64encode(context.message_hash.digest()).decode(), 
     "dossierHash": base64.b64encode(dossier_hash.digest()).decode(),
     "bodyHash": base64.b64encode(body_hash.digest()).decode(),
-    "messageSig": message_sign.decode(),
+    "messageSign": message_sign.decode(),
     "message": message_content.decode(),
   }
   executed = context.client.execute(query,variable_values=variables)
@@ -192,7 +192,7 @@ def step_imp(context, service_name):
       $messageType: MessageType!
       $messageHash: SHA256!
       $bodyHash: SHA256!
-      $messageSig: Sign!
+      $messageSign: Sign!
       $message: AESEncryptedBlob!
       $dossierHash: HMACSHA256!
     ){
@@ -202,7 +202,7 @@ def step_imp(context, service_name):
           messageType: $messageType
           messageHash: $messageHash
           bodyHash: $bodyHash
-          messageSig: $messageSig
+          messageSign: $messageSign
           message: $message
           dossierHash: $dossierHash
         }
@@ -218,7 +218,7 @@ def step_imp(context, service_name):
     "messageHash": base64.b64encode(context.message_hash.digest()).decode(), 
     "dossierHash": base64.b64encode(dossier_hash.digest()).decode(),
     "bodyHash": base64.b64encode(body_hash.digest()).decode(),
-    "messageSig": message_sign.decode(),
+    "messageSign": message_sign.decode(),
     "message": message_content.decode(),
   }
 
