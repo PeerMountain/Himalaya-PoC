@@ -150,9 +150,9 @@ def step(context):
     for i, assertion in enumerate(context.assertions):
         context.containers.append({
             'containerHash': assertion.get('containerHash'),
-            'objectHash': assertion.get('objectHash'),
-            'containerSig': assertion.pop('containerSignature'),
-            'saltedMetaHashes': context.salted_meta_hashes[i],
+            # 'objectHash': assertion.get('objectHash'),
+            'containerSign': assertion.pop('containerSignature'),
+            # 'saltedMetaHashes': context.salted_meta_hashes[i],
             'objectContainer': assertion.pop('container')
         })
 
@@ -214,12 +214,18 @@ def step(context):
     )
 
     context.container_data_list = [{
-        'containerHash': context.container_hash,
+        # 'containerHash': context.container_hash,
         'objectHash': context.object_hash,
-        'containerSig': context.container_sign,
-        'objectContainer': context.object_container,
-        'saltedMetaHashes': context.salted_meta_hashes,
+        # 'containerSign': context.container_sign,
+        # 'container': context.object_container,
+        'container': {
+            'containerHash': context.container_hash,
+            'containerSign': context.container_sign,
+            'objectContainer': context.object_container,
+        },
+        'metaHashes': context.salted_meta_hashes,
     }]
+    print(context.object_container)
 
     context.message_sign = context.sender.sign_message(
         context.message_hash,
@@ -229,9 +235,9 @@ def step(context):
         'sender': context.sender.address,
         'messageType': 'ASSERTION',
         'ACL': context.acl_rule_list,
-        'containers': context.container_data_list,
+        'objects': context.container_data_list,
         'messageHash': context.message_hash,
-        'messageSig': context.message_sign,
+        'messageSign': context.message_sign,
         'dossierHash': context.dossier_hash,
         'bodyHash': context.body_hash,
         'message': context.encrypted_message_content,
@@ -246,11 +252,11 @@ def step(context):
         $messageType: MessageType!
         $messageHash: SHA256!
         $bodyHash: SHA256!
-        $messageSig: Sign!
+        $messageSign: Sign!
         $message: AESEncryptedBlob!
         $dossierHash: HMACSHA256!
         $ACL: [ACLRule]
-        $containers: [ContainerInput]
+        $objects: [ObjectInput]
         ){
         sendMessage(
             envelope: {
@@ -258,10 +264,10 @@ def step(context):
                 messageType: $messageType
                 messageHash: $messageHash
                 bodyHash: $bodyHash
-                messageSig: $messageSig
+                messageSign: $messageSign
                 message: $message
                 dossierHash: $dossierHash
-                containers: $containers
+                objects: $objects
                 ACL: $ACL
             }
         ) {
@@ -316,7 +322,7 @@ def step(context):
 @then('we check if the message timestamp was signed by Teleferic')
 def step(context):
     message_sig = msgpack.unpackb(base64.b64decode(
-        context.message_envelope.get('messageSig')
+        context.message_envelope.get('messageSign')
     ))
     teleferic_signature = msgpack.unpackb(base64.b64decode(
         message_sig.get(b'timestamp')
