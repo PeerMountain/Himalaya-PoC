@@ -57,3 +57,17 @@ def before_feature(context, feature):
     AksaQQYfGmdq30S6rKSLTuoV1e1n0QseY7b0VHSTumlT0v3B+8zKNUYQXeaYzGLB
     1tJuL+2fNuqzPiA62ugUjgRGHSBylcpy/URQfyae61bPGOrDnScY1qMgpw==
     -----END RSA PRIVATE KEY-----""")
+  context.public_4096_a = RSA.importKey("""-----BEGIN PUBLIC KEY-----
+    MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAv3H3EmVjgI/N7LWiTmqn
+    Mi3ie6RJBgWYOJ9jsZQK/Vifl9ovVd7iw/fCJf0S1IUBI2rbjpzwRvWrYOs3u9g0
+    EAlXi1B9u1kR1OqPaD2YjRvzkzX6dAbb7Bcu2Ityz4PyyN1Qxr9yzoamfwgSWc6P
+    9IpBUy4wtRWTwslHkga9uDQ1zPceCOuEIpn20AZ2bc56GhzBF3WBZBUscCJlUxmd
+    h88bTLQwhnBVVHsaouWJvlcLb41+q7P8eIZR4fX1NUuUpmnPQ4TKbUawXx1r/AG8
+    YkpxbB2WG3hwppVuJEI/biZGvZOaZzqqbHDEcQkzHGxmqjG+CPc4zr9oKhgzpkiF
+    tTDvMug5zDqcRdvavUedfY98Fe+SDnlCOisacStJWJH9HiCkvqRZkr2qIxm962Ys
+    DklllHgh4L6qZ3wdQYRIQPr/P1D0Ew/S6Fm8kexEyO10hc3IoEGnYWhnWIl2dzFI
+    WX/cY9rPE1cBok6Y6Y6Wef8zQy970/TuSiL7xjZKH7ocog/rd4ElFyC67rcSECBE
+    KxKWzb4kNGMCAVGVoXyPcJXq35oKKyAyqHLJQzoYjOW6zZzA1U+v6V5YPxpvBgTs
+    QbrN5ldLdEbyF9Ef8FAt8pX8hMo8OV5TBicnW9Q8zjr9RJ4t638ePS8g+xGSnLe6
+    xha0TMay29a0wpgNcqER0KECAwEAAQ==
+    -----END PUBLIC KEY-----""")
