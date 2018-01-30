@@ -89,7 +89,7 @@ def authorize_message(envelope):
         raise Exception("Invalid messageHash")
     
     # Validate Sign
-    signature = envelope.get('messageSig')
+    signature = envelope.get('messageSign')
     validate_timestamped_signature(sender_pubkey, message_hash, signature)
 
     if envelope.get('messageType') != MessageTypes.REGISTRATION:

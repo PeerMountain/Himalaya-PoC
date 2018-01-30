@@ -3,3 +3,5 @@ behave==1.2.5
 base58==0.2.5
 msgpack-python==0.4.8
 requests==2.18.4
+
+ipython==6.2.1

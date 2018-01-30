@@ -8,7 +8,7 @@ from .address import Address
 from .sha256 import SHA256
 from .persona import Persona
 from .txid import TXID
-from .object import ObjectAbstract
+from .object import ObjectAbstract, ContainerAbstract
 from .hmac_sha256 import HMACSHA256
 from .message_type import MessageType
 from .datetime import DateTime

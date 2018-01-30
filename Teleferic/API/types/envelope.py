@@ -21,7 +21,7 @@ class MessageEnvelopeAbstract():
   messageHash = SHA256(description='''
   Contains SHA256 of encrypted message body
   ''',required=True)
-  messageSig= Sign(description='''
+  messageSign= Sign(description='''
   Contains messageHash siged with sender pubkey
   ''',required=True)
   dossierHash = HMACSHA256(description='''
