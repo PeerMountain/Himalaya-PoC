@@ -24,7 +24,7 @@ class MessageEnvelope():
                 $messageType: MessageType!
                 $messageHash: SHA256!
                 $bodyHash: SHA256!
-                $messageSig: Sign!
+                $messageSign: Sign!
                 $message: AESEncryptedBlob!
                 $dossierHash: HMACSHA256!
                 $ACL: [ACLRule]
@@ -36,7 +36,7 @@ class MessageEnvelope():
                         messageType: $messageType
                         messageHash: $messageHash
                         bodyHash: $bodyHash
-                        messageSig: $messageSig
+                        messageSign: $messageSign
                         message: $message
                         dossierHash: $dossierHash
                         objects: $objects
