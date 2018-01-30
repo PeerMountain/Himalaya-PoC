@@ -34,20 +34,19 @@ def validate_timestamped_signature(pubkey, hash, signature):
 def validate_objects(sender_pubkey, objects=[]):
     # For each container
     for _object in objects:
-        object_hash = encode_hash(_object.get('objectHash'))
-
         # if objectContainer be present
-        objectContainer = _object.get('objectContainer')
-        if not objectContainer is None:
-            container_object = _object.get('objectContainer')
-            container_hash = _object.get('containerHash')
+        container = _object.get('container')
+        if not container is None:
+            container_object = container.get('objectContainer')
+            container_hash = container.get('containerHash')
+        
             # Validate container hash
-            verify_sha256(_object.get('objectContainer'),
-                        _object.get('containerHash'))
+            verify_sha256(container_object, container_hash)
 
             # Validate container signature
             validate_timestamped_signature(
-                sender_pubkey, container_hash, _object.get('containerSig'))
+                sender_pubkey, container_hash, container.get('containerSign'))
         else:
+            object_hash = encode_hash(_object.get('objectHash'))
             if not Reader.get_object_existance(object_hash):
                 raise Exception('Object %s not exist.' % object_hash)
