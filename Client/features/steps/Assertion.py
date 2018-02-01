@@ -187,6 +187,16 @@ def step(context, to_format, save_as):
     )
 
 
+@when('we encode {} with base64 as {}')
+@ghernik_vars
+def step(context, to_encode, save_as):
+    setattr(
+        context,
+        save_as,
+        b64encode(to_encode)
+    )
+
+
 @when('we decode {} with base64 as {}')
 @ghernik_vars
 def step(context, to_decode, save_as):
@@ -195,6 +205,7 @@ def step(context, to_decode, save_as):
         save_as,
         b64decode(to_decode)
     )
+
 
 @then('we decode {} with base64 as {}')
 @ghernik_vars
@@ -384,6 +395,15 @@ def step(context, data_dict, save_as):
     )
 
 @when('we unpack {} with message pack as {}')
+@ghernik_vars
+def step(context, byte_array, save_as):
+    setattr(
+        context,
+        save_as,
+        msgpack.unpackb(byte_array)
+    )
+
+@when('we unpacktest {} with message pack as {}')
 @ghernik_vars
 def step(context, byte_array, save_as):
     setattr(
