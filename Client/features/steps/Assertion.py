@@ -966,18 +966,11 @@ def step(context,property_path, object, save_as):
 @ghernik_vars
 def step(context, encrypted_data, aes_key, save_as):
     cipher = AES(aes_key)
-    try:
-        setattr(
-            context,
-            save_as,
-            cipher.decrypt(b64decode(encrypted_data))
-        )
-    except Exception:
-        setattr(
-            context,
-            save_as,
-            cipher.decrypt(encrypted_data)
-        )
+    setattr(
+        context,
+        save_as,
+        cipher.decrypt(encrypted_data)
+    )
 
 @then('the signature RSA {} is valid for the pack {} with the public key {} should be valid')
 @ghernik_vars
