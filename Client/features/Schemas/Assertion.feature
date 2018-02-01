@@ -141,13 +141,14 @@ Feature: Assertion Message
             And message_key is string <message_key>
             And timestamped signature of [body_hash] as message_body_signature
             And random 40 bytes salt as dossier_salt
-        When we compose message_content with following keys
-        """
-            'bodyType': {body_type},
-            'dossierSalt': {dossier_salt},
-            'messageBody': {encoded_packed_message_body},
-            'signature': {message_body_signature},
-        """
+        When we encode [dossier_salt] with base64 as encoded_dossier_salt
+            And we compose message_content with following keys
+            """
+                'bodyType': {body_type},
+                'dossierSalt': {encoded_dossier_salt},
+                'messageBody': {encoded_packed_message_body},
+                'signature': {message_body_signature},
+            """
             And we pack [message_content] with message pack as packed_message_content
         Then we encrypt [packed_message_content] using AES with key [message_key] as encrypted_message_content
             And we calculate SHA256 hash of pack [encrypted_message_content] as message_hash
@@ -399,7 +400,8 @@ Feature: Assertion Message
         #Verify dossierHash
         Given property dossierHash from [envelope] as retrieved_dossier_hash
             And property dossierSalt from [unpacked_retrieved_message_content] as retrieved_dossier_salt
-        When we calculate HMAC-SHA256 of [retrieved_packed_message] with [retrieved_dossier_salt] as dossier_hash
+        When we decode [retrieved_dossier_salt] with base64 as decoded_retrieved_dossier_salt
+            And we calculate HMAC-SHA256 of [retrieved_packed_message] with [decoded_retrieved_dossier_salt] as dossier_hash
         Then we check [dossier_hash] and [retrieved_dossier_hash] should be equal
 
         #Verify bodyHash
