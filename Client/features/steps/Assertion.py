@@ -403,14 +403,6 @@ def step(context, byte_array, save_as):
         msgpack.unpackb(byte_array)
     )
 
-@when('we unpacktest {} with message pack as {}')
-@ghernik_vars
-def step(context, byte_array, save_as):
-    setattr(
-        context,
-        save_as,
-        msgpack.unpackb(byte_array)
-    )
 
 @then('we unpack {} with message pack as {}')
 @ghernik_vars

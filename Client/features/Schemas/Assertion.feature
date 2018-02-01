@@ -395,7 +395,7 @@ Feature: Assertion Message
         #Decrypt message
         Given property message from [envelope] as encrypted_message
         When we decrypt [encrypted_message] with AES module [reader_message_key] as retrieved_packed_message
-            And we unpacktest [retrieved_packed_message] with message pack as unpacked_retrieved_message_content
+            And we unpack [retrieved_packed_message] with message pack as unpacked_retrieved_message_content
         
         #Verify dossierHash
         Given property dossierHash from [envelope] as retrieved_dossier_hash
