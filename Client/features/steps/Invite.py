@@ -108,11 +108,17 @@ def step_impl(context):
 def step_impl(context, attribute, inviteName):
     assert context.messageBody[attribute.strip().encode()] == inviteName.strip().encode()
 
+
 @given('40 bytes random salt {dossierSalt}')
 def step_imp(context, dossierSalt):
     parts = dossierSalt.replace(':', '')
     context.dossierSalt = bytes(bytearray.fromhex(parts))
     assert len(context.dossierSalt) == 40
+
+
+@given('we encode dossierSalt with base64 as encodedDossierSalt')
+def step_imp(context):
+    context.encodedDossierSalt = base64.b64encode(context.dossierSalt)
 
 
 @given('message body type <bodyType> equal to {code} ({name})')
@@ -124,7 +130,7 @@ def step_imp(context,code,name):
 def step_imp(context):
     messageContent = OrderedDict()
     messageContent['bodyType'] = context.bodyType
-    messageContent['dossierSalt'] = context.dossierSalt
+    messageContent['dossierSalt'] = context.encodedDossierSalt
     messageContent['messageBody'] = context.b64PackMessageBody
     context.messageContent = messageContent
 
@@ -178,9 +184,11 @@ def step_imp(context):
 def step_imp(context, bodyHash):
     assert context.b64HashMessageBody == bodyHash.strip().encode()
 
-@when('I compute HMAC-SHA256 hash of message body with given 40bytes salt')
+
+@when('I compute HMAC-SHA256 hash of message body with given 40 bytes decoded salt')
 def step_imp(context):
-    context.dossierHash = HMAC.new(context.dossierSalt, context.b64PackMessageBody, SHA256).digest()
+    decodedSalt = base64.b64decode(context.encodedDossierSalt)
+    context.dossierHash = HMAC.new(decodedSalt, context.b64PackMessageBody, SHA256).digest()
 
 
 @when('encode resulting message body hmac-hash with Base64')
@@ -240,9 +248,9 @@ def step_impl(context):
     context.format_signature_object = msgpack.packb(context.signature_object)
 
 
-@when('encode resulted signature with Base64 into messageSig')
+@when('encode resulted signature with Base64 into messageSign')
 def step_impl(context):
-    context.messageSig = base64.b64encode(context.format_signature_object)
+    context.messageSign = base64.b64encode(context.format_signature_object)
 
 
 @given('sender address {sender}')
@@ -274,7 +282,7 @@ def step_impl(context):
 def step_impl(context):
     import json
     vars = json.loads(context.text.strip())
-    vars['messageSig'] = context.messageSig.decode()
+    vars['messageSign'] = context.messageSign.decode()
     context.variables = json.dumps(vars)
 
 

@@ -127,7 +127,7 @@ def authorize_message(envelope):
             raise Exception('Invalid bodyHash.')
 
         # Validate dossierSalt
-        dossier_salt = message_content.get(b'dossierSalt')
+        dossier_salt = base64.b64decode(message_content.get(b'dossierSalt'))
         if len(dossier_salt) != 40:
             raise Exception('Invalid dossierSalt.')
 
