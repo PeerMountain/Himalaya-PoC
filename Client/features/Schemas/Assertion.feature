@@ -133,20 +133,22 @@ Feature: Assertion Message
         """
 
         When we pack [message_body] with message pack as packed_message_body
-        Then we calculate SHA256 hash of pack [packed_message_body] as body_hash
+          And we encode [packed_message_body] with base64 as encoded_packed_message_body
+        Then we calculate SHA256 hash of pack [encoded_packed_message_body] as body_hash
 
         #Message content
         Given body_type is integer 0
             And message_key is string <message_key>
             And timestamped signature of [body_hash] as message_body_signature
             And random 40 bytes salt as dossier_salt
-        When we compose message_content with following keys
-        """
-            'bodyType': {body_type},
-            'dossierSalt': {dossier_salt},
-            'messageBody': {packed_message_body},
-            'signature': {message_body_signature},
-        """
+        When we encode [dossier_salt] with base64 as encoded_dossier_salt
+            And we compose message_content with following keys
+            """
+                'bodyType': {body_type},
+                'dossierSalt': {encoded_dossier_salt},
+                'messageBody': {encoded_packed_message_body},
+                'signature': {message_body_signature},
+            """
             And we pack [message_content] with message pack as packed_message_content
         Then we encrypt [packed_message_content] using AES with key [message_key] as encrypted_message_content
             And we calculate SHA256 hash of pack [encrypted_message_content] as message_hash
@@ -393,22 +395,23 @@ Feature: Assertion Message
         #Decrypt message
         Given property message from [envelope] as encrypted_message
         When we decrypt [encrypted_message] with AES module [reader_message_key] as retrieved_packed_message
-            And we unpack [retrieved_packed_message] with message pack as retrieved_message_content
+            And we unpack [retrieved_packed_message] with message pack as unpacked_retrieved_message_content
         
         #Verify dossierHash
         Given property dossierHash from [envelope] as retrieved_dossier_hash
-            And property dossierSalt from [retrieved_message_content] as retrieved_dossier_salt
-        When we calculate HMAC-SHA256 of [retrieved_packed_message] with [retrieved_dossier_salt] as dossier_hash
+            And property dossierSalt from [unpacked_retrieved_message_content] as retrieved_dossier_salt
+        When we decode [retrieved_dossier_salt] with base64 as decoded_retrieved_dossier_salt
+            And we calculate HMAC-SHA256 of [retrieved_packed_message] with [decoded_retrieved_dossier_salt] as dossier_hash
         Then we check [dossier_hash] and [retrieved_dossier_hash] should be equal
 
         #Verify bodyHash
         Given property bodyHash from [envelope] as retrieved_body_hash
-            And property messageBody from [retrieved_message_content] as retrieved_message_body
+            And property messageBody from [unpacked_retrieved_message_content] as retrieved_message_body
         When we calculate SHA256 hash of [retrieved_message_body] as retrieved_body_hash
         Then we check [retrieved_body_hash] and [retrieved_body_hash] should be equal
 
         #Verify body signature
-        Given property signature from [retrieved_message_content] as retrieved_body_signature    
+        Given property signature from [unpacked_retrieved_message_content] as retrieved_body_signature    
         When we decode [retrieved_body_signature] with base64 as decoded_retrieved_body_signature
             And we unpack [decoded_retrieved_body_signature] with message pack as retrieved_unpacked_body_signature
         
@@ -423,8 +426,9 @@ Feature: Assertion Message
         Then the signature RSA [retrieved_body_signature_signature] is valid for the pack [packed_verification_signature_object] with the public key [sender_pub_key] should be valid
     
         #Message body
-        Given property messageBody from [retrieved_message_content] as retrieved_message_body    
-        Then we unpack [retrieved_message_body] with message pack as retrieved_body
+        Given property messageBody from [unpacked_retrieved_message_content] as retrieved_message_body    
+          When we decode [retrieved_message_body] with base64 as decoded_retrieved_message_body
+        Then we unpack [decoded_retrieved_message_body] with message pack as retrieved_body
         
         #Get subject public key
         Given property subject from [retrieved_body] as subject_address   
