@@ -32,6 +32,7 @@ Feature: Invitation Message
 
       # Compose invitation message content
       Given 40 bytes random salt <dossierSalt>
+      And we encode dossierSalt with base64 as encodedDossierSalt
       And message body type <bodyType> equal to 0 (Invitation)
       And message body content <messageBody>
       When I compose invite message content sorting attributes alphabetically
@@ -54,63 +55,63 @@ Feature: Invitation Message
       # Calculate dossier hash
       Given message body content <messageBody>
       And 40 bytes random salt <dossierSalt>
-      When I compute HMAC-SHA256 hash of message body with given 40bytes salt
+      When I compute HMAC-SHA256 hash of message body with given 40 bytes decoded salt
       And encode resulting message body hmac-hash with Base64  
       Then resulting dossierHash should be <dossierHash>
 
-      # Generate message signature
+      # Generate message signature with 4096_a.private key
       Given following private key <privkey>
       """
       -----BEGIN RSA PRIVATE KEY-----
-      MIIJKQIBAAKCAgEAz614m40n+FfHIzLNFKaR14ownMR6JAmtZ2UV5XUCfhrQxStG
-      nVkwIKxOsg3ZgCsjbHRfMx2NDlubk7jmj7qhJy5YRuAViWke6dnJ6CbE6W2ErUXw
-      lqbpWwFRaeLof/4Hb+PhwpXYBzBBERAk8rrC/yN8kYqvMUBd1mi6w+8StLkqvg5M
-      Rnx/g5/yF+lvGOeHfRMox2MtUD7IM6Z5Z4ymaxNe3faOCl8oBTKypLezlM+phQ0U
-      k4uMejA6YoSFv+f5pf4JJnx6DMzSWSvo4GPX/OYKTfmSn8XNT5eCYmhwzF3vRTw+
-      AffR4JHLTk23ER4uJpaw99Iiqo4yDbJNYgrodXMvGhYh6OoFDovFXUbcFzP52dg5
-      hmoMYn9eZLwBKIAMcSMPNxJks38kZmr/hHCc9NLZbHRkoJ9dn2nRwD4YxRuV03cI
-      sL+KDbn0u3uTH9aExkxEQ44IHsAnHlV5NxDbJHF0xMcFYoJOouKDFaD4FUcYtdQ2
-      VheuFOEfM9aVutOKnTacmLHnkHmg6wH/5GhPzAWYWD376SyKKPqNcKFomvONIkNK
-      iCX9HBtIUZl68skpihdocPWEkOPCwcAhZNmpP6YsepN15X/tAf67x/ssZ7ktACa2
-      Kc9rSVA4NxWBvmxrnQ5UlVPzfSqWlcDtVVnP+xZeGuS3KJx307sqM0lCYf0CAwEA
-      AQKCAgEAu0OJyIGs9AN6nmOVhzR3t6p1ETcdh9duFBiTePdciwd1DwVpxEKC4kNd
-      JrLUV/0OESKSIU5ZPgQeskJ9LEc2P1VL5oTzBpfSdz2aEYq77lyB0ZiKS94v946l
-      sdwYmCkg3aTXkpV5WWoKke9D0dfUMyn1jmtGdBu9QbPoDPtLm8iIIR5Vaw2iEbct
-      HqCwO/2yL3cSQ1BLsNsbvW80c8ng2hZ6aZ2EERgixyUi7uJyvRHPoxjbX/vqbNeG
-      HgWvcQ8lDqeV6q09hMNAPYYZlBST0wg/bHZJ32YGLunIeSIB7FYbhgu/QhkLl/r/
-      Hxl2pKnZJZSl+KDz/2T+/1iy7GA3oOhhPvQPeqA2KkM5+ydF6o/Y0TOVR909Opai
-      biOT869drQx8I40EIp22sZyx0XGNQSH6emQsIf0fAzNR6fn6qlpBb57X2SmhrH9i
-      gQe2u+bf+ZluxSTREvG83rcQMVJlnIS8NeHX3UCIw/gWZx1Wz4AxNKzMv3uBhubp
-      iA1CFpNVilBJy+3Djv8iNgi+UOiVX4Zr+EqWxNh2oaGCn0fpphxNumUwT3L6U5kD
-      EemRnqkF+3FAbKWI1XGNT+nIk326S/2IoJMq6wxRz3BFNffOlT+fnnmrpC08A39C
-      vgGqdNBet6fMPKTEx68FI1VPCU7Z5J28jj4/Xxs5XOihAp1lMyECggEBAO9Nppwi
-      McYtLYZst+cUR6YTHkJroGhUGNMS6+bdp9nqqN77sEZS6bNj0By16ogqURYC/D7g
-      l/NCXnIpFKEgEatebRdez3reTyyP4ElwEqPiZe3L3HdPYSSt66tIPFDlstiUwGX0
-      wPCKFMMQCOoukhTVgk8tH/BrxQlSxWmj1iDVKLedIIN6PVPIHIz3XprKDg06Ens9
-      TcnMtlBKBslnMtptJlH7noUJaGsdWn2bOn7tXWX/0dtUH6dybPEVJZix0ghs75nO
-      GpIv5JJZnd8LAP85ZobDTlyZi2udO+082plRVIN4jZL6h+ptXfPMUp0GcfAenPV9
-      G+YOGqeJohDqPjkCggEBAN4q7vjcH/5G6jqiHGHIFrZ/zdWNUby3BO3SGC5dWdz0
-      z1bikgQxJ1H9v9SsVfIjy0mxz0E7SAxoMFgUiCA2EjA4d1LY9LMV9vEakbTr137e
-      ltwNupTSNIoA1MO2KlfSaUGtYKnniYv0RAZFKgaG2RC9Ba/flYRfBLGXu421D0em
-      whHxiE6XEJIPPv+jgY7R2cPmsoSHKxuTeYSI53KxcSb5neqvllcdJeeHKwVZeE/m
-      BrjRJiGT2nQ9tvIXdz5gfCRkm/Y/k57y46JQa2f6KoGY2BdSKphHAHCqtZ4+uBXI
-      cEpqwUoR7hlvAmlkO2wZMNANpd9CuaKTHnnbznFOgeUCggEAIZqi4dv/Z1fiw7Sy
-      onV7ljurDSK19NCSZ9mJXPMVZgmIyz9GwqlT/gfvKoj1NUfT+SZUK7Q4QkW4o4lX
-      R0UMlib9ZMHAmv1q2tQdZ9KgG3loXNs6y1pPRupRZM0RAz8uPTGuTuLu0Rhiz/2J
-      cvE1PE27LcklagqIMcX4yNvj7tpgDGC5Nx1MTV6Ve8ok89GZ5YuZGstCCCuCEoZC
-      q7edMYUQU4Tk/sOScTA/C9JnhXlpmzAwVP9cLpRn7fbNP8MAvoQlpVCG9K5bB54k
-      CDUwX6a82gHFGEXLiUIcLzVTcSI1nvynzNL3kRjoj5rKoxhLma+C1QpLh6PFZG90
-      XbG3KQKCAQBf0TJ5wC5IM3uHyCzney1YjmxOwwFSm7iTfT4SmQ5NvoPB3DvPdQeZ
-      VBAtABqdMRTW9soFPzUGrNTU2B4RjmBvzZqg75MxvbJgL+5RkjnBrOxxgbZLwxEH
-      x+37bpB6ifP9cHI1NPfclX/VGHVUlUn+7xcJ0CsjCPv0QBWSu1kYtPIUXRBFnN93
-      rv2jsXgKCbWayN+LSuSrowIQyB7SF3dOsO+LrSjw71BOt7w1NW4vP2z8vq9sYeEg
-      qxFA/h/elixUYdPl82uObQECGx8HnBxDApGIFVbrkAu/i9CCrFgmhOjxH3O3p14C
-      OB9ZJvJ936tuv8QfMx7u3/aP5d32fj6FAoIBAQDVt2qxjkVDRauku2vKZCno44B7
-      kmtnTJGS8qNiy5o8fQs1A0qov8xtM9HwQtv+dveXMLyvffgahh7mirMsUZt4X1ZT
-      oWU70cvXaAtVn9qh3Gnhu57pBIu3hmgJjM9bUjq9FrdLL3tVKOuS0UzGg6b+2C/J
-      c9IH6ERHV1vk0UGnNN8G+ZuCFyQ4BGYAcbcAGuEItcfi3K247w4x9RPlJ3R9unQb
-      N4p3fPff7RTK00qUiIgw02gyp7f+qu/+E4LLFsM0R2qRuD11Hpk2PZhshBBVqQ+a
-      884tMQf4Ah7UQtcLiiazGMIUY+LZZmUQv7g90rjvtxha8rD19wQ0qPJ4s1Te
+      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
       -----END RSA PRIVATE KEY-----
       """
       And messageHash <messageHash>
@@ -132,7 +133,7 @@ Feature: Invitation Message
       }
       """
       And format signature object with Message Pack
-      And encode resulted signature with Base64 into messageSig
+      And encode resulted signature with Base64 into messageSign
 
       # Send message
       Given a bootstrap node url <bootstrapNode>
@@ -149,7 +150,7 @@ Feature: Invitation Message
         $messageType: MessageType!
         $messageHash: SHA256!
         $bodyHash: SHA256!
-        $messageSig: Sign!
+        $messageSign: Sign!
         $message: AESEncryptedBlob!
         $dossierHash: HMACSHA256!
       ){
@@ -159,7 +160,7 @@ Feature: Invitation Message
             messageType: $messageType
             messageHash: $messageHash
             bodyHash: $bodyHash
-            messageSig: $messageSig
+            messageSign: $messageSign
             message: $message
             dossierHash: $dossierHash
           }
@@ -184,7 +185,7 @@ Feature: Invitation Message
       And response should have messageHash property equal to <messageHash>
 
     Examples:
-    | secretInviteName | passphrase                       | inviteName                | messageBody                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | message                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | dossierSalt                                                                                                             | messageHash                                  | bodyHash                                     | dossierHash                                  | bootstrapNode                                  | bootstrapAddr                                                              | offeringAddr                                                               | serviceAnnouncementMessage                   | serviceOfferingID | sender                                                              | messageType  |
-    | Invite 1         | 72x35FDOXugkxivh7qYlqPU91jVgy607 | OnhsB48KkRAguMJd5RklLQ==  | hq1ib290c3RyYXBBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5ckytYm9vdHN0cmFwTm9kZdoALmh0dHBzOi8vdGVsZWZlcmljLWRldi5keG1hcmtldHMuY29tL3RlbGVmZXJpYy+qaW52aXRlTmFtZbhPbmhzQjQ4S2tSQWd1TUpkNVJrbExRPT2sb2ZmZXJpbmdBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5cky6c2VydmljZUFubm91bmNlbWVudE1lc3NhZ2XaACxMK1ZpUCtVRm5oYzZPYldmaHVncU5aZkUrU1prcW9TNDZJNFFidytOYk9ZPbFzZXJ2aWNlT2ZmZXJpbmdJRKEx | QgO46Himh8a5fLBmZ1ypINLAI4Fb8V/e9r0ZhqQ6A8cOlilkYfh5yMr9eRgKNXBG4HDwSX4hw7kgIqXdEXPlxYXc0yvbW+v6kFTPMeT4J+8B3+fReQTEnGTIjnHK7X9PleNlyMBpajveDPN8NgR1/Ir11nJeCmRwwvQmWg1jlXncN1aLbKiW37CXwI6J0M/obC4wfAprxPCaM9A696ohJe5mGLqBKlb97c4WTm1w5SjYuyHH4OPUVLJunKpHs5zHg6F9x6Pu2OEqSCma7OJlfy7s2n9vhpSfMNFn+HuzUkOerieF9XEkBFjW/0fSzJNVCRmXZo5dGTduG2qeeo38tAIDl8ZUXjsi1nye2sCugkvXxSXP4DlYljLK8oOwe2p+qkBxl/XlVOD3mH7/yYLCG87u7D+t3CyeBdl3NR9ltizVZCehgf9SiVwsB9JD/gPIM7L3ETF7ecXvSGUXPyLfd3MdKMmP0JDOasJ8pBlLSrA3JJ8eY/YzqyuDm2F4IQUSQ7QoX6C0z4ldxwHiAJltlqtFdwnoO1ivPYjxIBxnYnZB1BjNT0GP0c0p1QDgJPTPG+boq44Z8Sel1n0zdTTlJH1gfJQYsxHZyFKeK+mt4wydP+d2Umm3j8dW7jcFtFvYdBqPjHysUpqC1297T7A088C6CXfmwHHHDMmMS8CXQQrp7t4f6OEdIMAfrEad44GZjZwmU2nA0pr5GThFpFXPKnna27Nl79CH15qlPH9KJBpIh1QCNzaxbNi0g/O70XA7VxZP+9OWc0Dy1i0EKUUPvA== | 74:26:13:2f:4d:f3:f8:3e:82:ba:f3:fe:6a:dd:46:c2:00:4c:99:e8:88:ed:0f:a9:58:85:a2:11:9e:c8:b7:46:e4:f4:f0:c3:70:30:0e:17 | L7/ByXV9C4JsHD7VPsoW1csl+Vb0AjMti0/4T0mrTnY= | 7KVD1TLkGsCVap3Lcm2i3kH8y06xkz2A6LlVwhURXFk= | Num4y3dDxO2dpBvnbyo0JVk/WeXvzm3pSDvLL2F0h9w= | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                 | iZn2hyWChp6hkHEobZNdE9vmruR3MNVQZVFoBMc6PHEvKmaQM1jKoEC1uDF5Qf7deXN | REGISTRATION |
-    | InvitE 2         | 4fKuFNOQdisWzhdup3dWRiGIV74kAdag | fkx5vRvAYbM/JBI8KpzXWw==  | hq1ib290c3RyYXBBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5ckytYm9vdHN0cmFwTm9kZdoALmh0dHBzOi8vdGVsZWZlcmljLWRldi5keG1hcmtldHMuY29tL3RlbGVmZXJpYy+qaW52aXRlTmFtZbhma3g1dlJ2QVliTS9KQkk4S3B6WFd3PT2sb2ZmZXJpbmdBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5cky6c2VydmljZUFubm91bmNlbWVudE1lc3NhZ2XaACxMK1ZpUCtVRm5oYzZPYldmaHVncU5aZkUrU1prcW9TNDZJNFFidytOYk9ZPbFzZXJ2aWNlT2ZmZXJpbmdJRKEx | QgO46Himh8a5fLBmZ1ypIDakRUSvEcFXLyG2NFEDlFQI61hW2EQucs3TeleiwKQY6p+ANdHFZ6doUmvWiXV/kRidryUT4lBIrteOiD5w3FoB3+fReQTEnGTIjnHK7X9PleNlyMBpajveDPN8NgR1/Ir11nJeCmRwwvQmWg1jlXncN1aLbKiW37CXwI6J0M/obC4wfAprxPCaM9A696ohJe5mGLqBKlb97c4WTm1w5SjYuyHH4OPUVLJunKpHs5zHg6F9x6Pu2OEqSCma7OJlfy7s2n9vhpSfMNFn+HuzUkOerieF9XEkBFjW/0fSzJNVCRmXZo5dGTduG2qeeo38tAIDl8ZUXjsi1nye2sCugkvXxSXP4DlYljLK8oOwe2p+qkBxl/XlVOD3mH7/yYLCG1nMgY0N7a7S1EHGrCJrrxyfavuU9IR79j8AK3mm6ruBM7L3ETF7ecXvSGUXPyLfd3MdKMmP0JDOasJ8pBlLSrA3JJ8eY/YzqyuDm2F4IQUSQ7QoX6C0z4ldxwHiAJltlqtFdwnoO1ivPYjxIBxnYnZB1BjNT0GP0c0p1QDgJPTPG+boq44Z8Sel1n0zdTTlJH1gfJQYsxHZyFKeK+mt4wydP+d2Umm3j8dW7jcFtFvYdBqPjHysUpqC1297T7A088C6CXfmwHHHDMmMS8CXQQrp7t4f6OEdIMAfrEad44GZjZwmU2nA0pr5GThFpFXPKnna27Nl79CH15qlPH9KJBpIh1QCNzaxbNi0g/O70XA7VxZP+9OWc0Dy1i0EKUUPvA== | d3:11:19:a2:86:14:91:74:c7:d1:2c:10:04:59:a0:db:e5:75:e5:2c:1c:7e:9e:df:07:7c:90:8e:a0:aa:01:0b:ae:7f:b7:13:32:d3:d2:dc | zUvhDLqc08w9+vF4rmW56gxHApAI6dyzBpR49Q0NO6w= | ZyizIyWExijKo774EGVyIQVfEhggnTc+JaaXSHcZs0w= | lqVE9Uep/Izpyrnpf6TtKMMVzr69TeT1zbmPpVYiIrU= | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                 | iZn2hyWChp6hkHEobZNdE9vmruR3MNVQZVFoBMc6PHEvKmaQM1jKoEC1uDF5Qf7deXN | REGISTRATION |
-    | InViTe 3         | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3r | gq2UnfPHYJwOZYkanb1HVA==  | hq1ib290c3RyYXBBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5ckytYm9vdHN0cmFwTm9kZdoALmh0dHBzOi8vdGVsZWZlcmljLWRldi5keG1hcmtldHMuY29tL3RlbGVmZXJpYy+qaW52aXRlTmFtZbhncTJVbmZQSFlKd09aWWthbmIxSFZBPT2sb2ZmZXJpbmdBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5cky6c2VydmljZUFubm91bmNlbWVudE1lc3NhZ2XaACxMK1ZpUCtVRm5oYzZPYldmaHVncU5aZkUrU1prcW9TNDZJNFFidytOYk9ZPbFzZXJ2aWNlT2ZmZXJpbmdJRKEx | QgO46Himh8a5fLBmZ1ypIJLj+cMXKyyxXYb2n50dlNCvUPj2wJMjycLK/dGG3tFgYnqpa9zDgBySkMCKjiksoxHvBbDEau2usXXdcaPKGGUB3+fReQTEnGTIjnHK7X9PleNlyMBpajveDPN8NgR1/Ir11nJeCmRwwvQmWg1jlXncN1aLbKiW37CXwI6J0M/obC4wfAprxPCaM9A696ohJe5mGLqBKlb97c4WTm1w5SjYuyHH4OPUVLJunKpHs5zHg6F9x6Pu2OEqSCma7OJlfy7s2n9vhpSfMNFn+HuzUkOerieF9XEkBFjW/0fSzJNVCRmXZo5dGTduG2qeeo38tAIDl8ZUXjsi1nye2sCugkvXxSXP4DlYljLK8oOwe2p+qkBxl/XlVOD3mH7/yYLCG1xeDm0hmb210ttiNUqqo3BQ30DfCBb9aJjJo6sd4f2ZM7L3ETF7ecXvSGUXPyLfd3MdKMmP0JDOasJ8pBlLSrA3JJ8eY/YzqyuDm2F4IQUSQ7QoX6C0z4ldxwHiAJltlqtFdwnoO1ivPYjxIBxnYnZB1BjNT0GP0c0p1QDgJPTPG+boq44Z8Sel1n0zdTTlJH1gfJQYsxHZyFKeK+mt4wydP+d2Umm3j8dW7jcFtFvYdBqPjHysUpqC1297T7A088C6CXfmwHHHDMmMS8CXQQrp7t4f6OEdIMAfrEad44GZjZwmU2nA0pr5GThFpFXPKnna27Nl79CH15qlPH9KJBpIh1QCNzaxbNi0g/O70XA7VxZP+9OWc0Dy1i0EKUUPvA== | 80:9a:a9:b7:c4:d7:0c:4a:59:45:4e:b3:d5:7e:cc:b4:58:83:cf:e4:f5:5c:1e:68:2a:d1:0e:0d:45:c6:b4:cc:71:5d:b6:0d:62:45:25:26 | UWKHIY4TbQfg8Ftkue2C8f7/zIOPx4CpXKI4dQiwu6Y= | q5RLDwUnwyUTmFr7ekU9JYNi6pOILUnVV+zEhI1MqiM= | pXzoj0FiaWFZjwTcJtf9+ekgZNer2gJGOWUgKt1U8O0= | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                 | iZn2hyWChp6hkHEobZNdE9vmruR3MNVQZVFoBMc6PHEvKmaQM1jKoEC1uDF5Qf7deXN | REGISTRATION |
+    | secretInviteName | passphrase                       | inviteName                | messageBody                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | message                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | dossierSalt                                                                                                             | messageHash                                  | bodyHash                                     | dossierHash                                  | bootstrapNode                                  | bootstrapAddr                                                              | offeringAddr                                                               | serviceAnnouncementMessage                   | serviceOfferingID | sender                                                              | messageType  |
+    | Invite 1         | 72x35FDOXugkxivh7qYlqPU91jVgy607 | OnhsB48KkRAguMJd5RklLQ==  | hq1ib290c3RyYXBBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5ckytYm9vdHN0cmFwTm9kZdoALmh0dHBzOi8vdGVsZWZlcmljLWRldi5keG1hcmtldHMuY29tL3RlbGVmZXJpYy+qaW52aXRlTmFtZbhPbmhzQjQ4S2tSQWd1TUpkNVJrbExRPT2sb2ZmZXJpbmdBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5cky6c2VydmljZUFubm91bmNlbWVudE1lc3NhZ2XaACxMK1ZpUCtVRm5oYzZPYldmaHVncU5aZkUrU1prcW9TNDZJNFFidytOYk9ZPbFzZXJ2aWNlT2ZmZXJpbmdJRKEx | QgO46Himh8a5fLBmZ1ypIPEMs3fyxblPItByiSJtoZr4VfJdWQxwudTF1fkVI4AkiX8MoKVRffDK+HyA3QPwoRNIZjKf7SjSlNRJ6NOXYy/3gieNLSXGTrs0gIcHle/AAd/n0XkExJxkyI5xyu1/T5XjZcjAaWo73gzzfDYEdfyK9dZyXgpkcML0JloNY5V53DdWi2yolt+wl8COidDP6GwuMHwKa8TwmjPQOveqISXuZhi6gSpW/e3OFk5tcOUo2Lshx+Dj1FSybpyqR7Ocx4Ohfcej7tjhKkgpmuziZX8u7Np/b4aUnzDRZ/h7s1JDnq4nhfVxJARY1v9H0syTVQkZl2aOXRk3bhtqnnqN/LQCA5fGVF47ItZ8ntrAroJL18Ulz+A5WJYyyvKDsHtqfqpAcZf15VTg95h+/8mCwhvO7uw/rdwsngXZdzUfZbYs1WQnoYH/UolcLAfSQ/4DyDOy9xExe3nF70hlFz8i33dzHSjJj9CQzmrCfKQZS0qwNySfHmP2M6srg5theCEFEkO0KF+gtM+JXccB4gCZbZarRXcJ6DtYrz2I8SAcZ2J2QdQYzU9Bj9HNKdUA4CT0zxvm6KuOGfEnpdZ9M3U05SR9YHyUGLMR2chSnivpreMMnT/ndlJpt4/HVu43BbRb2HQaj4x8rFKagtdve0+wNPPAugl35sBxxwzJjEvAl0EK6e7eH+jhHSDAH6xGneOBmY2cJlNpwNKa+Rk4RaRVzyp52tuzZe/Qh9eapTx/SiQaSIdUAjc2sWzYtIPzu9FwO1cWT/vTlnNA8tYtBClFD7w= | 74:26:13:2f:4d:f3:f8:3e:82:ba:f3:fe:6a:dd:46:c2:00:4c:99:e8:88:ed:0f:a9:58:85:a2:11:9e:c8:b7:46:e4:f4:f0:c3:70:30:0e:17 | Wdp+7M5N7A9bvFt4crRwBLk8UtJL3QXDL1dtUZgkhTY= | 7KVD1TLkGsCVap3Lcm2i3kH8y06xkz2A6LlVwhURXFk= | Num4y3dDxO2dpBvnbyo0JVk/WeXvzm3pSDvLL2F0h9w= | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                 | ibnGrLfuSbgcpWcxtraDUx3TEuXPWhG3DGHFkiUc52B1huCRYDREpfHoaJpVcjT8gDW | REGISTRATION |
+    | InvitE 2         | 4fKuFNOQdisWzhdup3dWRiGIV74kAdag | fkx5vRvAYbM/JBI8KpzXWw==  | hq1ib290c3RyYXBBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5ckytYm9vdHN0cmFwTm9kZdoALmh0dHBzOi8vdGVsZWZlcmljLWRldi5keG1hcmtldHMuY29tL3RlbGVmZXJpYy+qaW52aXRlTmFtZbhma3g1dlJ2QVliTS9KQkk4S3B6WFd3PT2sb2ZmZXJpbmdBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5cky6c2VydmljZUFubm91bmNlbWVudE1lc3NhZ2XaACxMK1ZpUCtVRm5oYzZPYldmaHVncU5aZkUrU1prcW9TNDZJNFFidytOYk9ZPbFzZXJ2aWNlT2ZmZXJpbmdJRKEx | QgO46Himh8a5fLBmZ1ypIGDnWITn4EUBBf7q+Kw33HFNOq7uWMsbyx5pKYzc7vObWPX5Uzf0qN/mrh2QPwTLVfHgloc8TOsOwgHr0jfNfm73gieNLSXGTrs0gIcHle/AAd/n0XkExJxkyI5xyu1/T5XjZcjAaWo73gzzfDYEdfyK9dZyXgpkcML0JloNY5V53DdWi2yolt+wl8COidDP6GwuMHwKa8TwmjPQOveqISXuZhi6gSpW/e3OFk5tcOUo2Lshx+Dj1FSybpyqR7Ocx4Ohfcej7tjhKkgpmuziZX8u7Np/b4aUnzDRZ/h7s1JDnq4nhfVxJARY1v9H0syTVQkZl2aOXRk3bhtqnnqN/LQCA5fGVF47ItZ8ntrAroJL18Ulz+A5WJYyyvKDsHtqfqpAcZf15VTg95h+/8mCwhtZzIGNDe2u0tRBxqwia68cn2r7lPSEe/Y/ACt5puq7gTOy9xExe3nF70hlFz8i33dzHSjJj9CQzmrCfKQZS0qwNySfHmP2M6srg5theCEFEkO0KF+gtM+JXccB4gCZbZarRXcJ6DtYrz2I8SAcZ2J2QdQYzU9Bj9HNKdUA4CT0zxvm6KuOGfEnpdZ9M3U05SR9YHyUGLMR2chSnivpreMMnT/ndlJpt4/HVu43BbRb2HQaj4x8rFKagtdve0+wNPPAugl35sBxxwzJjEvAl0EK6e7eH+jhHSDAH6xGneOBmY2cJlNpwNKa+Rk4RaRVzyp52tuzZe/Qh9eapTx/SiQaSIdUAjc2sWzYtIPzu9FwO1cWT/vTlnNA8tYtBClFD7w= | d3:11:19:a2:86:14:91:74:c7:d1:2c:10:04:59:a0:db:e5:75:e5:2c:1c:7e:9e:df:07:7c:90:8e:a0:aa:01:0b:ae:7f:b7:13:32:d3:d2:dc | RS61eRess9qCODrOv9sj60016Ecq9ZQNnMbvWEFbVj0= | ZyizIyWExijKo774EGVyIQVfEhggnTc+JaaXSHcZs0w= | lqVE9Uep/Izpyrnpf6TtKMMVzr69TeT1zbmPpVYiIrU= | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                 | ibnGrLfuSbgcpWcxtraDUx3TEuXPWhG3DGHFkiUc52B1huCRYDREpfHoaJpVcjT8gDW | REGISTRATION |
+    | InViTe 3         | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3r | gq2UnfPHYJwOZYkanb1HVA==  | hq1ib290c3RyYXBBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5ckytYm9vdHN0cmFwTm9kZdoALmh0dHBzOi8vdGVsZWZlcmljLWRldi5keG1hcmtldHMuY29tL3RlbGVmZXJpYy+qaW52aXRlTmFtZbhncTJVbmZQSFlKd09aWWthbmIxSFZBPT2sb2ZmZXJpbmdBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5cky6c2VydmljZUFubm91bmNlbWVudE1lc3NhZ2XaACxMK1ZpUCtVRm5oYzZPYldmaHVncU5aZkUrU1prcW9TNDZJNFFidytOYk9ZPbFzZXJ2aWNlT2ZmZXJpbmdJRKEx | QgO46Himh8a5fLBmZ1ypIMeKtA90UD9C7g1VdjV/OJvfIwT7F02YoULTaQi1gLxI/wREV7IJRTGN5+7LBNaSduTC2nKvAjPP0vw0cuVtUor3gieNLSXGTrs0gIcHle/AAd/n0XkExJxkyI5xyu1/T5XjZcjAaWo73gzzfDYEdfyK9dZyXgpkcML0JloNY5V53DdWi2yolt+wl8COidDP6GwuMHwKa8TwmjPQOveqISXuZhi6gSpW/e3OFk5tcOUo2Lshx+Dj1FSybpyqR7Ocx4Ohfcej7tjhKkgpmuziZX8u7Np/b4aUnzDRZ/h7s1JDnq4nhfVxJARY1v9H0syTVQkZl2aOXRk3bhtqnnqN/LQCA5fGVF47ItZ8ntrAroJL18Ulz+A5WJYyyvKDsHtqfqpAcZf15VTg95h+/8mCwhtcXg5tIZm9tdLbYjVKqqNwUN9A3wgW/WiYyaOrHeH9mTOy9xExe3nF70hlFz8i33dzHSjJj9CQzmrCfKQZS0qwNySfHmP2M6srg5theCEFEkO0KF+gtM+JXccB4gCZbZarRXcJ6DtYrz2I8SAcZ2J2QdQYzU9Bj9HNKdUA4CT0zxvm6KuOGfEnpdZ9M3U05SR9YHyUGLMR2chSnivpreMMnT/ndlJpt4/HVu43BbRb2HQaj4x8rFKagtdve0+wNPPAugl35sBxxwzJjEvAl0EK6e7eH+jhHSDAH6xGneOBmY2cJlNpwNKa+Rk4RaRVzyp52tuzZe/Qh9eapTx/SiQaSIdUAjc2sWzYtIPzu9FwO1cWT/vTlnNA8tYtBClFD7w= | 80:9a:a9:b7:c4:d7:0c:4a:59:45:4e:b3:d5:7e:cc:b4:58:83:cf:e4:f5:5c:1e:68:2a:d1:0e:0d:45:c6:b4:cc:71:5d:b6:0d:62:45:25:26 | XPayUFCkLjyzjfU13bDYQWwQeEvCnjRw8Ud8dmxiNTw= | q5RLDwUnwyUTmFr7ekU9JYNi6pOILUnVV+zEhI1MqiM= | pXzoj0FiaWFZjwTcJtf9+ekgZNer2gJGOWUgKt1U8O0= | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                 | ibnGrLfuSbgcpWcxtraDUx3TEuXPWhG3DGHFkiUc52B1huCRYDREpfHoaJpVcjT8gDW | REGISTRATION |
