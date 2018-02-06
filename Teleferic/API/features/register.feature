@@ -30,6 +30,6 @@ Feature: Persona registration
     Then response should be failure
 
   Examples:
-    | attribute      | value | Persona | service   | invitation_name | invitation_key | dossier_salt                             | result  |
-    | inviteName | wq234 | Test_1  | service_1 | sample_1        | key_sample_1   | DJANCrVFcMQ34zMShKwFXAi3I33hN4KbWdVs5nbP | success |
-    | dossierSalt   | eq1231 | Test_1  | service_1 | sample_1        | key_sample_1   | DJANCrVFcMQ34zMShKwFXAi3I33hN4KbWdVs5nbP | failure |
+    | attribute      | value  | Persona | service   | invitation_name | invitation_key | dossier_salt                             | result  |
+    | inviteName     | wq234  | Test_1  | service_1 | sample_1        | key_sample_1   | DJANCrVFcMQ34zMShKwFXAi3I33hN4KbWdVs5nbP | success |
+    | dossierSalt    | eq1231 | Test_1  | service_1 | sample_1        | key_sample_1   | DJANCrVFcMQ34zMShKwFXAi3I33hN4KbWdVs5nbP | failure |
