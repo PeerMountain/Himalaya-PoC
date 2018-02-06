@@ -84,31 +84,6 @@ def step(context, a, b):
     #bytes(bytearray.fromhex(salt.replace(':', '')))
     assert c == d
 
-@then("we check {} and {} should be equal")
-@ghernik_vars
-def step(context, a, b):
-    if type(a) is bytes:
-        c = a.decode()
-    else:
-        c = a
-    if type(b) is bytes:
-        d = b.decode()
-    else:
-        d = b
-    assert c == d
-
-@when('we encrypt {} using AES with key {} as {}')
-@ghernik_vars
-def step(context, to_encrypt, key, save_as):
-    aes = AES(key)
-    if not isinstance(to_encrypt, bytes):
-        to_encrypt = to_encrypt.encode()
-    setattr(
-        context,
-        save_as,
-        aes.encrypt(to_encrypt)
-    )
-
 @when('we encrypt {} using RSA with key {} as {}')
 @ghernik_vars
 def step(context, to_encrypt, key, save_as):
@@ -420,18 +395,6 @@ def step(context, salt, save_as):
         context,
         save_as,
         bytes(bytearray.fromhex(salt.replace(':', '')))
-    )
-
-@given('random {} bytes salt as {}')
-@ghernik_vars
-def step(context, salt_length, save_as):
-    setattr(
-        context,
-        save_as,
-        "".join([
-            chr(random.randint(0, 255))
-            for _ in range(int(salt_length))
-        ]).encode()
     )
 
 @given('{} and {} acl rules')

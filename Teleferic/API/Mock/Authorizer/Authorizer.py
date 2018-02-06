@@ -127,13 +127,14 @@ def authorize_message(envelope):
             raise Exception('Invalid bodyHash.')
 
         # Validate dossierSalt
-        dossier_salt = base64.b64decode(message_content.get(b'dossierSalt'))
+        encoded_dossier_salt = message_content.get(b'dossierSalt')
+        dossier_salt = base64.b64decode(encoded_dossier_salt)
         if len(dossier_salt) != 40:
             raise Exception('Invalid dossierSalt.')
 
         # Validate dossierHash
         dossier_hash = envelope.get('dossierHash')
-        if dossier_hash != HMAC.new(dossier_salt, message_body_raw, SHA256).digest():
+        if dossier_hash != HMAC.new(dossier_salt, message_content_raw, SHA256).digest():
             raise Exception('Invalid dossierHash.')
 
         # Parse message body
