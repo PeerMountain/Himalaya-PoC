@@ -59,7 +59,7 @@ class MessageContent():
         the message.
         """
         salt = bytes(bytearray(random.getrandbits(8) for _ in range(40)))
-        return salt
+        return base64.b64encode(salt)
 
     def pack(self):
         """pack
@@ -79,9 +79,11 @@ class MessageContent():
         self.content['messageBody'] = self.body.build()
         cipher = AES(passphrase)
         # AES encrypt the message body's MessagePack representation.
-        build = cipher.encrypt(self.pack())
+        pack = self.pack()
+        build = cipher.encrypt(pack)
         # Calculate hashes
         self.hash = base64.b64encode(SHA256.new(build).digest()).decode()
+        salt = base64.b64decode(self.content['dossierSalt'])
         self.hmac = base64.b64encode(HMAC.new(
-            self.content['dossierSalt'], self.content['messageBody'].encode(), SHA256).digest()).decode()
+            salt, pack, SHA256).digest()).decode()
         return build.decode()
