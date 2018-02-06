@@ -173,8 +173,8 @@ Feature: Assertion Message
         -----END PUBLIC KEY-----
         """
         And reader_address is the address of [reader_key]
-        When we encrypt [message_key] usign RSA with key [reader_key] as encrypted_message_key_for_reader
-            And we encrypt [message_key] usign RSA with key [sender_key] as encrypted_message_key_for_sender
+        When we encrypt [message_key] using RSA with key [reader_key] as encrypted_message_key_for_reader
+            And we encrypt [message_key] using RSA with key [sender_key] as encrypted_message_key_for_sender
 
         Then we compose reader_acl_rule with following keys
         """
@@ -389,7 +389,7 @@ Feature: Assertion Message
 
         #Get message key
         When we get key from ACL for our address as reader_encrypted_message_key
-            And we decrypt [reader_encrypted_message_key] usign RSA as reader_message_key
+            And we decrypt [reader_encrypted_message_key] using RSA as reader_message_key
         Then we check [reader_message_key] and <message_key> should be equal
 
         #Decrypt message

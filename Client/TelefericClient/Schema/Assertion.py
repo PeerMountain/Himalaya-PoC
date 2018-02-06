@@ -110,10 +110,14 @@ class Assertion(MessageEnvelope):
     def build_object_list(self, assertions, salted_meta_hashes):
         teleferic_pubkey = self.client.get_node_pubkey()
         for i, assertion in enumerate(assertions):
-            yield {
+            container = {
                 'containerHash': assertion.get('containerHash'),
+                'containerSign': assertion.get('containerSignature'),
+                'objectContainer': assertion.get('container'),
+            }
+
+            yield {
                 'objectHash': assertion.get('objectHash'),
-                'containerSig': assertion.pop('containerSignature'),
                 'metaHashes': salted_meta_hashes[i],
-                'objectContainer': assertion.pop('container')
+                'container': container,
             }
