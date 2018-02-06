@@ -182,9 +182,9 @@ def validate_registration(message_body):
     try:
         key_proof = Teleferic_Identity.decrypt_content(key_proof_raw)
     except Exception as e:
-        raise Exception('Invalid keyProof1.')
+        raise Exception('Invalid keyProof.')
     if key_proof == None:
-        raise Exception('Invalid keyProof.2')
+        raise Exception('Invalid keyProof.')
 
     # Try decoding the original inviteName from the invite message.
     decoder = AES(key_proof)

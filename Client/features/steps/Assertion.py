@@ -310,15 +310,6 @@ def step(context, save_as, origin):
         int(origin)
     )
 
-@given("{} is string {}")
-@ghernik_vars
-def step(context, save_as, origin):
-    setattr(
-        context,
-        save_as,
-        str(origin)
-    )
-
 @given("{} is the address of {}")
 @ghernik_vars
 def step(context, save_as, key):

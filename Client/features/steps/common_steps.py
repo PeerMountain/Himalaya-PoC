@@ -93,6 +93,26 @@ def step(context, content, key, save_as):
         idn.sign(content)
     )
 
+@when(u'we encrypt {} using RSA with key {} as {}')
+@ghernik_vars
+def step(context, content, key, save_as):
+    idn = Identity(key)    
+    setattr(
+        context,
+        save_as,
+        idn.encrypt(content)
+    )
+
+@when('we calculate public key of {} as {}')
+@ghernik_vars
+def step(context, key, save_as):
+    idn = Identity(key)    
+    setattr(
+        context,
+        save_as,
+        idn.pubkey
+    )
+
 @given('{} as the address of {}')
 @ghernik_vars
 def step(context, save_as, key):
@@ -100,6 +120,15 @@ def step(context, save_as, key):
         context,
         save_as,
         Identity(key).address
+    )
+
+@given('{} as the public key of {}')
+@ghernik_vars
+def step(context, save_as, key):
+    setattr(
+        context,
+        save_as,
+        Identity(key).pubkey
     )
 
 @given('random {} bytes salt as {}')
@@ -136,4 +165,22 @@ def step(context, to_encrypt, key, save_as):
         context,
         save_as,
         aes.encrypt(to_encrypt)
+    )
+
+@given('new private key as {}')
+@ghernik_vars
+def step(context, save_as):
+    setattr(
+        context,
+        save_as,
+        Identity().privkey
+    )
+
+@given("{} is string {}")
+@ghernik_vars
+def step(context, save_as, origin):
+    setattr(
+        context,
+        save_as,
+        str(origin).encode()
     )
