@@ -120,7 +120,7 @@ def step_impl(context, **args):
 @when('I compose message content with {dossierSalt}, <bodyType> and <messageBody>. And I store it in <messageContent>')
 def step_impl(context, **args):
   context.messageContent = msgpack.packb({
-    "dossierSalt": context.dossierSalt,
+    "dossierSalt": base64.b64encode(context.dossierSalt),
     "bodyType": context.bodyType,
     "messageBody": context.messageBody
   })
@@ -198,9 +198,9 @@ def step_impl(context):
     bodyHash = SHA256.new(context.messageBody)
 
   if context.dossierHash != b'valid':
-    dossierHash = HMAC.new(context.dossierSalt,context.messageBody+b' ',SHA256)
+    dossierHash = HMAC.new(context.dossierSalt,context.messageContent+b' ',SHA256)
   else:  
-    dossierHash = HMAC.new(context.dossierSalt,context.messageBody,SHA256)
+    dossierHash = HMAC.new(context.dossierSalt,context.messageContent,SHA256)
   
   context.variables = {
     "sender": context.identity.address,

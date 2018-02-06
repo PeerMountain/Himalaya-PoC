@@ -49,12 +49,12 @@ def step_imp(context):
   message_body = base64.b64encode(msgpack.packb({**message_body_partial,**context.service}))
   body_hash = SHA256.new(message_body)
 
-  dossier_hash = HMAC.new(context.dossierSalt,message_body,SHA256)
   message_content_raw = msgpack.packb({
-    "dossierSalt": context.dossierSalt,
+    "dossierSalt": base64.b64encode(context.dossierSalt),
     "bodyType": 0,
     "messageBody": message_body
   })
+  dossier_hash = HMAC.new(context.dossierSalt,message_content_raw,SHA256)
 
   message_content = AES(b'Peer Mountain').encrypt(message_content_raw)
 
@@ -153,12 +153,12 @@ def step_imp(context, service_name):
 
   body_hash = SHA256.new(message_body)
 
-  dossier_hash = HMAC.new(context.dossierSalt,message_body,SHA256)
   message_content_raw = msgpack.packb({
-    "dossierSalt": context.dossierSalt,
+    "dossierSalt": base64.b64encode(context.dossierSalt),
     "bodyType": 1,
     "messageBody": message_body
   })
+  dossier_hash = HMAC.new(context.dossierSalt,message_content_raw,SHA256)
 
   message_content = AES(b'Peer Mountain').encrypt(message_content_raw)
 
