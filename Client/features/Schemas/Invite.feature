@@ -209,9 +209,9 @@ Feature: Invitation Message
 
       Given property data.sendMessage.messageHash from [send_message_mutation_response] as invite_message_hash
       #Then we can make a registration
-
+      
     Examples:
-    | invite_name | passphrase                       | expected_encrypted_invite_name | bootstrap_node                                  | offering_address                                                           | service_announcement_message                 | service_offering_id | expected_body_hash                           |
-    | Invite 1    | 72x35FDOXugkxivh7qYlqPU91jVgy607 | OnhsB48KkRAguMJd5RklLQ==       | http://localhost:8000/teleferic/                | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   | 8PVKTCvTf2645I0QTfmh9YUrq9utD1i2wsHOjlBc4gc= |
-    | InvitE 2    | 4fKuFNOQdisWzhdup3dWRiGIV74kAdag | fkx5vRvAYbM/JBI8KpzXWw==       | http://localhost:8000/teleferic/                | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   | CUNz3v4Ni6GzIgZNJJwwozskZzVXmMviMwu1Gpr6TQI= |
-    | InViTe 3    | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3r | gq2UnfPHYJwOZYkanb1HVA==       | http://localhost:8000/teleferic/                | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   | IfbbUyZk07NFra2cKZdx3kUh8lvHV2tC3/N/i1Jrt1E= |
+    | invite_name | passphrase                       | expected_encrypted_invite_name | bootstrap_node                                 | offering_address                                                           | service_announcement_message                 | service_offering_id | expected_body_hash                           |
+    | Invite 1    | 72x35FDOXugkxivh7qYlqPU91jVgy607 | OnhsB48KkRAguMJd5RklLQ==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   | 8PVKTCvTf2645I0QTfmh9YUrq9utD1i2wsHOjlBc4gc= |
+    | InvitE 2    | 4fKuFNOQdisWzhdup3dWRiGIV74kAdag | fkx5vRvAYbM/JBI8KpzXWw==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   | CUNz3v4Ni6GzIgZNJJwwozskZzVXmMviMwu1Gpr6TQI= |
+    | InViTe 3    | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3r | gq2UnfPHYJwOZYkanb1HVA==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   | IfbbUyZk07NFra2cKZdx3kUh8lvHV2tC3/N/i1Jrt1E= |
