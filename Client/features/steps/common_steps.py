@@ -175,3 +175,12 @@ def step(context, save_as):
         save_as,
         Identity().privkey
     )
+
+@given("{} is string {}")
+@ghernik_vars
+def step(context, save_as, origin):
+    setattr(
+        context,
+        save_as,
+        str(origin).encode()
+    )
