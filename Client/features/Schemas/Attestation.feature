@@ -130,7 +130,7 @@ Feature: Attestation Message
       010203
       """
 
-      And teleferic bootstrap node URI http://localhost:8000/teleferic
+      And teleferic bootstrap node URI https://teleferic-dev.dxmarkets.com/teleferic/
 
     # To fully understand how the Assertion is made
     # look at Assertion.feature
