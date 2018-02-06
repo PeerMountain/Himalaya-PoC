@@ -5,7 +5,6 @@ Feature: Assertion message
     Scenario Outline: We receive a message from a client
       Given sender Identity as sender
         And reader Identity as reader
-        And Teleferic url as <teleferic_url>
         And valid_until date as <valid_until>
         And retain_until date as <retain_until>
         And object as <object>
@@ -28,6 +27,6 @@ Feature: Assertion message
       Then we check if the message timestamp was signed by Teleferic
         
       Examples:
-      | description | teleferic_url                   | valid_until                      | retain_until                  | object    | meta_keys | meta_values | container_key                     | meta_salt                                                                                                               | message_key  | result  |
-      |             | http://localhost:8000/teleferic | 2018-01-29T11:26:23.672958+00:00 | 2018-01-30:26:23.672958+00:00 | 010203    | 2         | Pepe Sarasa | validrQr3junX5yJFah16Vw89lThV9AA  | 74:26:13:2f:4d:f3:f8:3e:82:ba:f3:fe:6a:dd:46:c2:00:4c:99:e8:88:ed:0f:a9:58:85:a2:11:9e:c8:b7:46:e4:f4:f0:c3:70:30:0e:17 | test_message | success |
-      |             | http://localhost:8000/teleferic | 2018-01-29T11:26:23.672958+00:00 | 2018-01-30:26:23.672958+00:00 | my_object | 2         | Pepe Sarasa | validrQr3junX5yJFah16Vw89lThV9AA  | 74:26:13:2f:4d:f3:f8:3e:82:ba:f3:fe:6a:dd:46:c2:00:4c:99:e8:88:ed:0f:a9:58:85:a2:11:9e:c8:b7:46:e4:f4:f0:c3:70:30:0e:17 | test_message | success |
+      | valid_until                      | retain_until                  | object    | meta_keys | meta_values | container_key                     | meta_salt                                                                                                               | message_key  | result  |
+      | 2018-01-29T11:26:23.672958+00:00 | 2018-01-30:26:23.672958+00:00 | 010203    | 2         | Pepe Sarasa | validrQr3junX5yJFah16Vw89lThV9AA  | 74:26:13:2f:4d:f3:f8:3e:82:ba:f3:fe:6a:dd:46:c2:00:4c:99:e8:88:ed:0f:a9:58:85:a2:11:9e:c8:b7:46:e4:f4:f0:c3:70:30:0e:17 | test_message | success |
+      | 2018-01-29T11:26:23.672958+00:00 | 2018-01-30:26:23.672958+00:00 | my_object | 2         | Pepe Sarasa | validrQr3junX5yJFah16Vw89lThV9AA  | 74:26:13:2f:4d:f3:f8:3e:82:ba:f3:fe:6a:dd:46:c2:00:4c:99:e8:88:ed:0f:a9:58:85:a2:11:9e:c8:b7:46:e4:f4:f0:c3:70:30:0e:17 | test_message | success |
