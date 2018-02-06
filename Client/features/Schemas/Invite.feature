@@ -1,190 +1,217 @@
 Feature: Invitation Message
     Scenario Outline: Generate and send an invitation message
 
-      # Generate invite name
-      Given secret passphrase <passphrase>
-      And secret invite name <secretInviteName>
-      When I encrypt using AES module and given passphrase
-      Then the resulting encrypted inviteName should be <inviteName>
-
-      # Generate invite message body
-      Given a bootstrap node url <bootstrapNode>
-      And bootstrap addrress <bootstrapAddr>
-      And offering registred Persona address <offeringAddr> (Rigth now only teleferic Persona is registred)
-      And service announcement message SHA256 hash identifier encoded on Base64 <serviceAnnouncementMessage> (not defined yet)
-      And service identifier <serviceOfferingID>
-      And encrypted invite name <inviteName>
-      When I compose invite message body sorting attributes alphabetically
-      And format message body with Message Pack
-      And encode resulting message body pack with Base64 
-      Then resulting messageBody should be equal to <messageBody>
-
-      # Parse invite message body
-      Given message body content <messageBody>
-      When I decode message body with Base64
-      And parse resulting message body with Message Pack
-      Then bootstrapNode attribute should be <bootstrapNode>
-      And bootstrapAddr attribute should be <bootstrapAddr>
-      And offeringAddr attribute should be <offeringAddr>
-      And serviceAnnouncementMessage attribute should be <serviceAnnouncementMessage>
-      And serviceOfferingID attribute should be <serviceOfferingID>
-      And inviteName attribute should be <inviteName>
-
-      # Compose invitation message content
-      Given 40 bytes random salt <dossierSalt>
-      And message body type <bodyType> equal to 0 (Invitation)
-      And message body content <messageBody>
-      When I compose invite message content sorting attributes alphabetically
-      And format message content with Message Pack
-      And encrypt resulting message content pack using AES module with public passphrase "Peer Mountain"
-      Then resulting message should be <message>
-
-      # Calculate message hash
-      Given message <message>
-      When I compute SHA256 hash of message content
-      And encode resulting message hash with Base64  
-      Then resulting message content hash messageHash should be <messageHash>
-
-      # Calculate message body hash
-      Given message body content <messageBody>
-      When I compute SHA256 hash of message body
-      And encode resulting message body hash with Base64  
-      Then resulting message body hash bodyHash should be <bodyHash>
-
-      # Calculate dossier hash
-      Given message body content <messageBody>
-      And 40 bytes random salt <dossierSalt>
-      When I compute HMAC-SHA256 hash of message body with given 40bytes salt
-      And encode resulting message body hmac-hash with Base64  
-      Then resulting dossierHash should be <dossierHash>
-
-      # Generate message signature
-      Given following private key <privkey>
+      # Based on registred test identity
+      Given following private key as sender_key
       """
       -----BEGIN RSA PRIVATE KEY-----
-      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
+      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
       -----END RSA PRIVATE KEY-----
       """
-      And messageHash <messageHash>
-      And teleferic signed timestamp telefericSignedTimestamp
-      And compose signable object
+
+      # Generate invite name
+      Given passphrase is string <passphrase>
+        And secret_invite_name is string <invite_name>
+      When we encrypt [secret_invite_name] using AES with key [passphrase] as encrypted_invite_name 
+      Then we check [encrypted_invite_name] and <expected_encrypted_invite_name> should be equal
+      
+      # Get bootstrap node address
+      Given following graphql query as gql_query
+        """
+        query{
+          teleferic{
+            persona{
+              address
+            }
+          }
+        }
+        """
+        When we send [gql_query] to bootstrap node <bootstrap_node> and store the response as address_query_response
+        Then [address_query_response] response should be success
+
+      # Generate invite message body
+      Given property data.teleferic.persona.address from [address_query_response] as teleferic_address
+        And teleferic_bootstrap is url <bootstrap_node>
+        And offering_address is address <offering_address>
+        And service_announcement_message_hash is string <service_announcement_message>
+        And service_identifier is integer <service_offering_id>
+      When we compose message_body with following keys
       """
-      {
-        messageHash: <messageHash>,
-        timestamp: <telefericSignedTimestamp>
-      }
+        bootstrapAddr: [teleferic_address],
+        bootstrapNode: [teleferic_bootstrap],
+        inviteName: [encrypted_invite_name],
+        offeringAddr: [offering_address],
+        serviceAnnouncementMessage: [service_announcement_message_hash],
+        serviceOfferingID: [service_identifier],
       """
-      When I format signable object with Message Pack 
-      And generate RSA signature <signature> using <privkey> of formated signable object
-      And compose signature object
+      When we pack [message_body] with message pack as packed_message_body
+        And we encode [packed_message_body] with base64 as encoded_packed_message_body
+      Then we calculate SHA256 hash of pack [encoded_packed_message_body] as body_hash
+        And we check [body_hash] and <expected_body_hash> should be equal
+
+      # Get signed timestamp from teleferic node
+      Given teleferic_bootstrap is URI <bootstrap_node>
+        And following graphql query as gql_query
+        """
+        query{
+          teleferic{
+            signedTimestamp
+          }
+        }
+        """
+        When we send [gql_query] to bootstrap node <bootstrap_node> and store the response as signed_timestamp_query_response
+        Then [signed_timestamp_query_response] response should be success
+        
+        Given property data.teleferic.signedTimestamp from [signed_timestamp_query_response] as encoded_teleferic_signed_timestamp
+        When we decode [encoded_teleferic_signed_timestamp] with base64 as packed_teleferic_signed_timestamp
+          And we unpack [packed_teleferic_signed_timestamp] with message pack as teleferic_signed_timestamp
+
+      # Generate message body signature
+      When we compose signable_object with following keys
       """
-      {
-        signature: <signature>,
-        timestamp: <telefericSignedTimestamp>
-      }
+        messageHash: [body_hash],
+        timestamp: [encoded_teleferic_signed_timestamp],
       """
-      And format signature object with Message Pack
-      And encode resulted signature with Base64 into messageSig
+        And we pack [signable_object] with message pack as packed_signable_object
+        And we sign [packed_signable_object] using RSA with key [sender_key] as message_body_base_signature
+      Then we compose signable_object with following keys
+      """
+        signature: [message_body_base_signature],
+        timestamp: [encoded_teleferic_signed_timestamp],
+      """
+      When we pack [signable_object] with message pack as packed_signable_object
+        And we encode [packed_signable_object] with base64 as message_body_signature
+
+      # Message content
+      Given body_type is integer 0
+        #Public message
+        And message_key is string Peer Mountain
+        And random 40 bytes salt as dossier_salt
+      When we encode [dossier_salt] with base64 as encoded_dossier_salt
+        And we compose message_content with following keys
+        """
+          'bodyType': [body_type],
+          'dossierSalt': [encoded_dossier_salt],
+          'messageBody': [encoded_packed_message_body],
+          'signature': [message_body_signature],
+        """
+        And we pack [message_content] with message pack as packed_message_content
+      Then we encrypt [packed_message_content] using AES with key [message_key] as encrypted_message_content
+        And we calculate SHA256 hash of pack [encrypted_message_content] as message_hash
+        And we calculate HMAC-SHA256 of [packed_message_content] with [dossier_salt] as dossier_hash
+
+      # Generate message signature
+      When we compose signable_object with following keys
+      """
+        messageHash: [message_hash],
+        timestamp: [encoded_teleferic_signed_timestamp],
+      """
+        And we pack [signable_object] with message pack as packed_signable_object
+        And we sign [packed_signable_object] using RSA with key [sender_key] as message_base_signature
+      Then we compose signable_object with following keys
+      """
+        signature: [message_base_signature],
+        timestamp: [encoded_teleferic_signed_timestamp],
+      """
+      When we pack [signable_object] with message pack as packed_signable_object
+        And we encode [packed_signable_object] with base64 as message_signature
 
       # Send message
-      Given a bootstrap node url <bootstrapNode>
-      And sender address <sender>
-      And messageType <messageType>
-      And message hash <messageHash>
-      And body hash <bodyHash>
-      And message <message>
-      And dossier hash <dossierHash>
-      And following mutation
-      """
-      mutation (
-        $sender: Address!
-        $messageType: MessageType!
-        $messageHash: SHA256!
-        $bodyHash: SHA256!
-        $messageSig: Sign!
-        $message: AESEncryptedBlob!
-        $dossierHash: HMACSHA256!
-      ){
-        sendMessage(
-          envelope: {
-            sender: $sender
-            messageType: $messageType
-            messageHash: $messageHash
-            bodyHash: $bodyHash
-            messageSig: $messageSig
-            message: $message
-            dossierHash: $dossierHash
-          }
-        ) {
-          messageHash
+
+      Given message_type is string REGISTRATION
+        And sender_address as the address of [sender_key]
+        And following graphql query as gql_query
+        """
+        mutation (
+            $sender: Address!
+            $messageType: MessageType!
+            $messageHash: SHA256!
+            $bodyHash: SHA256!
+            $messageSign: Sign!
+            $message: AESEncryptedBlob!
+            $dossierHash: HMACSHA256!
+            ){
+            sendMessage(
+                envelope: {
+                    sender: $sender
+                    messageType: $messageType
+                    messageHash: $messageHash
+                    bodyHash: $bodyHash
+                    messageSign: $messageSign
+                    message: $message
+                    dossierHash: $dossierHash
+                }
+            ) {
+                messageHash
+            }
         }
-      }
-      """
-      When I compose variable object
-      """
-      {
-        "sender": "<sender>",
-        "messageType": "<messageType>",
-        "messageHash": "<messageHash>",
-        "bodyHash": "<bodyHash>",
-        "message": "<message>",
-        "dossierHash": "<dossierHash>"
-      }
-      """
-      And send mutation with variables to bootstrap node <bootstrapNode>
-      Then response should be success
-      And response should have messageHash property equal to <messageHash>
+        """
+      When we compose message_envelope with following keys
+        """
+            'sender': [sender_address],
+            'messageType': [message_type],
+            'messageHash': [message_hash],
+            'messageSign': [message_signature],
+            'dossierHash': [dossier_hash],
+            'bodyHash': [body_hash],
+            'message': [encrypted_message_content],
+        """
+        And we send [gql_query] with variables [message_envelope] to bootstrap node <bootstrap_node> and store the response as send_message_mutation_response
+      Then [send_message_mutation_response] response should be success
+
+      Given property data.sendMessage.messageHash from [send_message_mutation_response] as invite_message_hash
+      #Then we can make a registration
 
     Examples:
-    | secretInviteName | passphrase                       | inviteName                | messageBody                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | message                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | dossierSalt                                                                                                             | messageHash                                  | bodyHash                                     | dossierHash                                  | bootstrapNode                                  | bootstrapAddr                                                              | offeringAddr                                                               | serviceAnnouncementMessage                   | serviceOfferingID | sender                                                              | messageType  |
-    | Invite 1         | 72x35FDOXugkxivh7qYlqPU91jVgy607 | OnhsB48KkRAguMJd5RklLQ==  | hq1ib290c3RyYXBBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5ckytYm9vdHN0cmFwTm9kZdoALmh0dHBzOi8vdGVsZWZlcmljLWRldi5keG1hcmtldHMuY29tL3RlbGVmZXJpYy+qaW52aXRlTmFtZbhPbmhzQjQ4S2tSQWd1TUpkNVJrbExRPT2sb2ZmZXJpbmdBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5cky6c2VydmljZUFubm91bmNlbWVudE1lc3NhZ2XaACxMK1ZpUCtVRm5oYzZPYldmaHVncU5aZkUrU1prcW9TNDZJNFFidytOYk9ZPbFzZXJ2aWNlT2ZmZXJpbmdJRKEx | QgO46Himh8a5fLBmZ1ypINLAI4Fb8V/e9r0ZhqQ6A8cOlilkYfh5yMr9eRgKNXBG4HDwSX4hw7kgIqXdEXPlxYXc0yvbW+v6kFTPMeT4J+8B3+fReQTEnGTIjnHK7X9PleNlyMBpajveDPN8NgR1/Ir11nJeCmRwwvQmWg1jlXncN1aLbKiW37CXwI6J0M/obC4wfAprxPCaM9A696ohJe5mGLqBKlb97c4WTm1w5SjYuyHH4OPUVLJunKpHs5zHg6F9x6Pu2OEqSCma7OJlfy7s2n9vhpSfMNFn+HuzUkOerieF9XEkBFjW/0fSzJNVCRmXZo5dGTduG2qeeo38tAIDl8ZUXjsi1nye2sCugkvXxSXP4DlYljLK8oOwe2p+qkBxl/XlVOD3mH7/yYLCG87u7D+t3CyeBdl3NR9ltizVZCehgf9SiVwsB9JD/gPIM7L3ETF7ecXvSGUXPyLfd3MdKMmP0JDOasJ8pBlLSrA3JJ8eY/YzqyuDm2F4IQUSQ7QoX6C0z4ldxwHiAJltlqtFdwnoO1ivPYjxIBxnYnZB1BjNT0GP0c0p1QDgJPTPG+boq44Z8Sel1n0zdTTlJH1gfJQYsxHZyFKeK+mt4wydP+d2Umm3j8dW7jcFtFvYdBqPjHysUpqC1297T7A088C6CXfmwHHHDMmMS8CXQQrp7t4f6OEdIMAfrEad44GZjZwmU2nA0pr5GThFpFXPKnna27Nl79CH15qlPH9KJBpIh1QCNzaxbNi0g/O70XA7VxZP+9OWc0Dy1i0EKUUPvA== | 74:26:13:2f:4d:f3:f8:3e:82:ba:f3:fe:6a:dd:46:c2:00:4c:99:e8:88:ed:0f:a9:58:85:a2:11:9e:c8:b7:46:e4:f4:f0:c3:70:30:0e:17 | L7/ByXV9C4JsHD7VPsoW1csl+Vb0AjMti0/4T0mrTnY= | 7KVD1TLkGsCVap3Lcm2i3kH8y06xkz2A6LlVwhURXFk= | Num4y3dDxO2dpBvnbyo0JVk/WeXvzm3pSDvLL2F0h9w= | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                 | iZn2hyWChp6hkHEobZNdE9vmruR3MNVQZVFoBMc6PHEvKmaQM1jKoEC1uDF5Qf7deXN | REGISTRATION |
-    | InvitE 2         | 4fKuFNOQdisWzhdup3dWRiGIV74kAdag | fkx5vRvAYbM/JBI8KpzXWw==  | hq1ib290c3RyYXBBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5ckytYm9vdHN0cmFwTm9kZdoALmh0dHBzOi8vdGVsZWZlcmljLWRldi5keG1hcmtldHMuY29tL3RlbGVmZXJpYy+qaW52aXRlTmFtZbhma3g1dlJ2QVliTS9KQkk4S3B6WFd3PT2sb2ZmZXJpbmdBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5cky6c2VydmljZUFubm91bmNlbWVudE1lc3NhZ2XaACxMK1ZpUCtVRm5oYzZPYldmaHVncU5aZkUrU1prcW9TNDZJNFFidytOYk9ZPbFzZXJ2aWNlT2ZmZXJpbmdJRKEx | QgO46Himh8a5fLBmZ1ypIDakRUSvEcFXLyG2NFEDlFQI61hW2EQucs3TeleiwKQY6p+ANdHFZ6doUmvWiXV/kRidryUT4lBIrteOiD5w3FoB3+fReQTEnGTIjnHK7X9PleNlyMBpajveDPN8NgR1/Ir11nJeCmRwwvQmWg1jlXncN1aLbKiW37CXwI6J0M/obC4wfAprxPCaM9A696ohJe5mGLqBKlb97c4WTm1w5SjYuyHH4OPUVLJunKpHs5zHg6F9x6Pu2OEqSCma7OJlfy7s2n9vhpSfMNFn+HuzUkOerieF9XEkBFjW/0fSzJNVCRmXZo5dGTduG2qeeo38tAIDl8ZUXjsi1nye2sCugkvXxSXP4DlYljLK8oOwe2p+qkBxl/XlVOD3mH7/yYLCG1nMgY0N7a7S1EHGrCJrrxyfavuU9IR79j8AK3mm6ruBM7L3ETF7ecXvSGUXPyLfd3MdKMmP0JDOasJ8pBlLSrA3JJ8eY/YzqyuDm2F4IQUSQ7QoX6C0z4ldxwHiAJltlqtFdwnoO1ivPYjxIBxnYnZB1BjNT0GP0c0p1QDgJPTPG+boq44Z8Sel1n0zdTTlJH1gfJQYsxHZyFKeK+mt4wydP+d2Umm3j8dW7jcFtFvYdBqPjHysUpqC1297T7A088C6CXfmwHHHDMmMS8CXQQrp7t4f6OEdIMAfrEad44GZjZwmU2nA0pr5GThFpFXPKnna27Nl79CH15qlPH9KJBpIh1QCNzaxbNi0g/O70XA7VxZP+9OWc0Dy1i0EKUUPvA== | d3:11:19:a2:86:14:91:74:c7:d1:2c:10:04:59:a0:db:e5:75:e5:2c:1c:7e:9e:df:07:7c:90:8e:a0:aa:01:0b:ae:7f:b7:13:32:d3:d2:dc | zUvhDLqc08w9+vF4rmW56gxHApAI6dyzBpR49Q0NO6w= | ZyizIyWExijKo774EGVyIQVfEhggnTc+JaaXSHcZs0w= | lqVE9Uep/Izpyrnpf6TtKMMVzr69TeT1zbmPpVYiIrU= | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                 | iZn2hyWChp6hkHEobZNdE9vmruR3MNVQZVFoBMc6PHEvKmaQM1jKoEC1uDF5Qf7deXN | REGISTRATION |
-    | InViTe 3         | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3r | gq2UnfPHYJwOZYkanb1HVA==  | hq1ib290c3RyYXBBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5ckytYm9vdHN0cmFwTm9kZdoALmh0dHBzOi8vdGVsZWZlcmljLWRldi5keG1hcmtldHMuY29tL3RlbGVmZXJpYy+qaW52aXRlTmFtZbhncTJVbmZQSFlKd09aWWthbmIxSFZBPT2sb2ZmZXJpbmdBZGRy2gBKOE1TZDkxeHI2alNWNXBTMjlSa1Y3ZExlRTNoRGdMSEpHcnN5WHBkU2Y0aWl0ajZjNzV0VlNORVN5d0J6WXpGRWV5dTVEMXp5cky6c2VydmljZUFubm91bmNlbWVudE1lc3NhZ2XaACxMK1ZpUCtVRm5oYzZPYldmaHVncU5aZkUrU1prcW9TNDZJNFFidytOYk9ZPbFzZXJ2aWNlT2ZmZXJpbmdJRKEx | QgO46Himh8a5fLBmZ1ypIJLj+cMXKyyxXYb2n50dlNCvUPj2wJMjycLK/dGG3tFgYnqpa9zDgBySkMCKjiksoxHvBbDEau2usXXdcaPKGGUB3+fReQTEnGTIjnHK7X9PleNlyMBpajveDPN8NgR1/Ir11nJeCmRwwvQmWg1jlXncN1aLbKiW37CXwI6J0M/obC4wfAprxPCaM9A696ohJe5mGLqBKlb97c4WTm1w5SjYuyHH4OPUVLJunKpHs5zHg6F9x6Pu2OEqSCma7OJlfy7s2n9vhpSfMNFn+HuzUkOerieF9XEkBFjW/0fSzJNVCRmXZo5dGTduG2qeeo38tAIDl8ZUXjsi1nye2sCugkvXxSXP4DlYljLK8oOwe2p+qkBxl/XlVOD3mH7/yYLCG1xeDm0hmb210ttiNUqqo3BQ30DfCBb9aJjJo6sd4f2ZM7L3ETF7ecXvSGUXPyLfd3MdKMmP0JDOasJ8pBlLSrA3JJ8eY/YzqyuDm2F4IQUSQ7QoX6C0z4ldxwHiAJltlqtFdwnoO1ivPYjxIBxnYnZB1BjNT0GP0c0p1QDgJPTPG+boq44Z8Sel1n0zdTTlJH1gfJQYsxHZyFKeK+mt4wydP+d2Umm3j8dW7jcFtFvYdBqPjHysUpqC1297T7A088C6CXfmwHHHDMmMS8CXQQrp7t4f6OEdIMAfrEad44GZjZwmU2nA0pr5GThFpFXPKnna27Nl79CH15qlPH9KJBpIh1QCNzaxbNi0g/O70XA7VxZP+9OWc0Dy1i0EKUUPvA== | 80:9a:a9:b7:c4:d7:0c:4a:59:45:4e:b3:d5:7e:cc:b4:58:83:cf:e4:f5:5c:1e:68:2a:d1:0e:0d:45:c6:b4:cc:71:5d:b6:0d:62:45:25:26 | UWKHIY4TbQfg8Ftkue2C8f7/zIOPx4CpXKI4dQiwu6Y= | q5RLDwUnwyUTmFr7ekU9JYNi6pOILUnVV+zEhI1MqiM= | pXzoj0FiaWFZjwTcJtf9+ekgZNer2gJGOWUgKt1U8O0= | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                 | iZn2hyWChp6hkHEobZNdE9vmruR3MNVQZVFoBMc6PHEvKmaQM1jKoEC1uDF5Qf7deXN | REGISTRATION |
+    | invite_name | passphrase                       | expected_encrypted_invite_name | bootstrap_node                                  | offering_address                                                           | service_announcement_message                 | service_offering_id | expected_body_hash                           |
+    | Invite 1    | 72x35FDOXugkxivh7qYlqPU91jVgy607 | OnhsB48KkRAguMJd5RklLQ==       | http://localhost:8000/teleferic/                | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   | 8PVKTCvTf2645I0QTfmh9YUrq9utD1i2wsHOjlBc4gc= |
+    | InvitE 2    | 4fKuFNOQdisWzhdup3dWRiGIV74kAdag | fkx5vRvAYbM/JBI8KpzXWw==       | http://localhost:8000/teleferic/                | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   | CUNz3v4Ni6GzIgZNJJwwozskZzVXmMviMwu1Gpr6TQI= |
+    | InViTe 3    | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3r | gq2UnfPHYJwOZYkanb1HVA==       | http://localhost:8000/teleferic/                | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   | IfbbUyZk07NFra2cKZdx3kUh8lvHV2tC3/N/i1Jrt1E= |
