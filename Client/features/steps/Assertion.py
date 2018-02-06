@@ -84,19 +84,6 @@ def step(context, a, b):
     #bytes(bytearray.fromhex(salt.replace(':', '')))
     assert c == d
 
-@when('we encrypt {} using RSA with key {} as {}')
-@ghernik_vars
-def step(context, to_encrypt, key, save_as):
-    setattr(
-        context,
-        save_as,
-        Identity(key).encrypt(
-            to_encrypt.encode()
-            if isinstance(to_encrypt, str)
-            else to_encrypt
-        )
-    )
-
 @then('we encrypt {} using AES with key {} as {}')
 @ghernik_vars
 def step(context, to_encrypt, key, save_as):
