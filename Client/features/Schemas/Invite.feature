@@ -95,7 +95,6 @@ Feature: Invitation Message
       When we pack [message_body] with message pack as packed_message_body
         And we encode [packed_message_body] with base64 as encoded_packed_message_body
       Then we calculate SHA256 hash of pack [encoded_packed_message_body] as body_hash
-        And we check [body_hash] and <expected_body_hash> should be equal
 
       # Get signed timestamp from teleferic node
       Given teleferic_bootstrap is URI <bootstrap_node>
@@ -211,7 +210,7 @@ Feature: Invitation Message
       #Then we can make a registration
       
     Examples:
-    | invite_name | passphrase                       | expected_encrypted_invite_name | bootstrap_node                                 | offering_address                                                           | service_announcement_message                 | service_offering_id | expected_body_hash                           |
-    | Invite 1    | 72x35FDOXugkxivh7qYlqPU91jVgy607 | OnhsB48KkRAguMJd5RklLQ==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   | 8PVKTCvTf2645I0QTfmh9YUrq9utD1i2wsHOjlBc4gc= |
-    | InvitE 2    | 4fKuFNOQdisWzhdup3dWRiGIV74kAdag | fkx5vRvAYbM/JBI8KpzXWw==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   | CUNz3v4Ni6GzIgZNJJwwozskZzVXmMviMwu1Gpr6TQI= |
-    | InViTe 3    | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3r | gq2UnfPHYJwOZYkanb1HVA==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   | IfbbUyZk07NFra2cKZdx3kUh8lvHV2tC3/N/i1Jrt1E= |
+    | invite_name | passphrase                       | expected_encrypted_invite_name | bootstrap_node                                 | offering_address                                                           | service_announcement_message                 | service_offering_id |
+    | Invite 1    | 72x35FDOXugkxivh7qYlqPU91jVgy607 | OnhsB48KkRAguMJd5RklLQ==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   |
+    | InvitE 2    | 4fKuFNOQdisWzhdup3dWRiGIV74kAdag | fkx5vRvAYbM/JBI8KpzXWw==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   |
+    | InViTe 3    | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3r | gq2UnfPHYJwOZYkanb1HVA==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   |

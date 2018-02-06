@@ -84,7 +84,7 @@ def step(context, a, b):
     #bytes(bytearray.fromhex(salt.replace(':', '')))
     assert c == d
 
-@when('we encrypt {} usign RSA with key {} as {}')
+@when('we encrypt {} using RSA with key {} as {}')
 @ghernik_vars
 def step(context, to_encrypt, key, save_as):
     setattr(
@@ -703,42 +703,6 @@ def step(context, sender_sk, reader_pk, save_as):
         raise
 
 
-@given('we retrieve message with hash {}')
-@ghernik_vars
-def step(context, _hash):
-    query = """
-    query{
-        messageByHash(messageHash: "%s") {
-            messageHash
-            messageType
-            messageSig
-            dossierHash
-            bodyHash
-            message
-            createdAt
-            ACL{
-                reader{
-                    address
-                }
-                key
-            }
-            objects{
-                containerHash
-                objectHash
-                containerSig
-                objectContainer
-                metaHashes
-            }
-        }
-    }
-    """ % _hash
-    response = context.client.request(query)
-    setattr(
-        context,
-        'envelope',
-        response.get('data').get('messageByHash')
-    )
-
 @given('we get key from ACL for our address as {}')
 @ghernik_vars
 def step(context, save_as):
@@ -910,7 +874,7 @@ def step(context, save_as):
         key.get('key')
     )
 
-@when('we decrypt {} usign RSA as {}')
+@when('we decrypt {} using RSA as {}')
 @ghernik_vars
 def step(context, encrypted_data, save_as):
     setattr(
