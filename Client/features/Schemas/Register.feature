@@ -159,12 +159,12 @@ Feature: Invitation Message
       Then [send_message_mutation_response] response should be <expected_reponse>
 
     Examples:
-    | nickname | invite_name | passphrase                       | bootstrap_node                                  | expected_reponse |
-    | sample_1 | Invite 1    | 72x35FDOXuTkxivh7qYlqPU91jVgy607 | http://localhost:8000/teleferic/                | success          |
-    | sample_2 | Invite 1    | 72x35FDOXuTkxivh7qYlqPU91jVgy607 | http://localhost:8000/teleferic/                | success          |
+    | nickname | invite_name | passphrase                       | bootstrap_node                                 | expected_reponse |
+    | sample_1 | Invite 1    | 72x35FDOXuTkxivh7qYlqPU91jVgy607 | https://teleferic-dev.dxmarkets.com/teleferic/ | success          |
+    | sample_2 | Invite 1    | 72x35FDOXuTkxivh7qYlqPU91jVgy607 | https://teleferic-dev.dxmarkets.com/teleferic/ | success          |
     # Nickname collision
-    | sample_2 | Invite 1    | 72x35FDOXuTkxivh7qYlqPU91jVgy607 | http://localhost:8000/teleferic/                | failure          |
+    | sample_2 | Invite 1    | 72x35FDOXuTkxivh7qYlqPU91jVgy607 | https://teleferic-dev.dxmarkets.com/teleferic/ | failure          |
     # Invalid name
-    | sample_3 | Invite 2    | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3r | http://localhost:8000/teleferic/                | failure          |
+    | sample_3 | Invite 2    | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3r | https://teleferic-dev.dxmarkets.com/teleferic/ | failure          |
     # Invalid key 
-    | sample_4 | Invite 1    | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3R | http://localhost:8000/teleferic/                | failure          |
+    | sample_4 | Invite 1    | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3R | https://teleferic-dev.dxmarkets.com/teleferic/ | failure          |
