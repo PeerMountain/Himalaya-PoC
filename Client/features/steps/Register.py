@@ -120,7 +120,7 @@ def step_impl(context, messageBody):
 def step_impl(context):
     messageContent = OrderedDict()
     messageContent['bodyType'] = context.bodyType
-    messageContent['dossierSalt'] = context.dossierSalt
+    messageContent['dossierSalt'] = context.encodedDossierSalt
     messageContent['messageBody'] = context.b64PackMessageBody
     context.messageContent = messageContent
 
