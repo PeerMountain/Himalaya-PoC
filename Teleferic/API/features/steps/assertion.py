@@ -12,7 +12,6 @@ from Crypto.Hash import SHA256, HMAC
 
 from API.Mock import Reader, Teleferic_Identity
 from API.Mock.Authorizer.constants import Parameters
-from API.features.helpers import GraphQLRequest
 from libs.tools import Identity, AES
 
 
@@ -25,11 +24,6 @@ def step(context):
 def step(context):
     context.reader = Identity(context.public_4096_a)
 
-
-@given('Teleferic url as {teleferic_url}')
-def step(context, teleferic_url):
-    context.teleferic_url = teleferic_url
-    
 
 @given('valid_until date as {valid_until}')
 def step(context, valid_until):
@@ -214,18 +208,14 @@ def step(context):
     )
 
     context.container_data_list = [{
-        # 'containerHash': context.container_hash,
         'objectHash': context.object_hash,
-        # 'containerSign': context.container_sign,
-        # 'container': context.object_container,
         'container': {
-            'containerHash': context.container_hash,
+            'containerHash': context.container_hash.decode(),
             'containerSign': context.container_sign,
-            'objectContainer': context.object_container,
+            'objectContainer': context.object_container.decode(),
         },
         'metaHashes': context.salted_meta_hashes,
     }]
-    print(context.object_container)
 
     context.message_sign = context.sender.sign_message(
         context.message_hash,
@@ -236,11 +226,11 @@ def step(context):
         'messageType': 'ASSERTION',
         'ACL': context.acl_rule_list,
         'objects': context.container_data_list,
-        'messageHash': context.message_hash,
+        'messageHash': context.message_hash.decode(),
         'messageSign': context.message_sign,
-        'dossierHash': context.dossier_hash,
-        'bodyHash': context.body_hash,
-        'message': context.encrypted_message_content,
+        'dossierHash': context.dossier_hash.decode(),
+        'bodyHash': context.body_hash.decode(),
+        'message': context.encrypted_message_content.decode(),
     }
 
 
@@ -279,9 +269,10 @@ def step(context):
 
 @when('we send the assertion to Teleferic')
 def step(context):
-    request = GraphQLRequest(context.teleferic_url)
-    context.response = request.send(context.query, context.message_envelope)
-    print(context.response)
+    context.response = context.client.execute(
+        context.query,
+        variable_values=context.message_envelope
+    )
 
 
 @then('the query response is equal to result')
