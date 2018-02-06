@@ -81,11 +81,15 @@ class Identity():
         else:
             return False
 
-    def sign_message(self, message_hash, client):
+    def sign_message(self, message_hash):
         if type(message_hash) is str:
             message_hash = message_hash.encode()
 
-        node_signed_timestamp = client.get_node_signedtimestamp()
+        # TODO: Fix circular import
+        from API.Mock import Teleferic_Identity
+        node_signed_timestamp = base64.b64encode(msgpack.packb(
+            Teleferic_Identity.sign_current_timestamp()
+        )).decode()
 
         signable_object = OrderedDict()
         signable_object['messageHash'] = message_hash
