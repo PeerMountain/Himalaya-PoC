@@ -109,7 +109,7 @@ def step(context, to_encrypt, key, save_as):
         aes.encrypt(to_encrypt)
     )
 
-@when('we encrypt {} usign RSA with key {} as {}')
+@when('we encrypt {} using RSA with key {} as {}')
 @ghernik_vars
 def step(context, to_encrypt, key, save_as):
     setattr(
@@ -947,7 +947,7 @@ def step(context, save_as):
         key.get('key')
     )
 
-@when('we decrypt {} usign RSA as {}')
+@when('we decrypt {} using RSA as {}')
 @ghernik_vars
 def step(context, encrypted_data, save_as):
     setattr(
