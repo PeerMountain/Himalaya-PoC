@@ -71,7 +71,7 @@ class Identity():
         # The last 4 bytes of the final hash are added as the
         # trailing 4 bytes of the extended RIPEMD-160 hash. This is the
         # checksum
-        step_4 = step_3 + step_4_checksum[4:]
+        step_4 = step_3 + step_4_checksum[-4:]
         # The resulting object is Base58 encoded
         return base58.b58encode(step_4)
 
