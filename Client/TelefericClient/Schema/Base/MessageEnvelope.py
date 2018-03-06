@@ -27,7 +27,7 @@ class MessageEnvelope():
                 $messageSign: Sign!
                 $message: AESEncryptedBlob!
                 $dossierHash: HMACSHA256!
-                $ACL: [ACLRule]
+                $ACL: [ACLRuleInput]
                 $objects: [ObjectInput]
                 ){
                 sendMessage(
