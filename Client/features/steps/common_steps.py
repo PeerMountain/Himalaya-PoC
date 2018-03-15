@@ -83,7 +83,7 @@ def step(context, save_as, origin):
     )
 
 
-@when(u'we sign {} using RSA with key {} as {}')
+@when(u'we sign {} using PKCS1 v1.5 with key {} as {}')
 @ghernik_vars
 def step(context, content, key, save_as):
     idn = Identity(key)    
