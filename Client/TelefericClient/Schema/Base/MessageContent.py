@@ -21,7 +21,7 @@ class MessageContent():
 
     content = OrderedDict()
 
-    def __init__(self, message_type, message_body, service_id=None, consumer_id=None, signature=None):
+    def __init__(self, message_type, message_body, service_id=None, consumer_id=None, signature=None, public=False):
         """__init__
 
         Create a MessageContent object and prepare the content for encryption.
@@ -51,6 +51,11 @@ class MessageContent():
             self.content['signature'] = signature
 
         self.content['dossierSalt'] = self.generate_dossier_salt()
+        self.passphrase = self.nonce = None
+        if not public:
+            self.nonce = bytes(random.randint(0, 255) for _ in range(16))
+
+        self.is_public_message = public
 
     def generate_dossier_salt(self):
         """generate_dossier_salt
@@ -71,16 +76,21 @@ class MessageContent():
     def build(self, passphrase):
         """build
 
-        Encrypts the message's contents and generates the various hashes
+        Encrypts the message's contents (if needed) and generates the various hashes
         that will be used for verification.
 
         :param passphrase: string: Key to be used in the message's AES encryption.
+        :param nonce: Nonce to be used when encrypting the data.
         """
+        self.passphrase = passphrase
         self.content['messageBody'] = self.body.build()
-        cipher = AES(passphrase)
-        # AES encrypt the message body's MessagePack representation.
         pack = self.pack()
-        build = cipher.encrypt(pack)
+        if not self.is_public_message:
+            cipher = AES(passphrase, self.nonce)
+            # AES encrypt the message body's MessagePack representation.
+            build = cipher.encrypt(pack)
+        else:
+            build = base64.b64encode(pack)
         # Calculate hashes
         self.hash = base64.b64encode(SHA256.new(build).digest()).decode()
         salt = base64.b64decode(self.content['dossierSalt'])
