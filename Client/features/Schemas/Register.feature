@@ -28,7 +28,15 @@ Feature: Invitation Message
 
       # Generate invite key proof
       Given secret_invite_key is string <passphrase>
-      When we encrypt [secret_invite_key] using RSA with key [teleferic_public_key] as proof_invite_key
+        And secret_invite_nonce is string <invite_nonce>
+      When we compose decryption_data with keys
+      """
+        'key': [passphrase],
+        'nonce': [invite_nonce],
+      """
+        And we pack [decryption_data] with message pack as packed_decryption_data
+
+      When we encrypt [packed_decryption_data] using RSA with key [teleferic_public_key] as proof_invite_key
 
       # Generate invite name proof
       Given secret_invite_name is string <invite_name>
@@ -159,12 +167,12 @@ Feature: Invitation Message
       Then [send_message_mutation_response] response should be <expected_reponse>
 
     Examples:
-    | nickname | invite_name | passphrase                       | bootstrap_node                                 | expected_reponse |
-    | sample_1 | Invite 1    | 72x35FDOXuTkxivh7qYlqPU91jVgy607 | https://teleferic-dev.dxmarkets.com/teleferic/ | success          |
-    | sample_2 | Invite 1    | 72x35FDOXuTkxivh7qYlqPU91jVgy607 | https://teleferic-dev.dxmarkets.com/teleferic/ | success          |
+    | nickname | invite_name | invite_nonce |passphrase                       | bootstrap_node                                 | expected_reponse |
+    | sample_1 | Invite 1    | nonce1 | 72x35FDOXuTkxivh7qYlqPU91jVgy607 | https://teleferic-dev.dxmarkets.com/teleferic/ | success          |
+    | sample_2 | Invite 1    | nonceI | 72x35FDOXuTkxivh7qYlqPU91jVgy607 | https://teleferic-dev.dxmarkets.com/teleferic/ | success          |
     # Nickname collision
-    | sample_2 | Invite 1    | 72x35FDOXuTkxivh7qYlqPU91jVgy607 | https://teleferic-dev.dxmarkets.com/teleferic/ | failure          |
+    | sample_2 | Invite 1    | nonce2 | 72x35FDOXuTkxivh7qYlqPU91jVgy607 | https://teleferic-dev.dxmarkets.com/teleferic/ | failure          |
     # Invalid name
-    | sample_3 | Invite 2    | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3r | https://teleferic-dev.dxmarkets.com/teleferic/ | failure          |
+    | sample_3 | Invite 2    | nonce2 | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3r | https://teleferic-dev.dxmarkets.com/teleferic/ | failure          |
     # Invalid key 
-    | sample_4 | Invite 1    | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3R | https://teleferic-dev.dxmarkets.com/teleferic/ | failure          |
+    | sample_4 | Invite 1    | nonce3 | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3R | https://teleferic-dev.dxmarkets.com/teleferic/ | failure          |

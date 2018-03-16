@@ -60,7 +60,8 @@ Feature: Invitation Message
       # Generate invite name
       Given passphrase is string <passphrase>
         And secret_invite_name is string <invite_name>
-      When we encrypt [secret_invite_name] using AES with key [passphrase] as encrypted_invite_name 
+        And invite_nonce is string <invite_nonce>
+      When we encrypt [secret_invite_name] using AES with key [passphrase] and nonce [invite_nonce] as encrypted_invite_name 
       Then we check [encrypted_invite_name] and <expected_encrypted_invite_name> should be equal
       
       # Get bootstrap node address
@@ -143,8 +144,7 @@ Feature: Invitation Message
           'signature': [message_body_signature],
         """
         And we pack [message_content] with message pack as packed_message_content
-      Then we encrypt [packed_message_content] using AES with key [message_key] as encrypted_message_content
-        And we calculate SHA256 hash of pack [encrypted_message_content] as message_hash
+    Then we calculate SHA256 hash of pack [encrypted_message_content] as message_hash
         And we calculate HMAC-SHA256 of [packed_message_content] with [dossier_salt] as dossier_hash
 
       # Generate message signature
@@ -201,7 +201,7 @@ Feature: Invitation Message
             'messageSign': [message_signature],
             'dossierHash': [dossier_hash],
             'bodyHash': [body_hash],
-            'message': [encrypted_message_content],
+            'message': [message_content],
         """
         And we send [gql_query] with variables [message_envelope] to bootstrap node <bootstrap_node> and store the response as send_message_mutation_response
       Then [send_message_mutation_response] response should be success
@@ -210,7 +210,7 @@ Feature: Invitation Message
       #Then we can make a registration
       
     Examples:
-    | invite_name | passphrase                       | expected_encrypted_invite_name | bootstrap_node                                 | offering_address                                                           | service_announcement_message                 | service_offering_id |
-    | Invite 1    | 72x35FDOXugkxivh7qYlqPU91jVgy607 | OnhsB48KkRAguMJd5RklLQ==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   |
-    | InvitE 2    | 4fKuFNOQdisWzhdup3dWRiGIV74kAdag | fkx5vRvAYbM/JBI8KpzXWw==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   |
-    | InViTe 3    | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3r | gq2UnfPHYJwOZYkanb1HVA==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   |
+    | invite_name | invite_nonce | passphrase                       | expected_encrypted_invite_name | bootstrap_node                                 | offering_address                                                           | service_announcement_message                 | service_offering_id |
+    | Invite 1    | someNonce | 72x35FDOXugkxivh7qYlqPU91jVgy607 | OnhsB48KkRAguMJd5RklLQ==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   |
+    | InvitE 2    | someOtherNonce | 4fKuFNOQdisWzhdup3dWRiGIV74kAdag | fkx5vRvAYbM/JBI8KpzXWw==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   |
+    | InViTe 3    | YetAnotherNonce | T7TDUepNdU8wCL5ruLSy3gCcDomsbv3r | gq2UnfPHYJwOZYkanb1HVA==       | https://teleferic-dev.dxmarkets.com/teleferic/ | 8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL | L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY= | 1                   |
