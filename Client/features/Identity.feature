@@ -20,7 +20,7 @@ Feature: Identity module
     -----END PUBLIC KEY-----
     """
     And the address prefix [1, 0]
-    Then the address should be iZn2hyWChp6hkHEobZNdE9vmruR3MNVQZVFoBMc6PHEvKmaQM1jKoEC1uDF5Qf7deXN
+    Then the address should be 2nJJnTK7Jz1LijmzBC2FkA15mJvycaLWNxL
 
     Given the following 2048 pubkey
     """
@@ -100,7 +100,7 @@ Feature: Identity module
     And prefix resulting RIPEMD160 with [1, 0] bytes to generate the base address
     And apply SHA256 two times over resulting RIPEMD160 to generate the checksum
     And append last 4 bytes of resulting checksum at the end of base address to generate the address
-    Then the address should be iVntVmVpPqhNaTcktpSRvspkfTwkaYpypzJMGqneEohnuJCEQcjmFVGQURf1uTeeqHe
+    Then the address should be 2n8QM67YsCZUyWDp6muaDMtvjkg3gU6EFJL
 
   Scenario: Julia address generation
     Given the following pubkey
@@ -126,7 +126,7 @@ Feature: Identity module
     And prefix resulting RIPEMD160 with [1, 0] bytes to generate the base address
     And apply SHA256 two times over resulting RIPEMD160 to generate the checksum
     And append last 4 bytes of resulting checksum at the end of base address to generate the address
-    Then the address should be iVy1q3HxUtBmBqEYUgUHxZ5sx1MRnUg7KZ4zUc3GuCfEwfRrTQyE5X5Vk9v9DppX4ux
+    Then the address should be 2n8qWjmSQh4cYzg5SpmohGDr3uuCK7vUwM4
 
   Scenario: Luis address generation
     Given the following pubkey
@@ -152,7 +152,7 @@ Feature: Identity module
     And prefix resulting RIPEMD160 with [1, 0] bytes to generate the base address
     And apply SHA256 two times over resulting RIPEMD160 to generate the checksum
     And append last 4 bytes of resulting checksum at the end of base address to generate the address
-    Then the address should be iYQzzEM3NpLNN4Mwm5LezxeRgUouqbkHzD5mk8QTLpTD8FxnQpotY6boZHZ5JpyxPra
+    Then the address should be 2nEvNudo3PGVrhJJixVc8noMTfrPDLgD6cz
 
   Scenario: Belen public key Base64 encode
     Given the following pubkey

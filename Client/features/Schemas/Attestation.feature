@@ -288,7 +288,7 @@ Feature: Attestation Message
         $messageSign: Sign!
         $message: AESEncryptedBlob!
         $dossierHash: HMACSHA256!
-        $ACL: [ACLRuleInput]
+        $ACL: [ACLRule]
         $objects: [ObjectInput]
         ){
         sendMessage(
