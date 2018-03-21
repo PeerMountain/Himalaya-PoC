@@ -18,7 +18,39 @@ build_teleferic:
   stage: build
   tags:
     - shell
-    
+
+build_docs:
+  script:
+    - docker-compose -f docker-compose.build.yml up --build docs
+  stage: build
+  tags:
+    - shell
+
+build_images:
+  scripts:
+    - docker-compose -f docker-compose.prod.yml build
+  stage: build
+  tags:
+    - shell
+
+#push_images:
+#  scripts:
+#    - docker-compose -f docker-compose.prod.yml push
+#  stage: push
+#  tags:
+#    - shell
+#  only:
+#    - "version/0.1"
+
+#deploy:
+#  scripts:
+#    - docker stack deploy -c docker-compose.prod.yml himalaya_dev --with-registry-auth
+#  stage: deploy
+#  tags:
+#    - shell
+#  only:
+#    - "version/0.1"
+
 stages:
   - test
   - build
