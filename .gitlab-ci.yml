@@ -10,7 +10,7 @@ test_coverage:
     - shell
   artifacts:
     paths:
-      - Teleferic/coverage
+      - Teleferic/coverage/htmlcov
 
 stages:
   - test_coverage
@@ -22,7 +22,7 @@ pages:
   dependencies:
     - test_coverage
   script:
-    - mv Teleferic/coverage/ public/
+    - mv Teleferic/coverage/htmlcov/ public/
   artifacts:
     paths:
       - public

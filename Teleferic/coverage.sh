@@ -4,6 +4,8 @@ coverage run --source='.'  manage.py test API
 
 coverage html
 
-mkdir -p /code/coverage
+rm -rf /code/coverage/htmlcov
 
-mv htmlcov /code/coverage
+mv htmlcov /code/coverage/
+
+chmod 777 -R /code/coverage
