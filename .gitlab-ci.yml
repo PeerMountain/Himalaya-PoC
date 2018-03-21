@@ -32,6 +32,9 @@ build_images:
   stage: build
   tags:
     - shell
+  dependencies:
+    - build_docs
+    - build_teleferic
 
 push_images:
   script:
