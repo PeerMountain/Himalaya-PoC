@@ -14,7 +14,7 @@ test_coverage:
 
 build_teleferic:
   script:
-    - docker-compose -f docker-compose.build.yml run teleferic python manage.py collectstatic --no-input -c
+    - docker-compose -f docker-compose.build.yml run --rm teleferic bash statics.sh
   stage: build
   tags:
     - shell
