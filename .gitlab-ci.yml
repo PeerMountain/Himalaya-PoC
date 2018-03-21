@@ -5,13 +5,12 @@ test_coverage:
   script:
     - docker-compose -f docker-compose.build.yml build teleferic
     - docker-compose -f docker-compose.build.yml run --rm teleferic bash coverage.sh
-    - mv ./Teleferic/coverage ./coverage
   stage: test_coverage
   tags:
     - shell
   artifacts:
     paths:
-      - coverage/
+      - Teleferic/coverage
 
 stages:
   - test_coverage
@@ -23,7 +22,7 @@ pages:
   dependencies:
     - test_coverage
   script:
-    - mv coverage/ public/
+    - mv Teleferic/coverage/ public/
   artifacts:
     paths:
       - public
