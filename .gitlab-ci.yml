@@ -27,23 +27,23 @@ build_docs:
     - shell
 
 build_images:
-  scripts:
+  script:
     - docker-compose -f docker-compose.prod.yml build
   stage: build
   tags:
     - shell
 
-#push_images:
-#  scripts:
-#    - docker-compose -f docker-compose.prod.yml push
-#  stage: push
-#  tags:
-#    - shell
-#  only:
-#    - "version/0.1"
+push_images:
+  script:
+    - docker-compose -f docker-compose.prod.yml push
+  stage: push
+  tags:
+    - shell
+  only:
+    - version/0.1
 
 #deploy:
-#  scripts:
+#  script:
 #    - docker stack deploy -c docker-compose.prod.yml himalaya_dev --with-registry-auth
 #  stage: deploy
 #  tags:
