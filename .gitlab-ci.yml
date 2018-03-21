@@ -40,32 +40,19 @@ push_images:
   tags:
     - shell
   only:
-    - version/0.1
+    - "version/0.1"
 
 deploy:
   scripts:
-    -docker stack deploy -c docker-compose.prod.yml himalaya_dev --with-registry-auth
+    - docker stack deploy -c docker-compose.prod.yml himalaya_dev --with-registry-auth
   stage: deploy
   tags:
     - shell
   only:
-    - version/0.1
+    - "version/0.1"
 
 stages:
   - test
   - build
   - push
   - deploy
-
-pages:
-  stage: deploy
-  dependencies:
-    - test_coverage
-  script:
-    - mv Teleferic/coverage/htmlcov/ public/
-  artifacts:
-    paths:
-      - public
-    expire_in: 30 days
-  only:
-    - 1-setup-ci
