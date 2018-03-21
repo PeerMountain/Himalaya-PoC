@@ -14,7 +14,7 @@ services:
 
   teleferic:
     build: 'Teleferic'
-    image: 'meteoro.dxmarkets.com:5000/himalaya_teleferic:latest'
+    image: 'peer-mountain01:5005/poc/teleferic:latest'
     volumes:
       - messages_content:/code/API/Mock/messages
       - ./Teleferic/static:/code/static
@@ -29,7 +29,7 @@ services:
 
   docs:
     build: 'Docs'
-    image: 'meteoro.dxmarkets.com:5000/himalaya_docs:latest'
+    image: 'peer-mountain01:5005/poc/teleferic/docs:latest'
     volumes:
       - ./Docs:/code
     depends_on:

@@ -1,0 +1,32 @@
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+
+test_coverage:
+  script:
+    - docker-compose -f docker-compose.build.yml build teleferic
+    - docker-compose -f docker-compose.build.yml run --rm teleferic bash coverage.sh
+    - mv ./Teleferic/coverage ./coverage
+  stage: test_coverage
+  tags:
+    - shell
+  artifacts:
+    paths:
+      - coverage/
+
+stages:
+  - test_coverage
+  - push
+  - deploy
+
+pages:
+  stage: deploy
+  dependencies:
+    - test_coverage
+  script:
+    - mv coverage/ public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
+  only:
+    - 1-setup-ci
