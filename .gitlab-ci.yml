@@ -15,14 +15,14 @@ test_coverage:
 build_teleferic:
   script:
     - docker-compose -f docker-compose.build.yml run --rm teleferic bash statics.sh
-  stage: build
+  stage: build_base
   tags:
     - shell
 
 build_docs:
   script:
     - docker-compose -f docker-compose.build.yml up --build docs
-  stage: build
+  stage: build_base
   tags:
     - shell
 
@@ -56,6 +56,6 @@ push_images:
 
 stages:
   - test
-  - build
+  - build_base
   - push
   - deploy
