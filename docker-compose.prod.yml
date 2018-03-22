@@ -54,6 +54,8 @@ services:
       - teleferic
     volumes:
       - /etc/ssl/wildcard:/etc/ssl/wildcard
+      - docs:/srv/www/docs
+      - static:/srv/www/haku/static
     deploy:
       replicas: 1
       resources:
@@ -70,3 +72,5 @@ volumes:
   pgdb:
   messages_content:
   containers_content:
+  docs:
+  static: 

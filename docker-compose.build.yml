@@ -17,7 +17,7 @@ services:
     image: 'peer-mountain01:5005/poc/teleferic:latest'
     volumes:
       - messages_content:/code/API/Mock/messages
-      - ./Teleferic/static:/code/static
+      - static:/code/static
       - ./Teleferic/coverage:/code/coverage
     networks:
       - pgdb
@@ -31,7 +31,7 @@ services:
     build: 'Docs'
     image: 'peer-mountain01:5005/poc/teleferic/docs:latest'
     volumes:
-      - ./Docs:/code
+      - docs:/code/build
     depends_on:
       - teleferic
     networks:
@@ -43,3 +43,5 @@ networks:
 volumes:
   pgdb:
   messages_content:
+  docs:
+  static: 

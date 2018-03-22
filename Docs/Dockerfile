@@ -5,8 +5,6 @@ WORKDIR /code
 
 RUN npm install -g @2fd/graphdoc
 
-CMD mkdir build
+ADD build_docs.sh .
 
-CMD graphdoc -e http://teleferic:8000/teleferic -o ./build --force
-
-CMD chmod 777 -R ./build
+CMD ./build_docs.sh
