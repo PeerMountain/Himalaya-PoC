@@ -16,7 +16,7 @@ services:
 
   teleferic:
     build: 'Teleferic'
-    image: 'peer-mountain01:9352/poc/teleferic:latest'
+    image: 'peer-mountain01:5005/poc/teleferic:latest'
     volumes:
       - messages_content:/code/API/Mock/messages
     networks:
@@ -39,7 +39,7 @@ services:
 
   gateway:
     build: '.'
-    image: 'peer-mountain01:9352/poc/teleferic/gateway:latest'
+    image: 'peer-mountain01:5005/poc/teleferic/gateway:latest'
     ports:
       - 80:80
       - 443:443
