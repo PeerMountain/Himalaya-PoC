@@ -14,7 +14,7 @@ services:
 
   teleferic:
     build: 'Teleferic'
-    image: 'peer-mountain01:5005/poc/teleferic:latest'
+    image: 'peer-mountain01:9352/poc/teleferic:latest'
     volumes:
       - messages_content:/code/API/Mock/messages
       - static:/code/static
@@ -29,7 +29,7 @@ services:
 
   docs:
     build: 'Docs'
-    image: 'peer-mountain01:5005/poc/teleferic/docs:latest'
+    image: 'peer-mountain01:9352/poc/teleferic/docs:latest'
     volumes:
       - docs:/code/build
     depends_on:
