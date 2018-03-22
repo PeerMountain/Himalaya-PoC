@@ -22,7 +22,7 @@ services:
 
   teleferic:
     build: 'Teleferic'
-    image: 'peer-mountain01:5005/himalaya_teleferic:latest'
+    image: 'peer-mountain01:5005/poc/teleferic:latest'
     volumes:
       - messages_content:/code/API/Mock/messages
       - containers_content:/code/API/Mock/containers
@@ -44,7 +44,7 @@ services:
 
   gateway:
     build: '.'
-    image: 'peer-mountain01:5005/himalaya_gateway:latest'
+    image: 'peer-mountain01:5005/poc/teleferic/gateway:latest'
     ports:
       - 80:80
       - 443:443
