@@ -1,0 +1,62 @@
+before_script:
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+
+test_coverage:
+  script:
+    - docker-compose -f docker-compose.build.yml build teleferic
+    - docker-compose -f docker-compose.build.yml run --rm teleferic bash coverage.sh
+  stage: test
+  tags:
+    - shell
+  artifacts:
+    paths:
+      - Teleferic/coverage/htmlcov
+
+build_teleferic:
+  script:
+    - docker-compose -f docker-compose.build.yml run --rm teleferic bash statics.sh
+  stage: build_base
+  tags:
+    - shell
+
+build_docs:
+  script:
+    - docker-compose -f docker-compose.build.yml up --build docs
+  stage: build_base
+  tags:
+    - shell
+
+build_images:
+  script:
+    - docker-compose -f docker-compose.prod.yml build
+  stage: build
+  tags:
+    - shell
+  dependencies:
+    - build_docs
+    - build_teleferic
+
+push_images:
+  script:
+    - docker-compose -f docker-compose.prod.yml push
+  stage: push
+  tags:
+    - shell
+  only:
+    - version/0.1
+
+#deploy:
+#  script:
+#    - docker stack deploy -c docker-compose.prod.yml himalaya_dev --with-registry-auth
+#  stage: deploy
+#  tags:
+#    - shell
+#  only:
+#    - "version/0.1"
+
+stages:
+  - test
+  - build_base
+  - build
+  - push
+  - deploy

@@ -1,11 +1,11 @@
 #/bin/bash
 
-coverage run --source='.'  manage.py test API --behave_format behave_teamcity:TeamcityFormatter
+coverage run --source='.'  manage.py test API
 
 coverage html
 
-mkdir -p /code/coverage
+rm -rf /code/coverage/htmlcov
 
-zip -r /code/coverage/coverage.zip htmlcov/ -j htmlcov -m
+mv htmlcov /code/coverage/
 
-rm -R htmlcov
+chmod 777 -R /code/coverage

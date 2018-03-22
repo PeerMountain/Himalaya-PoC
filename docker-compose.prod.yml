@@ -22,7 +22,7 @@ services:
 
   teleferic:
     build: 'Teleferic'
-    image: 'meteoro.dxmarkets.com:5000/himalaya_teleferic:latest'
+    image: 'peer-mountain01:9352/himalaya_teleferic:latest'
     volumes:
       - messages_content:/code/API/Mock/messages
       - containers_content:/code/API/Mock/containers
@@ -44,7 +44,7 @@ services:
 
   gateway:
     build: '.'
-    image: 'meteoro.dxmarkets.com:5000/himalaya_gateway:latest'
+    image: 'peer-mountain01:9352/himalaya_gateway:latest'
     ports:
       - 80:80
       - 443:443
@@ -54,6 +54,8 @@ services:
       - teleferic
     volumes:
       - /etc/ssl/wildcard:/etc/ssl/wildcard
+      - docs:/srv/www/docs
+      - static:/srv/www/haku/static
     deploy:
       replicas: 1
       resources:
@@ -70,3 +72,5 @@ volumes:
   pgdb:
   messages_content:
   containers_content:
+  docs:
+  static: 

@@ -23,6 +23,8 @@ ADD coverage.sh /code/
 
 ADD reset.sh /code/
 
+ADD statics.sh /code/
+
 EXPOSE 8000
 
 ENV PRODUCTION 1
