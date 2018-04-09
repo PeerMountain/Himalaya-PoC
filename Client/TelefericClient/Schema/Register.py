@@ -35,12 +35,13 @@ class Register(MessageEnvelope):
             keyProof=node_cipher.encrypt(inviteKey.encode()),
             inviteName=node_cipher.encrypt(inviteName.encode()),
             publicKey=self.identity.pubkey,
-            publicNickname=nickname
+            publicNickname=nickname,
         )
 
         message_content = MessageContent(
             'REGISTRATION',
-            message_body
+            message_body,
+            encrypt=False
         )
 
         self.message = Message(message_content)
