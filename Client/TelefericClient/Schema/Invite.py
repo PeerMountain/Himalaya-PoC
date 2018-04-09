@@ -50,7 +50,8 @@ class Invite(MessageEnvelope):
 
         message_content = MessageContent(
             'REGISTRATION',
-            message_body
+            message_body,
+            encrypt=False
         )
 
         self.message = Message(message_content)
