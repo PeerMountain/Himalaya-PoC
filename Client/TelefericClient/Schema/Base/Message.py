@@ -1,5 +1,6 @@
 import msgpack
 import base64
+import random
 
 from collections import OrderedDict
 
@@ -26,6 +27,7 @@ class Message():
         self.passphrase = passphrase
         self.readers = readers
         self.objects = objects
+        self.nonce = None
 
     def build(self, identity, client):
         """build
@@ -38,6 +40,8 @@ class Message():
         if not isinstance(self.passphrase, bytes):
             self.passphrase = self.passphrase.encode()
         build_content = self.message_content.build(self.passphrase)
+        self.passphrase = self.message_content.passphrase
+        self.nonce = self.message_content.nonce
         content = {
             'sender': identity.address,
             'messageSign': identity.sign_message(self.message_content.hash,client),
@@ -48,11 +52,15 @@ class Message():
             'message': build_content,
             'objects': self.objects,
         }
-        if not self.readers is None:
+        if self.readers:
             content['ACL'] = [
                 {
                     'reader': reader.address,
-                    'key': RSA(reader.pubkey).encrypt(self.passphrase).decode()
+                    'key': RSA(reader.pubkey).encrypt(
+                        msgpack.packb({
+                            'key': self.passphrase,
+                            'nonce': self.nonce
+                        })).decode()
                 } for reader in self.readers
             ]
         return content

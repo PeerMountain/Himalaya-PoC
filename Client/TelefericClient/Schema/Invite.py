@@ -16,7 +16,7 @@ class Invite(MessageEnvelope):
     MESSAGE_TYPE = 'REGISTRATION'
     MESSAGE_BODY_TYPE = 0
 
-    def compose(self, bootstrapAddr, bootstrapNode, inviteName, offeringAddr, serviceAnnouncementMessage, serviceOfferingID, inviteKey=None):
+    def compose(self, bootstrapAddr, bootstrapNode, inviteName, offeringAddr, serviceAnnouncementMessage, serviceOfferingID, inviteKey=None, inviteNonce=None):
         """compose
 
         Compose an Invite message.
@@ -28,13 +28,15 @@ class Invite(MessageEnvelope):
         :param serviceAnnouncementMessage: 
         :param serviceOfferingID: 
         :param inviteKey: string: Shared secret between inviter and invitee.
+        :param inviteNonce: string: Shared secret between inviter and invitee.
         """
         if inviteKey is None:
             self.inviteKey = self.generate_random_bytes()
         else:
             self.inviteKey = inviteKey
 
-        cipher = AES(self.inviteKey)
+        cipher = AES(self.inviteKey, inviteNonce)
+        self.nonce = cipher.nonce
         encryptedInviteName = cipher.encrypt(inviteName.encode())
 
         # Create the message's body, which is then placed inside the message.
@@ -45,7 +47,8 @@ class Invite(MessageEnvelope):
             inviteName=encryptedInviteName,
             offeringAddr=offeringAddr,
             serviceAnnouncementMessage=serviceAnnouncementMessage,
-            serviceOfferingID=serviceOfferingID
+            serviceOfferingID=serviceOfferingID,
+            public=True
         )
 
         message_content = MessageContent(
