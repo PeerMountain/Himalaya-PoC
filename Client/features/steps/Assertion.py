@@ -197,7 +197,7 @@ def step(context, to_encode, save_as):
         b64decode(to_encode)
     )
 
-@when("generate RSA signature {} using private_key {} of formated signable object {}")
+@when("generate PKCS1 v1.5 signature {} using private_key {} of formated signable object {}")
 @ghernik_vars
 def step(context, save_as, sk_string, to_sign):
     setattr(
@@ -889,7 +889,7 @@ def step(context, encrypted_data, aes_key, save_as):
         cipher.decrypt(encrypted_data)
     )
 
-@then('the signature RSA {} is valid for the pack {} with the public key {} should be valid')
+@then('the signature PKCS1 v1.5 {} is valid for the pack {} with the public key {} should be valid')
 @ghernik_vars
 def step(context, signature, pack, key):
     idn = Identity(key)

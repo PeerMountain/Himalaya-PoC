@@ -38,6 +38,7 @@ class Message():
         if not isinstance(self.passphrase, bytes):
             self.passphrase = self.passphrase.encode()
         build_content = self.message_content.build(self.passphrase)
+        print(identity.pubkey)
         content = {
             'sender': identity.address,
             'messageSign': identity.sign_message(self.message_content.hash,client),
