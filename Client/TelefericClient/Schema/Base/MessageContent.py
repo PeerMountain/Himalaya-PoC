@@ -52,6 +52,11 @@ class MessageContent():
             self.content['signature'] = signature
 
         self.content['dossierSalt'] = self.generate_dossier_salt()
+        self.passphrase = self.nonce = None
+        if encrypt:
+            self.nonce = bytes(random.randint(0, 255) for _ in range(16))
+
+        self.is_public_message = public
 
         self.encrypt = encrypt
 
@@ -74,14 +79,14 @@ class MessageContent():
     def build(self, passphrase):
         """build
 
-        Encrypts the message's contents and generates the various hashes
+        Encrypts the message's contents (if needed) and generates the various hashes
         that will be used for verification.
 
         :param passphrase: string: Key to be used in the message's AES encryption.
+        :param nonce: Nonce to be used when encrypting the data.
         """
+        self.passphrase = passphrase
         self.content['messageBody'] = self.body.build()
-        cipher = AES(passphrase)
-        # AES encrypt the message body's MessagePack representation.
         pack = self.pack()
         build = cipher.encrypt(pack) if self.encrypt else base64.b64encode(pack)
         # Calculate hashes
