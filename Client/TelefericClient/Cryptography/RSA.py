@@ -19,10 +19,20 @@ class RSA():
         return RSA(base64.b64decode(encoded))
 
     def __init__(self, key):
-        if isinstance(key, (str, bytes)):
+
+        if isinstance(key, str):
             self.key = Key.importKey(key)
+
+        elif isinstance(key, bytes):
+            if key.startswith(b'-----BEGIN PUBLIC KEY-----'):
+                self.key = Key.importKey(key.decode())
+            else:
+                decoded_key = base64.b64decode(key)
+                self.key = Key.importKey(decoded_key)
+
         elif isinstance(key, Key.RsaKey):
             self.key = key
+
         else:
             raise Exception('Invalid key format.')
 
@@ -42,7 +52,6 @@ class RSA():
     def verify(self, content, b64_bytes_signature):
         content_hash = SHA256.new(content)
         bytes_signature = base64.b64decode(b64_bytes_signature)
-        import ipdb;ipdb.set_trace()
         try:
             pkcs1_15.new(self.key).verify(content_hash, bytes_signature)
             return True
