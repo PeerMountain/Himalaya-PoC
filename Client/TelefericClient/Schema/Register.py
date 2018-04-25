@@ -36,8 +36,8 @@ class Register(MessageEnvelope):
             self.MESSAGE_BODY_TYPE,
             inviteMsgID=inviteMsgID,
             keyProof=node_cipher.encrypt(msgpack.packb({
-                'key': inviteKey.encode(),
-                'nonce': inviteNonce.encode()
+                'key': inviteKey,
+                'nonce': inviteNonce
             })),
             inviteName=node_cipher.encrypt(inviteName.encode()),
             publicKey=self.identity.pubkey,
