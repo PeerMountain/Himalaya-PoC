@@ -14,7 +14,7 @@ class Message():
     A Teleferic Message.
     """
 
-    def __init__(self, message_content, passphrase='Peer Mountain', readers=None, objects=tuple()):
+    def __init__(self, message_content, passphrase='Peer Mountainnnn', readers=None, objects=tuple()):
         """__init__
 
         Create a message envelope.
