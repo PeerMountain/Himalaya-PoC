@@ -17,7 +17,7 @@ invite.compose(
     offeringAddr='8MSd91xr6jSV5pS29RkV7dLeE3hDgLHJGrsyXpdSf4iitj6c75tVSNESywBzYzFEeyu5D1zyrL',
     serviceAnnouncementMessage='L+ViP+UFnhc6ObWfhugqNZfE+SZkqoS46I4Qbw+NbOY=',
     serviceOfferingID='1',
-    inviteKey='72x35FDOXuTkxivh7qYlqPU91jVgy607'
+    inviteKey='72x35FDOXuTkxivh7qYlqPU91jVgy607',
     inviteNonce=b'testnoncedonotrepeatinprodplease'
 )
 
