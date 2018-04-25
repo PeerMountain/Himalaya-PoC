@@ -56,8 +56,6 @@ class MessageContent():
         if encrypt:
             self.nonce = bytes(random.randint(0, 255) for _ in range(16))
 
-        self.is_public_message = public
-
         self.encrypt = encrypt
 
     def generate_dossier_salt(self):
@@ -87,6 +85,7 @@ class MessageContent():
         """
         self.passphrase = passphrase
         self.content['messageBody'] = self.body.build()
+        cipher = AES(passphrase)
         pack = self.pack()
         build = cipher.encrypt(pack) if self.encrypt else base64.b64encode(pack)
         # Calculate hashes
