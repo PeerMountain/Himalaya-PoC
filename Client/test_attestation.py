@@ -53,12 +53,15 @@ assertion_raw = client.request(query, variables).get('data').get('messageByHash'
 sender_acl = [
     acl for acl in assertion_raw.get('ACL') if acl.get('reader').get('address') == idn_sender.address
 ][0]
-key = idn_sender.decrypt(sender_acl.get('key'))
+
+key_nonce = msgpack.unpackb(idn_sender.decrypt(sender_acl.get('key')))
+key = key_nonce.get(b'key')
+nonce = key_nonce.get(b'nonce')
 
 # Get message and message_body
-message_raw = AES(key).decrypt(assertion_raw.get('message'))
+message_raw = AES(key, nonce).decrypt(assertion_raw.get('message'))
 message = msgpack.unpackb(message_raw)
-message_body = msgpack.unpackb(message.get(b'messageBody'))
+message_body = msgpack.unpackb(base64.b64decode(message.get(b'messageBody')))
 
 assertions = message_body.get(b'assertions')
 attestations = []
@@ -75,16 +78,13 @@ for assertion in assertions:
     metas = assertion.get(b'metas')
     # Validates metaHash and constructs list of attestations
     for index, meta in enumerate(metas):
-        unpacked_meta = msgpack.unpackb(meta)
-
-        meta_type = unpacked_meta.get(b'metaType')
-        meta_value = unpacked_meta.get(b'metaValue')
-        meta_salt = unpacked_meta.get(b'metaSalt')
+        meta_type = meta.get(b'metaType')
+        meta_value = meta.get(b'metaValue')
+        meta_salt = meta.get(b'metaSalt')
 
         meta_validation = OrderedDict()
         meta_validation['metaType'] = meta_type
         meta_validation['metaValue'] = meta_value
-        meta_validation['metaSalt'] = meta_salt
 
         packed_meta_validation = msgpack.packb(meta_validation)
         salted_meta_hash = base64.b64encode(
