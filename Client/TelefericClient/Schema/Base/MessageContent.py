@@ -85,7 +85,7 @@ class MessageContent():
         """
         self.passphrase = passphrase
         self.content['messageBody'] = self.body.build()
-        cipher = AES(passphrase)
+        cipher = AES(passphrase, self.nonce)
         pack = self.pack()
         build = cipher.encrypt(pack) if self.encrypt else base64.b64encode(pack)
         # Calculate hashes
