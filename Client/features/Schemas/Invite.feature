@@ -121,7 +121,7 @@ Feature: Invitation Message
         timestamp: [encoded_teleferic_signed_timestamp],
       """
         And we pack [signable_object] with message pack as packed_signable_object
-        And we sign [packed_signable_object] using RSA with key [sender_key] as message_body_base_signature
+    And we sign [packed_signable_object] using PKCS1 v1.5 with key [sender_key] as message_body_base_signature
       Then we compose signable_object with following keys
       """
         signature: [message_body_base_signature],

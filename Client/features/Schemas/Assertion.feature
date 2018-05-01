@@ -385,7 +385,7 @@ Feature: Assertion Message
             timestamp: [retrieved_message_signature_timestamp],
         """
             And we pack [verification_signature_object] with message pack as packed_verification_signature_object
-        Then the signature RSA [retrieved_message_signature_signature] is valid for the pack [packed_verification_signature_object] with the public key [sender_pub_key] should be valid
+        Then the signature PKCS1 v1.5 [retrieved_message_signature_signature] is valid for the pack [packed_verification_signature_object] with the public key [sender_pub_key] should be valid
 
         #Get message key
         When we get key from ACL for our address as reader_encrypted_message_key
@@ -423,7 +423,7 @@ Feature: Assertion Message
             timestamp: [retrieved_body_signature_timestamp],
         """
             And we pack [verification_signature_object] with message pack as packed_verification_signature_object
-        Then the signature RSA [retrieved_body_signature_signature] is valid for the pack [packed_verification_signature_object] with the public key [sender_pub_key] should be valid
+        Then the signature PKCS1 v1.5 [retrieved_body_signature_signature] is valid for the pack [packed_verification_signature_object] with the public key [sender_pub_key] should be valid
     
         #Message body
         Given property messageBody from [unpacked_retrieved_message_content] as retrieved_message_body    
@@ -484,7 +484,7 @@ Feature: Assertion Message
             timestamp: [retrieved_container_signature_timestamp],
         """
             And we pack [verification_signature_object] with message pack as packed_verification_signature_object
-        Then the signature RSA [retrieved_container_signature_signature] is valid for the pack [packed_verification_signature_object] with the public key [subject_public_key] should be valid
+        Then the signature PKCS1 v1.5 [retrieved_container_signature_signature] is valid for the pack [packed_verification_signature_object] with the public key [subject_public_key] should be valid
 
         #Verify object signature
         Given property objectSign from [assertion] as retrieved_object_signature    
@@ -499,7 +499,7 @@ Feature: Assertion Message
             timestamp: [retrieved_object_signature_timestamp],
         """
             And we pack [verification_signature_object] with message pack as packed_verification_signature_object
-        Then the signature RSA [retrieved_object_signature_signature] is valid for the pack [packed_verification_signature_object] with the public key [subject_public_key] should be valid
+        Then the signature PKCS1 v1.5 [retrieved_object_signature_signature] is valid for the pack [packed_verification_signature_object] with the public key [subject_public_key] should be valid
             
         #Verify MetaHashes
         Given property metas from [assertion] as meta_list
