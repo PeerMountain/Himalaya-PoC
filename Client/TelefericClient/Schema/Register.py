@@ -1,3 +1,5 @@
+import msgpack
+
 from .Base import Message, MessageContent, MessageBody, MessageEnvelope
 
 from TelefericClient.Cryptography import AES, RSA
@@ -15,13 +17,14 @@ class Register(MessageEnvelope):
     MESSAGE_TYPE = 'REGISTRATION'
     MESSAGE_BODY_TYPE = 1
 
-    def compose(self, inviteMsgID, inviteKey, inviteName, nickname):
+    def compose(self, inviteMsgID, inviteKey, inviteNonce, inviteName, nickname):
         """compose
 
         Compose the registration message.
 
         :param inviteMsgID: ID of the Invite message the client received.
         :param inviteKey: string: Key of the invite. Shared secret between inviter and invitee.
+        :param inviteNonce: string: Nonce of the invite. Shared secret between inviter and invitee.
         :param inviteName: string: Name of the invite. Shared secret between inviter and invitee.
         :param nickname: Undocumented parameter.
         """
@@ -32,7 +35,10 @@ class Register(MessageEnvelope):
         message_body = MessageBody(
             self.MESSAGE_BODY_TYPE,
             inviteMsgID=inviteMsgID,
-            keyProof=node_cipher.encrypt(inviteKey.encode()),
+            keyProof=node_cipher.encrypt(msgpack.packb({
+                'key': inviteKey.encode(),
+                'nonce': inviteNonce.encode()
+            })),
             inviteName=node_cipher.encrypt(inviteName.encode()),
             publicKey=self.identity.pubkey,
             publicNickname=nickname,
