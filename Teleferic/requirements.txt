@@ -6,6 +6,7 @@ base58==0.2.5
 behave-teamcity==0.1.25
 behave==1.2.5
 coverage==4.4.1
+pycryptodomex==3.6.1
 django-behave==0.1.5
 django-cors-headers==2.1.0
 graphene-django==2.0.0
