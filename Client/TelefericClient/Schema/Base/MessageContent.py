@@ -56,8 +56,6 @@ class MessageContent():
         if encrypt:
             self.nonce = bytes(random.randint(0, 255) for _ in range(16))
 
-        self.is_public_message = public
-
         self.encrypt = encrypt
 
     def generate_dossier_salt(self):
