@@ -1,27 +1,37 @@
-from Crypto.Hash import RIPEMD, SHA256
-from Crypto.PublicKey import RSA as Key
-from Crypto.PublicKey.RSA import _RSAobj
-from Crypto import Random
-import base58
 import base64
-import msgpack
-
 from collections import OrderedDict
 
+import base58
+from Cryptodome import Random
+from Cryptodome.Hash import RIPEMD, SHA256
+from Cryptodome.PublicKey import RSA as Key
+
 from .RSA import RSA
+
 ADDRESS_PREFIX = [1, 0]
 
 class Identity():
+    """Identity
+
+    Class used for handling identity related tasks such as
+    RSA encryption/decryption and calculation of addresses
+    """
 
     def __init__(self, key=None):
+        """__init__
+
+        Initialize an Identity instance using a public or private key.
+        If none is supplied, generates a fresh key pair.
+
+        :param key: String containing an RSA public or private key.
+        """
         if key is None:
             rng = Random.new().read
             self.key = Key.generate(4096, rng)
         else:
-            key_type = type(key)
-            if key_type in (str, bytes):
-                self.key = Key.importKey(key.strip())
-            elif key_type == _RSAobj:
+            if isinstance(key, (str, bytes)):
+                self.key = Key.import_key(key.strip())
+            elif isinstance(key, Key.RsaKey):
                 self.key = key
             else:
                 raise Exception('Invalid key format.')
@@ -29,6 +39,10 @@ class Identity():
 
     @property
     def address(self):
+        """address
+
+        Calculate this Identity's address.
+        """
         # The public key of the pair is hashed SHA-256.
         step_1 = SHA256.new(self.key.publickey().exportKey()).digest()
         # The resulting Hash is further hashed with RIPEMD-160.
@@ -80,24 +94,3 @@ class Identity():
             return self.rsa.decrypt(content)
         else:
             return False
-
-    def sign_message(self, message_hash):
-        if type(message_hash) is str:
-            message_hash = message_hash.encode()
-
-        # TODO: Fix circular import
-        from API.Mock import Teleferic_Identity
-        node_signed_timestamp = base64.b64encode(msgpack.packb(
-            Teleferic_Identity.sign_current_timestamp()
-        )).decode()
-
-        signable_object = OrderedDict()
-        signable_object['messageHash'] = message_hash
-        signable_object['timestamp'] = node_signed_timestamp
-        
-        signable_object = msgpack.packb(signable_object)
-
-        return base64.b64encode(msgpack.packb({
-            'signature': self.sign(signable_object),
-            'timestamp': node_signed_timestamp
-        })).decode()
