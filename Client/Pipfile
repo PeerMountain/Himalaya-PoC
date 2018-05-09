@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[dev-packages]
+pylint = "*"
+ipdb = "*"
+ipython = "*"
+
+[packages]
+pycrypto = "==2.6.1"
+behave = "==1.2.5"
+"base58" = "==0.2.5"
+msgpack-python = "==0.4.8"
+requests = "==2.18.4"
+pycryptodomex = "*"

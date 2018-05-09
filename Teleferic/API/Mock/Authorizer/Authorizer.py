@@ -58,11 +58,9 @@ def authorize_message(envelope):
     if envelope.get('messageType') == MessageTypes.REGISTRATION:
         try:
             public_cipher = AES(PUBLIC_AES_KEY)
-            message = envelope.get('message')
-            message_content_raw = public_cipher.decrypt(message)
-            
+            message = base64.b64decode(envelope.get('message'))
             # Parse message
-            message_content = msgpack.unpackb(message_content_raw)
+            message_content = msgpack.unpackb(message)
             logging.warning(repr(message_content.get(b'bodyType')))
             if message_content.get(b'bodyType') == BodyTypes.Registration.REGISTRATION:
                 check_sender = False
@@ -71,7 +69,7 @@ def authorize_message(envelope):
                 sender_pubkey = message_body.get(b'publicKey').decode()
         except Exception as e:
             raise Exception(
-                'Invalid public message content passphrase, should be {}'.format(PUBLIC_AES_KEY)
+                'Invalid public message content.'
             )
 
     if check_sender:
@@ -110,12 +108,9 @@ def authorize_message(envelope):
     else:
         
         # Validate Pulic Message
-        # Decrypt
-        public_cipher = AES(PUBLIC_AES_KEY)
         try:
             # Parse message
-            message_content_raw = public_cipher.decrypt(message)
-            message_content = msgpack.unpackb(message_content_raw)
+            message_content = msgpack.unpackb(base64.b64decode(message))
         except Exception as e:
             raise Exception('Invalid public message content.')
 
@@ -134,7 +129,7 @@ def authorize_message(envelope):
 
         # Validate dossierHash
         dossier_hash = envelope.get('dossierHash')
-        if dossier_hash != HMAC.new(dossier_salt, message_content_raw, SHA256).digest():
+        if dossier_hash != HMAC.new(dossier_salt, message, SHA256).digest():
             raise Exception('Invalid dossierHash.')
 
         # Parse message body
@@ -168,7 +163,7 @@ def validate_registration(message_body):
     invite_message = Reader.get_message_content(decode_hash(invite_message_hash))
     public_cipher = AES(PUBLIC_AES_KEY)
     try:
-        invite_message_content_raw = public_cipher.decrypt(invite_message)
+        invite_message_content_raw = base64.b64decode(invite_message)
         # Parse message
         invite_message_content = msgpack.unpackb(
             invite_message_content_raw)

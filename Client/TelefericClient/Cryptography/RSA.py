@@ -42,7 +42,6 @@ class RSA():
     def verify(self, content, b64_bytes_signature):
         content_hash = SHA256.new(content)
         bytes_signature = base64.b64decode(b64_bytes_signature)
-        import ipdb;ipdb.set_trace()
         try:
             pkcs1_15.new(self.key).verify(content_hash, bytes_signature)
             return True

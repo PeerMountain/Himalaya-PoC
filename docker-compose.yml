@@ -19,6 +19,7 @@ services:
     image: 'peer-mountain01:5005/poc/teleferic:latest'
     volumes:
       - messages_content:/code/API/Mock/messages
+      - ./Teleferic:/code
     networks:
       - pgdb
       - teleferic
@@ -48,7 +49,7 @@ services:
     links:
       - teleferic
     volumes:
-      - /etc/ssl/wildcard:/etc/ssl/wildcard
+      - ./certs:/etc/ssl/wildcard
     deploy:
       replicas: 5
       resources:

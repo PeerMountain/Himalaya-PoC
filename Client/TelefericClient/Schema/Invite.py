@@ -16,7 +16,7 @@ class Invite(MessageEnvelope):
     MESSAGE_TYPE = 'REGISTRATION'
     MESSAGE_BODY_TYPE = 0
 
-    def compose(self, bootstrapAddr, bootstrapNode, inviteName, offeringAddr, serviceAnnouncementMessage, serviceOfferingID, inviteKey=None, inviteNonce=None):
+    def compose(self, bootstrapAddr, bootstrapNode, inviteName, offeringAddr, serviceAnnouncementMessage, serviceOfferingID, inviteKey : bytes = None):
         """compose
 
         Compose an Invite message.
@@ -35,8 +35,7 @@ class Invite(MessageEnvelope):
         else:
             self.inviteKey = inviteKey
 
-        cipher = AES(self.inviteKey, inviteNonce)
-        self.nonce = cipher.nonce
+        cipher = AES(self.inviteKey)
         encryptedInviteName = cipher.encrypt(inviteName.encode())
 
         # Create the message's body, which is then placed inside the message.
@@ -47,14 +46,12 @@ class Invite(MessageEnvelope):
             inviteName=encryptedInviteName,
             offeringAddr=offeringAddr,
             serviceAnnouncementMessage=serviceAnnouncementMessage,
-            serviceOfferingID=serviceOfferingID,
-            public=True
+            serviceOfferingID=serviceOfferingID
         )
 
         message_content = MessageContent(
             'REGISTRATION',
-            message_body,
-            encrypt=False
+            message_body
         )
 
         self.message = Message(message_content)

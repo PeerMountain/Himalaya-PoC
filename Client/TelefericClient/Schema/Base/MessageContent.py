@@ -2,7 +2,7 @@ import msgpack
 import base64
 import random
 
-from Crypto.Hash import HMAC, SHA256
+from Cryptodome.Hash import HMAC, SHA256
 
 from collections import OrderedDict
 
@@ -21,7 +21,7 @@ class MessageContent():
 
     content = OrderedDict()
 
-    def __init__(self, message_type, message_body, service_id=None, consumer_id=None, signature=None, encrypt=True):
+    def __init__(self, message_type, message_body, service_id=None, consumer_id=None, signature=None, passphrase=None):
         """__init__
 
         Create a MessageContent object and prepare the content for encryption.
@@ -52,11 +52,14 @@ class MessageContent():
             self.content['signature'] = signature
 
         self.content['dossierSalt'] = self.generate_dossier_salt()
-        self.passphrase = self.nonce = None
-        if encrypt:
-            self.nonce = bytes(random.randint(0, 255) for _ in range(16))
+        self.passphrase = None
+        
+        self.encrypt = not passphrase is None
+        if self.encrypt :
+            #If we don't leave and empty espace, paddig add a whole new block
+            self.passphrase = passphrase
+            self.cipher = AES(self.passphrase)
 
-        self.encrypt = encrypt
 
     def generate_dossier_salt(self):
         """generate_dossier_salt
@@ -74,22 +77,20 @@ class MessageContent():
         """
         return msgpack.packb(self.content)
 
-    def build(self, passphrase):
+    def build(self):
         """build
 
         Encrypts the message's contents (if needed) and generates the various hashes
         that will be used for verification.
-
-        :param passphrase: string: Key to be used in the message's AES encryption.
-        :param nonce: Nonce to be used when encrypting the data.
         """
-        self.passphrase = passphrase
         self.content['messageBody'] = self.body.build()
         pack = self.pack()
-        build = cipher.encrypt(pack) if self.encrypt else base64.b64encode(pack)
+        
+        build = self.cipher.encrypt(pack) if self.encrypt else base64.b64encode(pack)
+        
         # Calculate hashes
         self.hash = base64.b64encode(SHA256.new(build).digest()).decode()
         salt = base64.b64decode(self.content['dossierSalt'])
         self.hmac = base64.b64encode(HMAC.new(
-            salt, pack, SHA256).digest()).decode()
+            salt, build, SHA256).digest()).decode()
         return build.decode()
